@@ -105,6 +105,32 @@ abstract class ProviderFactory
     const PROVIDER_TYPE_SECRET = "secrets";
     const PROVIDER_TYPE_EMAIL  = "email";
 
+    const VERTWO_CLASS_PREFIX = "vertwo_class_prefix";
+
+
+
+    /**
+     * Expects web server to have 'vertwo_class_prefix' as an
+     * environment variable available to PHP via $_SERVER.
+     *
+     * Then, uses that value to instantiate the relevant
+     * ProviderFactory subclass.
+     *
+     * @return ProviderFactory
+     * @throws Exception
+     */
+    public static function loadProviderFactory ()
+    {
+        $prefix    = $_SERVER[self::VERTWO_CLASS_PREFIX];
+        $className = $prefix . "ProviderFactory";
+
+        clog("Creating Provider Factory", $className);
+
+        if ( !class_exists($className) ) throw new Exception("Cannot load Provider Factory: [ " . $className . " ]");
+
+        return new $className();
+    }
+
 
 
     private $localPathPrefix = self::DEFAULT_LOCAL_PATH_PREFIX;
