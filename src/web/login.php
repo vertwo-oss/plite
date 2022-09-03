@@ -25,7 +25,6 @@
 
 
 
-use vertwo\plite\Web\Ajax;
 use vertwo\plite\Web\VertwoTemplate;
 use function vertwo\plite\clog;
 
@@ -34,11 +33,6 @@ use function vertwo\plite\clog;
 require_once(__DIR__ . "/../../vendor/autoload.php"); // FIXME
 
 
-
-//$ajax     = new Ajax();
-//$pfPrefix = $ajax->testBoth("pf");
-//$pfName   = $pfPrefix . "ProviderFactory";
-//clog("pf name", $pfName);
 
 try
 {
@@ -49,6 +43,8 @@ catch ( Exception $e )
     clog($e);
     clog("Could not instantiate Plite Template class.");
 }
+
+
 
 ?>
 <html lang="en">
