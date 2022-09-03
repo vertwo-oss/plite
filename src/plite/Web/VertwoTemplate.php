@@ -13,6 +13,10 @@ use function vertwo\plite\clog;
 
 class VertwoTemplate
 {
+    const DEBUG_INIT = false;
+
+
+
     static $wl_title;
     static $wl_name;
     static $wl_logo;
@@ -24,13 +28,13 @@ class VertwoTemplate
 
     public static function init ( $pfPrefix = false )
     {
-        clog("pfPrefix", $pfPrefix);
+        if ( self::DEBUG_INIT ) clog("pfPrefix", $pfPrefix);
 
         $ajax = new Ajax();
         if ( false === $pfPrefix ) $pfPrefix = $ajax->testBoth("pf");
         $pfName = $pfPrefix . "ProviderFactory";
 
-        clog("pf name", $pfName);
+        if ( self::DEBUG_INIT ) clog("pf name", $pfName);
 
         /** @var ProviderFactory $pf */
         $pf = new $pfName();
@@ -42,12 +46,12 @@ class VertwoTemplate
         self::$wl_copyright      = $pf->get("wl_copyright_notice");
         self::$wl_use_powered_by = $pf->get("wl_using_powered_by_v2");
 
-        clog("white-label title", self::$wl_title);
-        clog("white-label name", self::$wl_name);
-        clog("white-label logo", self::$wl_logo);
-        clog("white-label bg", self::$wl_bg);
-        clog("white-label copyright", self::$wl_copyright);
-        clog("white-label use_pbv2", self::$wl_use_powered_by);
+        if ( self::DEBUG_INIT ) clog("white-label title", self::$wl_title);
+        if ( self::DEBUG_INIT ) clog("white-label name", self::$wl_name);
+        if ( self::DEBUG_INIT ) clog("white-label logo", self::$wl_logo);
+        if ( self::DEBUG_INIT ) clog("white-label bg", self::$wl_bg);
+        if ( self::DEBUG_INIT ) clog("white-label copyright", self::$wl_copyright);
+        if ( self::DEBUG_INIT ) clog("white-label use_pbv2", self::$wl_use_powered_by);
     }
 
 

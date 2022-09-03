@@ -51,7 +51,7 @@ use function vertwo\plite\yellog;
  */
 abstract class WebRouter extends Ajax
 {
-    const DEBUG = true;
+    const DEBUG = false;
 
     const CONFIG_KEY_ROUTING_ROOT = "routing_root";
     const DEFAULT_INPUT_MAXLEN    = 256;
@@ -134,12 +134,12 @@ abstract class WebRouter extends Ajax
             $requri = explode('?', $this->whole, 2);
             $uri    = $this->getRequestWithoutPrefix($this->routingRoot);
 
-            clog("routing root", $this->routingRoot);
-            clog("actual request", $uri);
+            if ( self::DEBUG ) clog("routing root", $this->routingRoot);
+            if ( self::DEBUG ) clog("actual request", $uri);
 
             $pathTokens = explode("/", $uri, 3);
 
-            clog("path tokens", $pathTokens);
+            if ( self::DEBUG ) clog("path tokens", $pathTokens);
 
             $this->page = 2 == count($pathTokens) ? $pathTokens[1] : "";
             $this->path = 3 == count($pathTokens) ? $pathTokens[2] : "";
@@ -162,11 +162,11 @@ abstract class WebRouter extends Ajax
         if ( PHP_SESSION_NONE === session_status() )
         {
             session_start();
-            grnlog("----====[ Session STARTED ]====----");
+            if ( self::DEBUG ) grnlog("----====[ Session STARTED ]====----");
         }
         else
         {
-            yellog("----====[ Session resuming ]====----");
+            if ( self::DEBUG ) yellog("----====[ Session resuming ]====----");
         }
     }
 
@@ -179,7 +179,7 @@ abstract class WebRouter extends Ajax
      */
     function initCacheHeaders ()
     {
-        cynlog("----====[ Disabling Cache ]====----");
+        if ( self::DEBUG ) cynlog("----====[ Disabling Cache ]====----");
         header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Date in the past
         header("Expires: 0"); // Date in the past
         header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
