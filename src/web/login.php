@@ -25,7 +25,7 @@
 
 
 
-use vertwo\plite\Web\VertwoTemplate;
+use vertwo\plite\Web\PliteTemplate;
 use function vertwo\plite\clog;
 
 
@@ -36,7 +36,7 @@ require_once(__DIR__ . "/../../vendor/autoload.php"); // FIXME
 
 try
 {
-    VertwoTemplate::init();
+    PliteTemplate::init();
 }
 catch ( Exception $e )
 {
@@ -52,7 +52,7 @@ catch ( Exception $e )
     <style>
         html {
             background-color: #0a1626;
-            background: <?php echo VertwoTemplate::$css_value_BACKGROUND; ?> no-repeat center center;
+            background: <?php echo PliteTemplate::$css_value_BACKGROUND; ?> no-repeat center center;
             background-size: cover;
         }
 
@@ -86,7 +86,7 @@ catch ( Exception $e )
             margin: 0 auto;
             border-radius: 8px;
             background-color: rgba(128, 128, 128, 0);
-            padding: <?php echo VertwoTemplate::$css_value_PADDING_TOP_LOGO; ?> 32px 32px 32px;
+            padding: <?php echo PliteTemplate::$css_value_PADDING_TOP_LOGO; ?> 32px 32px 32px;
         }
 
         #login_form > div:first-child > img:first-child {
@@ -235,15 +235,15 @@ catch ( Exception $e )
             }
         }
     </style>
-    <title><?php echo VertwoTemplate::$string_html_TITLE; ?></title>
+    <title><?php echo PliteTemplate::$string_html_TITLE; ?></title>
     <script src="js/lib/zepto.min.js"></script>
     <script src="js/vertwo.js"></script>
 </head>
 <body>
 <form id="login_form">
     <div id="login_form_inner">
-        <?php echo VertwoTemplate::$html_elem_LOGO; ?>
-        <h1>Sign in to <b><?php echo VertwoTemplate::$string_APP_NAME; ?></b></h1>
+        <?php echo PliteTemplate::$html_elem_LOGO; ?>
+        <h1>Sign in to <b><?php echo PliteTemplate::$string_APP_NAME; ?></b></h1>
         <div>
             <label>
                 <!--                <img src="http://s.predictus.xyz/res/account.png" alt="profile"/>-->
@@ -282,7 +282,7 @@ catch ( Exception $e )
 </form>
 
 <div id="solid_footer">
-    <?php printf("%s\n", VertwoTemplate::getSolidFooterContents()); ?>
+    <?php printf("%s\n", PliteTemplate::getSolidFooterContents()); ?>
 </div>
 </body>
 <script>

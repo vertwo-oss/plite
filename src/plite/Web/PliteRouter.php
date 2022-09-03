@@ -49,7 +49,7 @@ use function vertwo\plite\yellog;
  *
  * @package vertwo\plite\Web
  */
-abstract class WebRouter extends Ajax
+abstract class PliteRouter extends Ajax
 {
     const DEBUG = false;
 

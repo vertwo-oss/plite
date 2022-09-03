@@ -12,7 +12,7 @@ use function vertwo\plite\clog;
 
 
 
-class VertwoTemplate
+class PliteTemplate
 {
     const DEBUG_INIT = true;
 
