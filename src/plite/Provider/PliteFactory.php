@@ -113,7 +113,8 @@ abstract class PliteFactory
     private static $VERTWO_CLASS_PREFIX = false;
 
     /** @var array|bool $VERTWO_PARAMS */
-    private static $VERTWO_PARAMS = false;
+    private static $VERTWO_PARAMS           = false;
+    private static $VERTWO_HAS_LOCAL_CONFIG = false;
 
 
 
@@ -181,14 +182,14 @@ abstract class PliteFactory
             $localRoot = self::loadEnv(self::ENV_VERTWO_LOCAL_ROOT_KEY)
                          . "/" . self::$VERTWO_APP;
 
-            $hasLocalConfig = false !== $localRoot && file_exists($localRoot) && is_dir($localRoot);
+            self::$VERTWO_HAS_LOCAL_CONFIG = false !== $localRoot && file_exists($localRoot) && is_dir($localRoot);
         }
         else
         {
-            $hasLocalConfig = false;
+            self::$VERTWO_HAS_LOCAL_CONFIG = false;
         }
 
-        if ( $hasLocalConfig )
+        if ( self::$VERTWO_HAS_LOCAL_CONFIG )
         {
             if ( self::DEBUG_ENV ) clog("Loading LOCAL config (from filesystem [ " . $localRoot . " ])...");
             self::$VERTWO_PARAMS = $this->loadLocalConfig($localRoot);
@@ -412,25 +413,25 @@ abstract class PliteFactory
      */
     private function getCredsAWS ()
     {
-        $access = $this->get(self::AWS_ACCESS_ARRAY_KEY);
-        $secret = $this->get(self::AWS_SECRET_ARRAY_KEY);
-
-        if ( self::DEBUG_AWS_CREDS ) clog(self::AWS_ACCESS_ARRAY_KEY, $access);
-
-        try
+        if ( self::$VERTWO_HAS_LOCAL_CONFIG )
         {
-            $params[self::AWS_CREDENTIALS_ARRAY_KEY] = [
-                'key'    => $access,
-                'secret' => $secret,
-            ];
+            $access = $this->get(self::AWS_ACCESS_ARRAY_KEY);
+            $secret = $this->get(self::AWS_SECRET_ARRAY_KEY);
 
-            $access = false;
-            $secret = false;
-        }
-        catch ( Exception $e )
-        {
-            clog($e);
-            clog("Could not initialize local AWS credentials . ");
+            if ( self::DEBUG_AWS_CREDS ) clog(self::AWS_ACCESS_ARRAY_KEY, $access);
+
+            try
+            {
+                $params[self::AWS_CREDENTIALS_ARRAY_KEY] = [
+                    'key'    => $access,
+                    'secret' => $secret,
+                ];
+            }
+            catch ( Exception $e )
+            {
+                clog($e);
+                clog("Could not initialize local AWS credentials . ");
+            }
         }
 
         $params['region']  = self::getAWSRegion();
