@@ -49,7 +49,6 @@ use function vertwo\plite\redlog;
 abstract class ProviderFactory
 {
     const DEBUG_CONFIG_INFO            = true;
-    const DEBUG_CONFIG_INFO_JSON       = false;
     const DEBUG_CONFIG_INFO_WITH_DUMPS = false;
     const DEBUG_DB_CONN                = false;
     const DEBUG_DB_CONN_VERBOSE        = false;
@@ -58,7 +57,8 @@ abstract class ProviderFactory
 
 
 
-    const DEBUG_CREDS_DANGEROUS = false; // DANGER - In __PRODUCTION__, this must be set to (false)!!!!!
+    const DEBUG_CONFIG_INFO_JSON = false; // DANGER - In __PRODUCTION__, this must be set to (false)!!!!!
+    const DEBUG_CREDS_DANGEROUS  = false; // DANGER - In __PRODUCTION__, this must be set to (false)!!!!!
 
 
 
