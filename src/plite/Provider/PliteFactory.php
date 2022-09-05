@@ -175,7 +175,9 @@ abstract class PliteFactory
     {
         self::$VERTWO_APP          = self::loadEnv(self::ENV_VERTWO_APP_KEY);
         self::$VERTWO_CLASS_PREFIX = self::loadEnv(self::ENV_VERTWO_CLASS_PREFIX_KEY);
-        $localRoot                 = self::loadEnv(self::ENV_VERTWO_LOCAL_ROOT_KEY);
+
+        $localRoot = self::loadEnv(self::ENV_VERTWO_LOCAL_ROOT_KEY)
+                     . "/" . self::$VERTWO_APP;
 
         $hasLocalConfig = false !== $localRoot && file_exists($localRoot) && is_dir($localRoot);
 
