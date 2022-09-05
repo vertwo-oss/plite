@@ -7,8 +7,10 @@ namespace vertwo\plite\Web;
 
 
 use Exception;
+use vertwo\plite\Provider\PliteFactory;
 use vertwo\plite\Provider\ProviderFactory;
 use function vertwo\plite\clog;
+use function vertwo\plite\yelulog;
 
 
 
@@ -33,7 +35,7 @@ class PliteTemplate
     {
         try
         {
-            $pf = ProviderFactory::loadProviderFactory();
+            $pf = PliteFactory::loadFactory();
 
             self::$string_html_TITLE          = $pf->get("wl_title");
             self::$string_APP_NAME            = $pf->get("wl_name");
@@ -45,8 +47,7 @@ class PliteTemplate
         }
         catch ( Exception $e )
         {
-            clog($e);
-            clog("Could not instantiate Provider Factory; using DEFAULT values.");
+            yelulog("Could not instantiate PliteFactory; using DEFAULT values.");
 
             self::$string_html_TITLE          = "Unknown App";
             self::$string_APP_NAME            = "Unknown App";

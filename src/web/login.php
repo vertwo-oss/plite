@@ -27,7 +27,6 @@
 
 
 use vertwo\plite\Web\PliteTemplate;
-use function vertwo\plite\clog;
 
 
 
@@ -35,15 +34,7 @@ require_once(__DIR__ . "/../../vendor/autoload.php"); // FIXME
 
 
 
-try
-{
-    PliteTemplate::init();
-}
-catch ( Exception $e )
-{
-    clog($e);
-    clog("Could not instantiate Plite Template class.");
-}
+PliteTemplate::init();
 
 
 
