@@ -289,7 +289,15 @@ abstract class ProviderFactory
 
     private function hasLocalConfig ()
     {
-        return file_exists($this->getConfigFilePath());
+        $configFilePath = $this->getConfigFilePath();
+
+        if ( self::DEBUG_CONFIG_INFO ) clog("Testing for config file presence", $configFilePath);
+
+        $doesExist = file_exists($configFilePath);
+
+        if ( self::DEBUG_CONFIG_INFO ) clog("Does path exist (from PHP's view)", $doesExist);
+
+        return $doesExist;
     }
 
 
