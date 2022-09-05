@@ -29,9 +29,6 @@ class PliteTemplate
 
 
 
-    /**
-     * @throws Exception
-     */
     public static function init ()
     {
         try
