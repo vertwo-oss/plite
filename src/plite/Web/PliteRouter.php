@@ -26,7 +26,7 @@ namespace vertwo\plite\Web;
 use Exception;
 use vertwo\plite\FJ;
 use vertwo\plite\Log;
-use vertwo\plite\Provider\ProviderFactory;
+use vertwo\plite\Provider\PliteFactory;
 use function vertwo\plite\clog;
 use function vertwo\plite\cynlog;
 use function vertwo\plite\grnlog;
@@ -76,7 +76,7 @@ abstract class PliteRouter extends Ajax
      * @return Ajax
      * @throws Exception
      */
-    public static function loadRouter () { return ProviderFactory::loadPrefixedClass("Router"); }
+    public static function loadRouter () { return PliteFactory::loadPrefixedClass("Router"); }
 
 
 
@@ -114,13 +114,16 @@ abstract class PliteRouter extends Ajax
     /**
      * RoutedAjax constructor.
      *
-     * @param ProviderFactory $pf
+     * @throws Exception
      */
-    function __construct ( $pf )
+    function __construct ()
     {
         parent::__construct();
 
-        $this->routingRoot = $pf->get(self::CONFIG_KEY_ROUTING_ROOT);
+        $pf                = PliteFactory::newInstance();
+        $this->routingRoot = $pf->has(self::CONFIG_KEY_ROUTING_ROOT)
+            ? $pf->get(self::CONFIG_KEY_ROUTING_ROOT)
+            : "";
 
         $isWorkerEnv = $this->isAWSWorkerEnv();
         $env         = $isWorkerEnv ? "SQS" : "Web";
@@ -207,6 +210,8 @@ abstract class PliteRouter extends Ajax
 
     function getRequestWithoutPrefix ( $prefix )
     {
+        if ( false === $prefix || null === $prefix ) return "";
+
         if ( FJ::startsWith($prefix, $this->whole) )
         {
             return substr($this->whole, strlen($prefix));
