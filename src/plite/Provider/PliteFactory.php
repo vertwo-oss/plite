@@ -176,11 +176,18 @@ abstract class PliteFactory
         self::$VERTWO_APP          = self::loadEnv(self::ENV_VERTWO_APP_KEY);
         self::$VERTWO_CLASS_PREFIX = self::loadEnv(self::ENV_VERTWO_CLASS_PREFIX_KEY);
 
-        $localRoot = self::loadEnv(self::ENV_VERTWO_LOCAL_ROOT_KEY)
-                     . "/" . self::$VERTWO_APP;
+        if ( self::hasEnv(self::ENV_VERTWO_LOCAL_ROOT_KEY) )
+        {
+            $localRoot = self::loadEnv(self::ENV_VERTWO_LOCAL_ROOT_KEY)
+                         . "/" . self::$VERTWO_APP;
 
-        $hasLocalConfig = false !== $localRoot && file_exists($localRoot) && is_dir($localRoot);
-
+            $hasLocalConfig = false !== $localRoot && file_exists($localRoot) && is_dir($localRoot);
+        }
+        else
+        {
+            $hasLocalConfig = false;
+        }
+        
         if ( $hasLocalConfig )
         {
             if ( self::DEBUG_ENV ) clog("Loading LOCAL config (from filesystem [ " . $localRoot . " ])...");
@@ -214,6 +221,20 @@ abstract class PliteFactory
         if ( self::DEBUG_ENV ) clog("ENV $key", $val);
 
         return $val;
+    }
+
+
+
+    /**
+     * Determines if a key exists in the WebServer Environment.
+     *
+     * @param $key - Environment variable name.
+     *
+     * @return boolean - Does environment variable exist?
+     */
+    private static function hasEnv ( $key )
+    {
+        return array_key_exists($key, $_SERVER);
     }
 
 
