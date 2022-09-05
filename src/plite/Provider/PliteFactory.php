@@ -952,7 +952,7 @@ abstract class PliteFactory
         if ( self::DEBUG_SECRETS_MANAGER ) $this->dump();
 
         $provKey = self::PROVIDER_TYPE_SECRET . "_provider";
-        $source  = $params[$provKey];
+        $source  = $this->get($provKey);
 
         switch ( $source )
         {
@@ -960,7 +960,7 @@ abstract class PliteFactory
                 return $this->getSecretFromCloud($secretName);
 
             default:
-                return $this->getSecretLocally($secretName, $params);
+                return $this->getSecretLocally($secretName);
         }
     }
 
@@ -975,14 +975,16 @@ abstract class PliteFactory
     {
         clog("Looking for local secret", $secretName);
 
-        if ( !array_key_exists($secretName, $params) )
+        if ( $this->has($secretName) )
         {
-            if ( self::DEBUG_SECRETS_MANAGER ) clog($secretName, $params);
+            return $this->get($secretName);
+        }
+        else
+        {
+            if ( self::DEBUG_SECRETS_MANAGER ) $this->dump($secretName);
 
             throw new Exception("Cannot find secret [ $secretName ] in local AUTH params.");
         }
-
-        return $params[$secretName];
     }
 
 
