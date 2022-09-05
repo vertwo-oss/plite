@@ -48,11 +48,12 @@ use function vertwo\plite\redlog;
 
 abstract class ProviderFactory
 {
-    const DEBUG_CONFIG_INFO     = true;
-    const DEBUG_DB_CONN         = false;
-    const DEBUG_DB_CONN_VERBOSE = false;
-    const DEBUG_SECRETS_MANAGER = true;
-    const DEBUG_AWS_CREDS       = false;
+    const DEBUG_CONFIG_INFO            = true;
+    const DEBUG_CONFIG_INFO_WITH_DUMPS = false;
+    const DEBUG_DB_CONN                = false;
+    const DEBUG_DB_CONN_VERBOSE        = false;
+    const DEBUG_SECRETS_MANAGER        = true;
+    const DEBUG_AWS_CREDS              = false;
 
 
 
@@ -324,7 +325,7 @@ abstract class ProviderFactory
             return [];
         }
 
-        if ( self::DEBUG_CONFIG_INFO ) Log::dump();
+        if ( self::DEBUG_CONFIG_INFO_WITH_DUMPS ) Log::dump();
         if ( self::DEBUG_CONFIG_INFO ) clog("Trying to load config file", $file);
 
         $json = file_get_contents($file);
