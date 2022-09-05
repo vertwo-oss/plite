@@ -23,6 +23,7 @@ namespace vertwo\plite\Web;
 
 
 
+use Exception;
 use vertwo\plite\FJ;
 use vertwo\plite\Log;
 use vertwo\plite\Provider\ProviderFactory;
@@ -62,6 +63,20 @@ abstract class PliteRouter extends Ajax
     protected $query;
 
     private $routingRoot;
+
+
+
+    /**
+     * Expects web server to have 'vertwo_class_prefix' as an
+     * environment variable available to PHP via $_SERVER.
+     *
+     * Then, uses that value to instantiate the relevant
+     * Router subclass.
+     *
+     * @return Ajax
+     * @throws Exception
+     */
+    public static function loadRouter () { return ProviderFactory::loadPrefixedClass("Router"); }
 
 
 

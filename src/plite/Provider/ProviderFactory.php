@@ -114,22 +114,41 @@ abstract class ProviderFactory
      * environment variable available to PHP via $_SERVER.
      *
      * Then, uses that value to instantiate the relevant
+     * given subclass.
+     *
+     * @param string $clazz - Name of type, after prefix (e.g., "ProviderFactory", "Router")
+     *
+     * @return mixed
+     * @throws Exception
+     */
+    public static function loadPrefixedClass ( $clazz )
+    {
+        $prefix = trim(FJ::stripSpaces($_SERVER[self::VERTWO_CLASS_PREFIX]));
+
+        if ( strlen($prefix) <= 0 ) throw new Exception ("No [ vertwo_class_prefix ] from ENV provided.");
+
+        $className = $prefix . $clazz;
+
+        clog("Instantiating $clazz sublcass", $className);
+
+        if ( !class_exists($className) ) throw new Exception("Cannot load $clazz: [ " . $className . " ]");
+
+        return new $className();
+    }
+
+
+
+    /**
+     * Expects web server to have 'vertwo_class_prefix' as an
+     * environment variable available to PHP via $_SERVER.
+     *
+     * Then, uses that value to instantiate the relevant
      * ProviderFactory subclass.
      *
      * @return ProviderFactory
      * @throws Exception
      */
-    public static function loadProviderFactory ()
-    {
-        $prefix    = $_SERVER[self::VERTWO_CLASS_PREFIX];
-        $className = $prefix . "ProviderFactory";
-
-        clog("Creating Provider Factory", $className);
-
-        if ( !class_exists($className) ) throw new Exception("Cannot load Provider Factory: [ " . $className . " ]");
-
-        return new $className();
-    }
+    public static function loadProviderFactory () { return self::loadPrefixedClass("ProviderFactory"); }
 
 
 
