@@ -187,7 +187,7 @@ abstract class PliteFactory
         {
             $hasLocalConfig = false;
         }
-        
+
         if ( $hasLocalConfig )
         {
             if ( self::DEBUG_ENV ) clog("Loading LOCAL config (from filesystem [ " . $localRoot . " ])...");
