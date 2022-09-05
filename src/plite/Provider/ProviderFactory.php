@@ -316,6 +316,8 @@ abstract class ProviderFactory
             return [];
         }
 
+        if ( self::DEBUG_CONFIG_INFO ) clog("Trying to load Config File", $file);
+
         $json = file_get_contents($file);
 
         if ( self::DEBUG_CONFIG_INFO ) clog("config(json)", $json);
