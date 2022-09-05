@@ -48,7 +48,7 @@ use function vertwo\plite\redlog;
 
 abstract class ProviderFactory
 {
-    const DEBUG_CONFIG_INFO     = false;
+    const DEBUG_CONFIG_INFO     = true;
     const DEBUG_DB_CONN         = false;
     const DEBUG_DB_CONN_VERBOSE = false;
     const DEBUG_SECRETS_MANAGER = true;
@@ -260,9 +260,28 @@ abstract class ProviderFactory
 
 
 
-    private function getConfigFilePath () { return $this->getPathPrefix(self::PATH_COMPONENT_CONFIG) . $this->getPathFilename(self::FILE_CONFIG); }
-    private function getAuthFileName () { return $this->getPathFilename(self::FILE_CREDS); }
-    private function getAuthFilePath () { return $this->getPathPrefix(self::PATH_COMPONENT_CREDS) . $this->getAuthFileName(); }
+    private function getConfigFilePath ()
+    {
+        $filePath = $this->getPathPrefix(self::PATH_COMPONENT_CONFIG) .
+                    $this->getPathFilename(self::FILE_CONFIG);
+
+        if ( self::DEBUG_CONFIG_INFO ) clog("CONFIG file path", $filePath);
+
+        return $filePath;
+    }
+    private function getAuthFileName ()
+    {
+        return $this->getPathFilename(self::FILE_CREDS);
+    }
+    private function getAuthFilePath ()
+    {
+        $filePath = $this->getPathPrefix(self::PATH_COMPONENT_CREDS) .
+                    $this->getAuthFileName();
+
+        if ( self::DEBUG_CONFIG_INFO ) clog("AUTH file path", $filePath);
+
+        return $filePath;
+    }
     private function getPathPrefix ( $component ) { return $this->localPathPrefix . $this->getAppName() . $component; }
     private function getPathFilename ( $file ) { return $this->getAppName() . "-" . $file . ".js"; }
 
