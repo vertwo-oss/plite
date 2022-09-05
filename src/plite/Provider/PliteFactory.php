@@ -27,6 +27,7 @@ use Aws\Exception\AwsException;
 use Aws\S3\S3Client;
 use Aws\SecretsManager\SecretsManagerClient;
 use Aws\Ses\SesClient;
+use Aws\WorkSpaces\Exception\WorkSpacesException;
 use Exception;
 use vertwo\plite\FJ;
 use vertwo\plite\integrations\TrelloIntegration;
@@ -407,12 +408,18 @@ abstract class PliteFactory
      * pickup the role credentials.  This will work on EC2, and with the
      * command line.
      *
-     * @param array|bool $params
-     *
      * @return array
+     *
+     * @throws Exception - Happens when it's LOCAL config, but no AWS
+     * credentials are present.
      */
     private function getCredsAWS ()
     {
+        $creds = [
+            'region'  => self::getAWSRegion(),
+            'version' => self::getAWSVersion(),
+        ];
+
         if ( self::$VERTWO_HAS_LOCAL_CONFIG )
         {
             $access = $this->get(self::AWS_ACCESS_ARRAY_KEY);
@@ -420,26 +427,15 @@ abstract class PliteFactory
 
             if ( self::DEBUG_AWS_CREDS ) clog(self::AWS_ACCESS_ARRAY_KEY, $access);
 
-            try
-            {
-                $params[self::AWS_CREDENTIALS_ARRAY_KEY] = [
-                    'key'    => $access,
-                    'secret' => $secret,
-                ];
-            }
-            catch ( Exception $e )
-            {
-                clog($e);
-                clog("Could not initialize local AWS credentials . ");
-            }
+            $creds[self::AWS_CREDENTIALS_ARRAY_KEY] = [
+                'key'    => $access,
+                'secret' => $secret,
+            ];
         }
 
-        $params['region']  = self::getAWSRegion();
-        $params['version'] = self::getAWSVersion();
+        if ( self::DEBUG_CREDS_DANGEROUS ) clog("getCredsAWS() - creds", $creds);
 
-        if ( self::DEBUG_CREDS_DANGEROUS ) clog("getCredsAWS() FINAL - params", $params);
-
-        return $params;
+        return $creds;
     }
 
 
@@ -461,7 +457,7 @@ abstract class PliteFactory
             $s3 = false;
         }
 
-        $creds = self::clearParams($creds);
+        self::clearParams($creds);
 
         return $s3;
     }
