@@ -117,7 +117,7 @@ abstract class PliteFactory
 
 
 
-    private static function dump ( $mesg = false )
+    private static function _dump ( $mesg = false )
     {
         if ( false === $mesg ) $mesg = "PliteFactory.dump()";
         clog($mesg, self::$VERTWO_PARAMS);
@@ -363,6 +363,7 @@ abstract class PliteFactory
 
 
 
+    public function dump ( $mesg = false ) { self::_dump($mesg); }
     public function has ( $key ) { return self::_has($key); }
     public function no ( $key ) { return self::_no($key); }
     public function get ( $key ) { return self::_get($key); }
@@ -658,8 +659,6 @@ abstract class PliteFactory
      */
     public function getFileProvider ()
     {
-        $params = $this->loadConfigParams();
-
         $providerType = self::PROVIDER_TYPE_FILE;
         $isProvLocal  = $this->isUsingLocalProvider($providerType);
 
@@ -730,12 +729,12 @@ abstract class PliteFactory
      */
     private function getSecretsManagerClient ()
     {
-        $params = $this->getCredsAWS();
+        $creds = $this->getCredsAWS();
         try
         {
-            if ( self::DEBUG_CREDS_DANGEROUS ) clog("creds for SecMan", $params);
+            if ( self::DEBUG_CREDS_DANGEROUS ) clog("creds for SecMan", $creds);
 
-            $secman = new SecretsManagerClient($params);
+            $secman = new SecretsManagerClient($creds);
         }
         catch ( Exception $e )
         {
@@ -744,7 +743,7 @@ abstract class PliteFactory
             $secman = false;
         }
 
-        self::clearParams($params);
+        self::clearParams($creds);
 
         return $secman;
     }
@@ -950,9 +949,7 @@ abstract class PliteFactory
      */
     public function getSecret ( $secretName )
     {
-        $params = $this->loadConfigParams();
-
-        if ( self::DEBUG_SECRETS_MANAGER ) clog("params", $params);
+        if ( self::DEBUG_SECRETS_MANAGER ) $this->dump();
 
         $provKey = self::PROVIDER_TYPE_SECRET . "_provider";
         $source  = $params[$provKey];
