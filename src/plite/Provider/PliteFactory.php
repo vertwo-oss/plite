@@ -132,10 +132,10 @@ abstract class PliteFactory
      * Then, uses that value to instantiate the relevant
      * ProviderFactory subclass.
      *
-     * @return ProviderFactory
+     * @return PliteFactory
      * @throws Exception
      */
-    public static function loadFactory () { return self::loadPrefixedClass("PliteFactory"); }
+    public static function newInstance () { return self::loadPrefixedClass("PliteFactory"); }
 
 
 

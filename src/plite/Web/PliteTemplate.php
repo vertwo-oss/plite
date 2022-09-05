@@ -35,7 +35,7 @@ class PliteTemplate
     {
         try
         {
-            $pf = PliteFactory::loadFactory();
+            $pf = PliteFactory::newInstance();
 
             self::$string_html_TITLE          = $pf->get("wl_title");
             self::$string_APP_NAME            = $pf->get("wl_name");
