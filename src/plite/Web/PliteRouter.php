@@ -62,6 +62,9 @@ abstract class PliteRouter extends Ajax
     protected $path;
     protected $query;
 
+    /** @var PliteFactory $pf - NOTE - This is available to subclasses. */
+    protected $pf;
+
     private $routingRoot;
 
 
@@ -120,9 +123,9 @@ abstract class PliteRouter extends Ajax
     {
         parent::__construct();
 
-        $pf                = PliteFactory::newInstance();
-        $this->routingRoot = $pf->has(self::CONFIG_KEY_ROUTING_ROOT)
-            ? $pf->get(self::CONFIG_KEY_ROUTING_ROOT)
+        $this->pf          = PliteFactory::newInstance();
+        $this->routingRoot = $this->pf->has(self::CONFIG_KEY_ROUTING_ROOT)
+            ? $this->pf->get(self::CONFIG_KEY_ROUTING_ROOT)
             : "";
 
         $isWorkerEnv = $this->isAWSWorkerEnv();
