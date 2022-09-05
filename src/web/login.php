@@ -43,7 +43,7 @@ PliteTemplate::init();
 <head>
     <style>
         html {
-            background: #222 <?php echo PliteTemplate::$css_value_BACKGROUND; ?> no-repeat center center;
+            background: <?php echo PliteTemplate::$css_value_BACKGROUND; ?> no-repeat center center;
             background-size: cover;
             height: 100%;
         }
