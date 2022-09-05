@@ -123,7 +123,7 @@ abstract class ProviderFactory
      */
     public static function loadPrefixedClass ( $clazz )
     {
-        $prefix = trim(FJ::stripSpaces($_SERVER[self::VERTWO_CLASS_PREFIX]));
+        $prefix = trim($_SERVER[self::VERTWO_CLASS_PREFIX]);
 
         if ( strlen($prefix) <= 0 ) throw new Exception ("No [ vertwo_class_prefix ] from ENV provided.");
 
