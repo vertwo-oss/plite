@@ -103,7 +103,7 @@ abstract class PliteFactory
 //    const PROVIDER_TYPE_EMAIL  = "email";
 //    const PROVIDER_TYPE_CSV    = "csv";
 
-    const ENV_VERTWO_APP_KEY          = "vertwo_local_app";
+    const ENV_VERTWO_APP_KEY          = "vertwo_app";
     const ENV_VERTWO_LOCAL_ROOT_KEY   = "vertwo_local_root";
     const ENV_VERTWO_CLASS_PREFIX_KEY = "vertwo_class_prefix";
 
