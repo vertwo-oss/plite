@@ -8,7 +8,6 @@ namespace vertwo\plite\Web;
 
 use Exception;
 use vertwo\plite\Provider\PliteFactory;
-use vertwo\plite\Provider\ProviderFactory;
 use function vertwo\plite\clog;
 use function vertwo\plite\yelulog;
 
@@ -23,6 +22,7 @@ class PliteTemplate
     static $string_html_TITLE;
     static $string_APP_NAME;
     static $html_elem_LOGO;
+    static $string_REG_EMAIL;
     static $css_value_PADDING_TOP_LOGO;
     static $css_value_BACKGROUND;
     static $string_LONG_COPYRIGHT;
@@ -40,6 +40,7 @@ class PliteTemplate
             self::$string_html_TITLE          = $pf->get("wl_title");
             self::$string_APP_NAME            = $pf->get("wl_name");
             self::$html_elem_LOGO             = $pf->get("wl_logo");
+            self::$string_REG_EMAIL           = $pf->get("wl_reg_email");
             self::$css_value_PADDING_TOP_LOGO = $pf->get("wl_logo_padding_top");
             self::$css_value_BACKGROUND       = $pf->get("wl_bg");
             self::$string_LONG_COPYRIGHT      = $pf->get("wl_copyright_notice");
@@ -52,6 +53,7 @@ class PliteTemplate
             self::$string_html_TITLE          = "Unknown App";
             self::$string_APP_NAME            = "Unknown App";
             self::$html_elem_LOGO             = "<img src=\"res/question.png\" alt=\"unknown app\"/>";
+            self::$string_REG_EMAIL           = "interest@example.com";
             self::$css_value_PADDING_TOP_LOGO = "92px";
             self::$css_value_BACKGROUND       = "#222";
             self::$string_LONG_COPYRIGHT      = "Copyleft";
@@ -62,6 +64,7 @@ class PliteTemplate
         if ( self::DEBUG_INIT ) clog("white-label name", self::$string_APP_NAME);
         if ( self::DEBUG_INIT ) clog("white-label logo", self::$html_elem_LOGO);
         if ( self::DEBUG_INIT ) clog("white-label bg", self::$css_value_BACKGROUND);
+        if ( self::DEBUG_INIT ) clog("white-label reg-email", self::$string_REG_EMAIL);
         if ( self::DEBUG_INIT ) clog("white-label copyright", self::$string_LONG_COPYRIGHT);
         if ( self::DEBUG_INIT ) clog("white-label use_pbv2", self::$IS_USING_POWERED_BY_V2);
     }
