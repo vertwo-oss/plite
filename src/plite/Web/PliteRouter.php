@@ -79,7 +79,7 @@ abstract class PliteRouter extends Ajax
      * @return Ajax
      * @throws Exception
      */
-    public static function loadRouter () { return PliteFactory::loadPrefixedClass("Router"); }
+    public static function newInstance () { return PliteFactory::loadPrefixedClass("Router"); }
 
 
 
