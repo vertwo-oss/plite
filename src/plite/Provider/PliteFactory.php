@@ -197,7 +197,7 @@ abstract class PliteFactory
         }
         else
         {
-            if ( self::DEBUG_ENV ) clog("Loading DEFAULT config. (from subclass [ " . get_class() . " ])...");
+            if ( self::DEBUG_ENV ) clog("Loading DEFAULT config. (from subclass [ " . get_class($this) . " ])...");
             self::$VERTWO_PARAMS = $this->loadDefaultConfig();
         }
     }
