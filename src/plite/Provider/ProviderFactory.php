@@ -52,7 +52,7 @@ abstract class ProviderFactory
     const DEBUG_CONFIG_INFO_WITH_DUMPS = false;
     const DEBUG_DB_CONN                = false;
     const DEBUG_DB_CONN_VERBOSE        = false;
-    const DEBUG_SECRETS_MANAGER        = true;
+    const DEBUG_SECRETS_MANAGER        = false;
     const DEBUG_AWS_CREDS              = false;
 
 
