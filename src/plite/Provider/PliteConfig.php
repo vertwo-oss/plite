@@ -117,7 +117,7 @@ abstract class PliteConfig
 
         $fqClass = $prefix . $className;
 
-        clog("prefix", $prefix)
+        clog("prefix", $prefix);
         clog("Instantiating sublcass", $fqClass);
 
         if ( !class_exists($fqClass) ) throw new Exception("Cannot load [ " . $fqClass . " ]");
