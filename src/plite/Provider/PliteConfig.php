@@ -48,7 +48,7 @@ abstract class PliteConfig
     const DEBUG_CONFIG_INFO            = true;
     const DEBUG_CONFIG_INFO_WITH_DUMPS = false;
 
-    const DEBUG_CONFIG_INFO_JSON = true; // DANGER - In __PRODUCTION__, this must be set to (false)!!!!!
+    const DEBUG_CONFIG_INFO_JSON = false; // DANGER - In __PRODUCTION__, this must be set to (false)!!!!!
 
 
 
