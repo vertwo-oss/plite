@@ -105,11 +105,15 @@ abstract class PliteConfig
     {
         self::bootstrapParamsFromEnv();
 
-        if ( false === self::$PLITE_PREFIX || null == self::$PLITE_PREFIX || !self::$PLITE_PREFIX )
-        {
-            clog("params[plite_prefix]", self::$PARAMS["plite_prefix"]);
+        if ( !array_key_exists(self::ENV_PLITE_PREFIX_KEY, self::$PARAMS) )
             throw new Exception("Cannot find 'plite_prefix' config setting.");
-        }
+
+        $prefix = self::$PARAMS[self::ENV_PLITE_PREFIX_KEY];
+
+        clog("prefix", $prefix);
+
+        if ( (strlen($prefix) == 0) || null == $prefix || !$prefix )
+            throw new Exception("Invalid 'plite_prefix' config setting.");
 
         $fqClass = self::$PLITE_PREFIX . $className;
 
