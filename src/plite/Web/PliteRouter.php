@@ -26,7 +26,7 @@ namespace vertwo\plite\Web;
 use Exception;
 use vertwo\plite\FJ;
 use vertwo\plite\Log;
-use vertwo\plite\Provider\PliteFactory;
+use vertwo\plite\Provider\PliteConfig;
 use function vertwo\plite\clog;
 use function vertwo\plite\cynlog;
 use function vertwo\plite\grnlog;
@@ -62,8 +62,8 @@ abstract class PliteRouter extends Ajax
     protected $path;
     protected $query;
 
-    /** @var PliteFactory $pf - NOTE - This is available to subclasses. */
-    protected $pf;
+    /** @var PliteConfig $config - NOTE - This is available to subclasses. */
+    protected $config;
 
     private $routingRoot;
 
@@ -79,7 +79,7 @@ abstract class PliteRouter extends Ajax
      * @return Ajax
      * @throws Exception
      */
-    public static function newInstance () { return PliteFactory::loadPrefixedClass("Router"); }
+    public static function newInstance () { return PliteConfig::loadPrefixedClass("Router"); }
 
 
 
@@ -123,9 +123,9 @@ abstract class PliteRouter extends Ajax
     {
         parent::__construct();
 
-        $this->pf          = PliteFactory::newInstance();
-        $this->routingRoot = $this->pf->has(self::CONFIG_KEY_ROUTING_ROOT)
-            ? $this->pf->get(self::CONFIG_KEY_ROUTING_ROOT)
+        $this->config      = PliteConfig::newInstance();
+        $this->routingRoot = $this->config->has(self::CONFIG_KEY_ROUTING_ROOT)
+            ? $this->config->get(self::CONFIG_KEY_ROUTING_ROOT)
             : "";
 
         $isWorkerEnv = $this->isAWSWorkerEnv();
