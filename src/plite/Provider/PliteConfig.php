@@ -115,9 +115,9 @@ abstract class PliteConfig
         if ( (strlen($prefix) == 0) || null == $prefix || !$prefix )
             throw new Exception("Invalid 'plite_prefix' config setting.");
 
-        $fqClass = self::$PLITE_PREFIX . $className;
+        $fqClass = $prefix . $className;
 
-        clog("prefix", self::$PLITE_PREFIX);
+        clog("prefix", $prefix)
         clog("Instantiating sublcass", $fqClass);
 
         if ( !class_exists($fqClass) ) throw new Exception("Cannot load [ " . $fqClass . " ]");
