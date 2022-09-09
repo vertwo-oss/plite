@@ -7,7 +7,7 @@ namespace vertwo\plite\Web;
 
 
 use Exception;
-use vertwo\plite\Provider\PliteFactory;
+use vertwo\plite\Provider\PliteConfig;
 use function vertwo\plite\clog;
 use function vertwo\plite\yelulog;
 
@@ -35,19 +35,20 @@ class PliteTemplate
     {
         try
         {
-            $pf = PliteFactory::newInstance();
+            $config = PliteConfig::newInstance();
 
-            self::$string_html_TITLE          = $pf->get("wl_title");
-            self::$string_APP_NAME            = $pf->get("wl_name");
-            self::$html_elem_LOGO             = $pf->get("wl_logo");
-            self::$string_REG_EMAIL           = $pf->get("wl_reg_email");
-            self::$css_value_PADDING_TOP_LOGO = $pf->get("wl_logo_padding_top");
-            self::$css_value_BACKGROUND       = $pf->get("wl_bg");
-            self::$string_LONG_COPYRIGHT      = $pf->get("wl_copyright_notice");
-            self::$IS_USING_POWERED_BY_V2     = $pf->get("wl_using_powered_by_v2");
+            self::$string_html_TITLE          = $config->get("wl_title");
+            self::$string_APP_NAME            = $config->get("wl_name");
+            self::$html_elem_LOGO             = $config->get("wl_logo");
+            self::$string_REG_EMAIL           = $config->get("wl_reg_email");
+            self::$css_value_PADDING_TOP_LOGO = $config->get("wl_logo_padding_top");
+            self::$css_value_BACKGROUND       = $config->get("wl_bg");
+            self::$string_LONG_COPYRIGHT      = $config->get("wl_copyright_notice");
+            self::$IS_USING_POWERED_BY_V2     = $config->get("wl_using_powered_by_v2");
         }
         catch ( Exception $e )
         {
+            clog($e);
             yelulog("Could not instantiate PliteFactory; using DEFAULT values.");
 
             self::$string_html_TITLE          = "Unknown App";
