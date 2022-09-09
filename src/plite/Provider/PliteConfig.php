@@ -48,7 +48,7 @@ abstract class PliteConfig
     const DEBUG_CONFIG_INFO            = true;
     const DEBUG_CONFIG_INFO_WITH_DUMPS = false;
 
-    const DEBUG_CONFIG_INFO_JSON = false; // DANGER - In __PRODUCTION__, this must be set to (false)!!!!!
+    const DEBUG_CONFIG_INFO_JSON = true; // DANGER - In __PRODUCTION__, this must be set to (false)!!!!!
 
 
 
@@ -85,6 +85,34 @@ abstract class PliteConfig
         return self::$IS_LOCAL
             ? new PliteLocalConfig()
             : self::loadCloudConfigClass();
+    }
+
+
+
+    /**
+     * Expects web server to have 'vertwo_class_prefix' as an
+     * environment variable available to PHP via $_SERVER.
+     *
+     * Then, uses that value to instantiate the relevant
+     * given subclass.
+     *
+     * @param string $clazz - Name of type, after prefix (e.g., "ProviderFactory", "Router")
+     *
+     * @return mixed
+     * @throws Exception
+     */
+    public static function loadPrefixedClass ( $className )
+    {
+        self::bootstrapParamsFromEnv();
+
+        $fqClass = self::$PLITE_PREFIX . $className;
+
+        clog("prefix", self::$PLITE_PREFIX);
+        clog("Instantiating sublcass", $fqClass);
+
+        if ( !class_exists($fqClass) ) throw new Exception("Cannot load [ " . $fqClass . " ]");
+
+        return new $fqClass();
     }
 
 
@@ -325,34 +353,6 @@ abstract class PliteConfig
             throw new Exception("Specified class does not subclass PliteConfig.");
 
         return $config;
-    }
-
-
-
-    /**
-     * Expects web server to have 'vertwo_class_prefix' as an
-     * environment variable available to PHP via $_SERVER.
-     *
-     * Then, uses that value to instantiate the relevant
-     * given subclass.
-     *
-     * @param string $clazz - Name of type, after prefix (e.g., "ProviderFactory", "Router")
-     *
-     * @return mixed
-     * @throws Exception
-     */
-    public static function loadPrefixedClass ( $className )
-    {
-        self::bootstrapParamsFromEnv();
-
-        $fqClass = self::$PLITE_PREFIX . $className;
-
-        clog("Instantiating sublcass", $fqClass);
-        Log::dump();
-
-        if ( !class_exists($fqClass) ) throw new Exception("Cannot load [ " . $fqClass . " ]");
-
-        return new $fqClass();
     }
 
 

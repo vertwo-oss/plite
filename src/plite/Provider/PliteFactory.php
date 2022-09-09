@@ -55,10 +55,10 @@ class PliteFactory
 {
     const DEBUG_DB_CONN         = false;
     const DEBUG_DB_CONN_VERBOSE = false;
-    const DEBUG_SECRETS_MANAGER = true;
-    const DEBUG_AWS_CREDS       = true;
+    const DEBUG_SECRETS_MANAGER = false;
+    const DEBUG_AWS_CREDS       = false;
 
-    const DEBUG_CREDS_DANGEROUS = true; // DANGER - In __PRODUCTION__, this must be set to (false)!!!!!
+    const DEBUG_CREDS_DANGEROUS = false; // DANGER - In __PRODUCTION__, this must be set to (false)!!!!!
 
 
 
@@ -350,12 +350,6 @@ class PliteFactory
 
 
 
-
-
-
-
-
-    
     /**
      * @return S3Client|bool
      */
