@@ -45,7 +45,7 @@ use function vertwo\plite\redlog;
 abstract class PliteConfig
 {
     const DEBUG_ENV                    = true;
-    const DEBUG_CONFIG_INFO            = true;
+    const DEBUG_CONFIG_INFO            = false;
     const DEBUG_CONFIG_INFO_WITH_DUMPS = false;
 
     const DEBUG_CONFIG_INFO_JSON = false; // DANGER - In __PRODUCTION__, this must be set to (false)!!!!!
@@ -157,8 +157,8 @@ abstract class PliteConfig
                 throw new Exception ("Config type [ $type ]; unknown; check env var values.");
         }
 
-        clog("self::\$IS_LOCAL", self::$IS_LOCAL);
-        clog("self::\$PARAMS", self::$PARAMS);
+        if ( self::DEBUG_CONFIG_INFO ) clog("self::\$IS_LOCAL", self::$IS_LOCAL);
+        if ( self::DEBUG_CONFIG_INFO ) clog("self::\$PARAMS", self::$PARAMS);
     }
 
 
