@@ -419,4 +419,6 @@ abstract class PliteConfig
     }
 
     protected final function getMap () { return self::$PARAMS; }
+
+    public function getAppName () { return $this->get(self::ENV_PLITE_APP_KEY); }
 }
