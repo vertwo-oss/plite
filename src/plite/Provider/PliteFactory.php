@@ -94,11 +94,6 @@ class PliteFactory
 
 
 
-    private function getAWSRegion () { return $this->config->get(self::AWS_REGION_ARRAY_KEY); }
-    private function getAWSVersion () { return $this->config->get(self::AWS_VERSION_ARRAY_KEY); }
-
-
-
     ////////////////////////////////////////////////////////////////
     //
     //
@@ -112,7 +107,7 @@ class PliteFactory
      *
      * @throws Exception
      */
-    private function __construct ()
+    public function __construct ()
     {
         $this->config = PliteConfig::newInstance();
     }
@@ -195,6 +190,8 @@ class PliteFactory
 
         return $creds;
     }
+    private function getAWSRegion () { return $this->config->get(self::AWS_REGION_ARRAY_KEY); }
+    private function getAWSVersion () { return $this->config->get(self::AWS_VERSION_ARRAY_KEY); }
 
 
 
