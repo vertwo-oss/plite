@@ -40,6 +40,7 @@ use vertwo\plite\Provider\Local\CRUDProviderLocal;
 use vertwo\plite\Provider\Local\CSVProviderLocal;
 use vertwo\plite\Provider\Local\EmailProviderLocal;
 use vertwo\plite\Provider\Local\FileProviderLocal;
+use vertwo\plite\Provider\Service\SecretsManagerService;
 use function vertwo\plite\cclog;
 use function vertwo\plite\clog;
 use function vertwo\plite\redlog;
@@ -55,7 +56,6 @@ class PliteFactory
 {
     const DEBUG_DB_CONN         = false;
     const DEBUG_DB_CONN_VERBOSE = false;
-    const DEBUG_SECRETS_MANAGER = false;
     const DEBUG_AWS_CREDS       = false;
 
     const DEBUG_CREDS_DANGEROUS = false; // DANGER - In __PRODUCTION__, this must be set to (false)!!!!!
@@ -161,7 +161,7 @@ class PliteFactory
      * @throws Exception - Happens when it's LOCAL config, but no AWS
      * credentials are present.
      */
-    private function getCredsAWS ()
+    public function getCredsAWS ()
     {
         $creds = [
             'region'  => self::getAWSRegion(),
@@ -203,23 +203,24 @@ class PliteFactory
      */
     public function getSecret ( $secretName )
     {
-        if ( self::DEBUG_SECRETS_MANAGER ) $this->dump();
+        $service = new SecretsManagerService();
+        $secret  = $service->get($this, $secretName);
 
-        $provKey = self::PROVIDER_TYPE_SECRET . "_provider";
-        $source  = $this->get($provKey);
+        return $secret;
 
-        switch ( $source )
-        {
-            case self::PROVIDER_CLOUD:
-                return $this->getSecretFromCloud($secretName);
-
-            default:
-                return $this->getSecretLocally($secretName);
-        }
+//
+//        if ( self::DEBUG_SECRETS_MANAGER ) $this->dump();
+//
+//
+//        switch ( $source )
+//        {
+//            case self::PROVIDER_CLOUD:
+//                return $this->getSecretFromCloud($secretName);
+//
+//            default:
+//                return $this->getSecretLocally($secretName);
+//        }
     }
-
-
-
     /**
      * @param $secretName
      *
@@ -240,9 +241,6 @@ class PliteFactory
             throw new Exception("Cannot find secret [ $secretName ] in local AUTH params.");
         }
     }
-
-
-
     private function getSecretFromCloud ( $secretName )
     {
         if ( self::DEBUG_SECRETS_MANAGER ) clog("getSecr*tFromCloud() - ANTE AWS SecMan Client", $secretName);
@@ -298,9 +296,34 @@ class PliteFactory
 
         return FJ::jsDecode($secret);
     }
+    /**
+     * NOTE - This framework is linked to version 3.234.4 of the AWS SDK.
+     *
+     * WARN - Previous versions weren't working in ElasticBeanstalk with Amazon Linux 2 with IMDSv2.
+     *
+     * This is a chance from AL1 with IMDSv? (unknown in older version of ElasticBeanstalk).
+     *
+     * @return SecretsManagerClient|bool
+     * @throws Exception
+     */
+    private function getSecretsManagerClient ()
+    {
+        $creds = $this->getCredsAWS();
+        try
+        {
+            if ( self::DEBUG_CREDS_DANGEROUS ) clog("creds for SecMan", $creds);
 
+            $secman = new SecretsManagerClient($creds);
+        }
+        catch ( Exception $e )
+        {
+            clog($e);
+            clog("Cannot get AWS SecMan Client; returning(false)");
+            $secman = false;
+        }
 
-
+        return $secman;
+    }
     protected function handleSecManError ( $error )
     {
         if ( $error == 'DecryptionFailureException' )
@@ -347,6 +370,61 @@ class PliteFactory
 
 
 
+    /**
+     * @return FileProvider
+     */
+    public function getFileProvider ()
+    {
+        $providerType = self::PROVIDER_TYPE_FILE;
+        $isProvLocal  = $this->isUsingLocalProvider($providerType);
+
+        clog("is $providerType local?", $isProvLocal);
+
+        $provParams = $isProvLocal
+            ? $this->getFileParamsLocal()
+            : $this->getFileParamsAWS();
+
+        $prov = $isProvLocal
+            ? new FileProviderLocal($provParams)
+            : new FileProviderAWS($provParams);
+
+        $provParams = false;
+        $params     = false;
+
+        return $prov;
+    }
+    private function getFileParamsLocal ()
+    {
+        if ( !$this->has(self::KEY_FILE_LOCATION) )
+        {
+            Log::error("Cannot find auth file; aborting.");
+            return [];
+        }
+        if ( !$this->has(self::KEY_FILE_BUCKET) )
+        {
+            Log::error("Cannot find auth bucket; aborting.");
+            return [];
+        }
+
+        $authFilePath = $this->get(self::KEY_FILE_LOCATION);
+        $authBucket   = $this->get(self::KEY_FILE_BUCKET);
+
+        $params = [
+            self::KEY_FILE_LOCATION => $authFilePath,
+            self::KEY_FILE_BUCKET   => $authBucket,
+        ];
+        return $params;
+    }
+    private function getFileParamsAWS ()
+    {
+        $s3 = $this->getS3Client();
+
+        $params = [
+            "s3" => $s3,
+        ];
+
+        return $params;
+    }
     /**
      * @return S3Client|bool
      */
@@ -575,110 +653,6 @@ class PliteFactory
         $provParams = false;
 
         return $tp;
-    }
-
-
-
-    /**
-     * @return FileProvider
-     */
-    public function getFileProvider ()
-    {
-        $providerType = self::PROVIDER_TYPE_FILE;
-        $isProvLocal  = $this->isUsingLocalProvider($providerType);
-
-        clog("is $providerType local?", $isProvLocal);
-
-        $provParams = $isProvLocal
-            ? $this->getFileParamsLocal()
-            : $this->getFileParamsAWS();
-
-        $prov = $isProvLocal
-            ? new FileProviderLocal($provParams)
-            : new FileProviderAWS($provParams);
-
-        $provParams = false;
-        $params     = false;
-
-        return $prov;
-    }
-
-
-
-    private function getFileParamsLocal ()
-    {
-        if ( !$this->has(self::KEY_FILE_LOCATION) )
-        {
-            Log::error("Cannot find auth file; aborting.");
-            return [];
-        }
-        if ( !$this->has(self::KEY_FILE_BUCKET) )
-        {
-            Log::error("Cannot find auth bucket; aborting.");
-            return [];
-        }
-
-        $authFilePath = $this->get(self::KEY_FILE_LOCATION);
-        $authBucket   = $this->get(self::KEY_FILE_BUCKET);
-
-        $params = [
-            self::KEY_FILE_LOCATION => $authFilePath,
-            self::KEY_FILE_BUCKET   => $authBucket,
-        ];
-        return $params;
-    }
-
-
-
-    private function getFileParamsAWS ()
-    {
-        $s3 = $this->getS3Client();
-
-        $params = [
-            "s3" => $s3,
-        ];
-
-        return $params;
-    }
-
-
-
-    /**
-     * NOTE - This framework is linked to version 3.234.4 of the AWS SDK.
-     *
-     * WARN - Previous versions weren't working in ElasticBeanstalk with Amazon Linux 2 with IMDSv2.
-     *
-     * This is a chance from AL1 with IMDSv? (unknown in older version of ElasticBeanstalk).
-     *
-     * @return SecretsManagerClient|bool
-     */
-    private function getSecretsManagerClient ()
-    {
-        $creds = $this->getCredsAWS();
-        try
-        {
-            if ( self::DEBUG_CREDS_DANGEROUS ) clog("creds for SecMan", $creds);
-
-            $secman = new SecretsManagerClient($creds);
-        }
-        catch ( Exception $e )
-        {
-            clog($e);
-            clog("Cannot get AWS SecMan Client; returning(false)");
-            $secman = false;
-        }
-
-        self::clearParams($creds);
-
-        return $secman;
-    }
-
-
-
-    private static function clearParams ( &$params )
-    {
-        unset($params[self::AWS_CREDENTIALS_ARRAY_KEY]);
-        $params = false;
     }
 
 
