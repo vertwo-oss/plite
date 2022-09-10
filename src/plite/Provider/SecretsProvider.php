@@ -2,23 +2,23 @@
 
 
 
-namespace vertwo\plite\Provider\Service;
+namespace vertwo\plite\Provider;
 
 
 
 use Aws\Exception\AwsException;
 use Aws\SecretsManager\SecretsManagerClient;
 use Exception;
+use vertwo\plite\Ball;
 use vertwo\plite\FJ;
 use vertwo\plite\Log;
-use vertwo\plite\Provider\PliteFactory;
 use function vertwo\plite\cclog;
 use function vertwo\plite\clog;
 use function vertwo\plite\redlog;
 
 
 
-class SecretsManagerService implements ServiceImpl
+class SecretsProvider
 {
     const DEBUG_CREDS_DANGEROUS = false; // DANGER - In __PRODUCTION__, this must be set to (false)!!!!!
 
@@ -39,27 +39,38 @@ class SecretsManagerService implements ServiceImpl
      * In the case of S3, get() would retrieve the client.
      *
      * @param PliteFactory $pf
-     * @param mixed        $params
+     * @param mixed        $secretName - Name of secret "blob"
+     * @param string|bool  $secretPath - Path into blob for specific "sub-secret".
      *
      * @return mixed
      * @throws Exception
      */
-    function get ( $pf, $params )
+    public static function get ( $pf, $secretName, $secretPath = false )
     {
         $providerTypeKey = self::PROVIDER_TYPE_SECRET . "_provider";
         $providerType    = $pf->get($providerTypeKey);
-
-        $secretName = $params;
 
         if ( self::DEBUG_SECRETS_MANAGER ) $pf->dump();
 
         switch ( $providerType )
         {
             case PliteFactory::PROVIDER_CLOUD:
-                return $this->getSecretFromCloud($pf, $secretName);
+                $secretBlob = self::getSecretFromCloud($pf, $secretName);
+                break;
 
             default:
-                return $this->getSecretLocally($pf, $secretName);
+                $secretBlob = self::getSecretLocally($pf, $secretName);
+                break;
+        }
+
+        if ( false === $secretPath )
+        {
+            return $secretBlob;
+        }
+        else
+        {
+            $secretBall = new Ball($secretBlob);
+            return $secretBall->get($secretPath);
         }
     }
 
@@ -72,11 +83,11 @@ class SecretsManagerService implements ServiceImpl
      * @return bool|mixed
      * @throws Exception
      */
-    private function getSecretFromCloud ( $pf, $secretName )
+    private static function getSecretFromCloud ( $pf, $secretName )
     {
         if ( self::DEBUG_SECRETS_MANAGER ) clog("getSecr*tFromCloud() - ANTE AWS SecMan Client", $secretName);
 
-        $client = $this->getSecretsManagerClient($pf);
+        $client = self::getSecretsManagerClient($pf);
 
         if ( self::DEBUG_SECRETS_MANAGER ) clog("getSecr*tFromCloud() - POST AWS SecMan Client");
 
@@ -99,7 +110,7 @@ class SecretsManagerService implements ServiceImpl
         catch ( AwsException $e )
         {
             $error = $e->getAwsErrorCode();
-            $this->handleSecManError($error);
+            self::handleSecManError($error);
 
             cclog(Log::TEXT_COLOR_BG_RED, "FAIL to get secrets.");
             return false;
@@ -142,7 +153,7 @@ class SecretsManagerService implements ServiceImpl
      * @return SecretsManagerClient|bool
      * @throws Exception
      */
-    private function getSecretsManagerClient ( $pf )
+    private static function getSecretsManagerClient ( $pf )
     {
         $creds = $pf->getCredsAWS();
         try
@@ -163,7 +174,7 @@ class SecretsManagerService implements ServiceImpl
 
 
 
-    protected function handleSecManError ( $error )
+    protected static function handleSecManError ( $error )
     {
         if ( $error == 'DecryptionFailureException' )
         {
@@ -206,9 +217,10 @@ class SecretsManagerService implements ServiceImpl
      * @param PliteFactory $pf
      * @param string       $secretName
      *
+     * @return mixed
      * @throws Exception
      */
-    private function getSecretLocally ( $pf, $secretName )
+    private static function getSecretLocally ( $pf, $secretName )
     {
         clog("Looking for local secret", $secretName);
 
