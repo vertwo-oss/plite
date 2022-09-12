@@ -64,7 +64,7 @@ class Secrets
 
         switch ( $providerType )
         {
-            case NouseFactory::PROVIDER_CLOUD:
+            case Config::PROVIDER_CLOUD:
                 $secretBlob = self::getSecretFromCloud($secretName);
                 break;
 
