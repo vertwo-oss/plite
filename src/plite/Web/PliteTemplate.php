@@ -7,7 +7,7 @@ namespace vertwo\plite\Web;
 
 
 use Exception;
-use vertwo\plite\Provider\PliteConfig;
+use vertwo\plite\Config;
 use function vertwo\plite\clog;
 use function vertwo\plite\yelulog;
 
@@ -35,16 +35,16 @@ class PliteTemplate
     {
         try
         {
-            $config = PliteConfig::newInstance();
+            Config::init(); // This isn't strictly necessary, but is hygienic.
 
-            self::$string_html_TITLE          = $config->get("wl_title");
-            self::$string_APP_NAME            = $config->get("wl_name");
-            self::$html_elem_LOGO             = $config->get("wl_logo");
-            self::$string_REG_EMAIL           = $config->get("wl_reg_email");
-            self::$css_value_PADDING_TOP_LOGO = $config->get("wl_logo_padding_top");
-            self::$css_value_BACKGROUND       = $config->get("wl_bg");
-            self::$string_LONG_COPYRIGHT      = $config->get("wl_copyright_notice");
-            self::$IS_USING_POWERED_BY_V2     = $config->get("wl_using_powered_by_v2");
+            self::$string_html_TITLE          = Config::get("wl_title");
+            self::$string_APP_NAME            = Config::get("wl_name");
+            self::$html_elem_LOGO             = Config::get("wl_logo");
+            self::$string_REG_EMAIL           = Config::get("wl_reg_email");
+            self::$css_value_PADDING_TOP_LOGO = Config::get("wl_logo_padding_top");
+            self::$css_value_BACKGROUND       = Config::get("wl_bg");
+            self::$string_LONG_COPYRIGHT      = Config::get("wl_copyright_notice");
+            self::$IS_USING_POWERED_BY_V2     = Config::get("wl_using_powered_by_v2");
         }
         catch ( Exception $e )
         {

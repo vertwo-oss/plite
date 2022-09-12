@@ -51,7 +51,7 @@ use function vertwo\plite\redlog;
  *
  * @package vertwo\plite\Provider
  */
-class PliteFactory
+abstract class NouseFactory
 {
     const DEBUG_DB_CONN         = false;
     const DEBUG_DB_CONN_VERBOSE = false;
@@ -88,7 +88,7 @@ class PliteFactory
 
 
 
-    /** @var PliteConfig|bool $config */
+    /** @var Config|bool $config */
     private $config = false;
 
 
@@ -108,7 +108,7 @@ class PliteFactory
      */
     public function __construct ()
     {
-        $this->config = PliteConfig::newInstance();
+        $this->config = Config::newInstance();
     }
 
 
@@ -118,6 +118,17 @@ class PliteFactory
     public function get ( $key ) { return $this->config->get($key); }
     public function no ( $key ) { return $this->config->no($key); }
     public function matches ( $key, $targetValue ) { return $this->config->matches($key, $targetValue); }
+    public function getAppName () { return $this->config->getAppName(); }
+
+
+
+    public function getProviderSource ( $providerType )
+    {
+        $provKey = $providerType . "_provider";
+        $source  = $this->get($provKey);
+
+        return $source;
+    }
 
 
 
@@ -200,86 +211,86 @@ class PliteFactory
      * @return bool|mixed
      * @throws Exception
      */
-    public function getSecret ( $secretName ) { return SecretsProvider::get($this, $secretName); }
+    public function getSecret ( $secretName ) { return Secrets::get($this, $secretName); }
 
 
 
-    /**
-     * @return FileProvider
-     */
-    public function getFileProvider ()
-    {
-        $providerType = self::PROVIDER_TYPE_FILE;
-        $isProvLocal  = $this->isUsingLocalProvider($providerType);
-
-        clog("is $providerType local?", $isProvLocal);
-
-        $provParams = $isProvLocal
-            ? $this->getFileParamsLocal()
-            : $this->getFileParamsAWS();
-
-        $prov = $isProvLocal
-            ? new FileProviderLocal($provParams)
-            : new FileProviderAWS($provParams);
-
-        $provParams = false;
-        $params     = false;
-
-        return $prov;
-    }
-    private function getFileParamsLocal ()
-    {
-        if ( !$this->has(self::KEY_FILE_LOCATION) )
-        {
-            Log::error("Cannot find auth file; aborting.");
-            return [];
-        }
-        if ( !$this->has(self::KEY_FILE_BUCKET) )
-        {
-            Log::error("Cannot find auth bucket; aborting.");
-            return [];
-        }
-
-        $authFilePath = $this->get(self::KEY_FILE_LOCATION);
-        $authBucket   = $this->get(self::KEY_FILE_BUCKET);
-
-        $params = [
-            self::KEY_FILE_LOCATION => $authFilePath,
-            self::KEY_FILE_BUCKET   => $authBucket,
-        ];
-        return $params;
-    }
-    private function getFileParamsAWS ()
-    {
-        $s3 = $this->getS3Client();
-
-        $params = [
-            "s3" => $s3,
-        ];
-
-        return $params;
-    }
-    /**
-     * @return S3Client|bool
-     */
-    private function getS3Client ()
-    {
-        $creds = $this->getCredsAWS();
-        try
-        {
-            $s3 = new S3Client($creds);
-        }
-        catch ( Exception $e )
-        {
-            clog($e);
-            clog("Cannot get AWS S3 Client; returning(false) . ");
-            $s3 = false;
-        }
-
-        self::clearParams($creds);
-
-        return $s3;
-    }
+//    /**
+//     * @return FileProvider
+//     */
+//    public function getFileProvider ()
+//    {
+//        $providerType = self::PROVIDER_TYPE_FILE;
+//        $isProvLocal  = $this->isUsingLocalProvider($providerType);
+//
+//        clog("is $providerType local?", $isProvLocal);
+//
+//        $provParams = $isProvLocal
+//            ? $this->getFileParamsLocal()
+//            : $this->getFileParamsAWS();
+//
+//        $prov = $isProvLocal
+//            ? new FileProviderLocal($provParams)
+//            : new FileProviderAWS($provParams);
+//
+//        $provParams = false;
+//        $params     = false;
+//
+//        return $prov;
+//    }
+//    private function getFileParamsLocal ()
+//    {
+//        if ( !$this->has(self::KEY_FILE_LOCATION) )
+//        {
+//            Log::error("Cannot find auth file; aborting.");
+//            return [];
+//        }
+//        if ( !$this->has(self::KEY_FILE_BUCKET) )
+//        {
+//            Log::error("Cannot find auth bucket; aborting.");
+//            return [];
+//        }
+//
+//        $authFilePath = $this->get(self::KEY_FILE_LOCATION);
+//        $authBucket   = $this->get(self::KEY_FILE_BUCKET);
+//
+//        $params = [
+//            self::KEY_FILE_LOCATION => $authFilePath,
+//            self::KEY_FILE_BUCKET   => $authBucket,
+//        ];
+//        return $params;
+//    }
+//    private function getFileParamsAWS ()
+//    {
+//        $s3 = $this->getS3Client();
+//
+//        $params = [
+//            "s3" => $s3,
+//        ];
+//
+//        return $params;
+//    }
+//    /**
+//     * @return S3Client|bool
+//     */
+//    private function getS3Client ()
+//    {
+//        $creds = $this->getCredsAWS();
+//        try
+//        {
+//            $s3 = new S3Client($creds);
+//        }
+//        catch ( Exception $e )
+//        {
+//            clog($e);
+//            clog("Cannot get AWS S3 Client; returning(false) . ");
+//            $s3 = false;
+//        }
+//
+//        self::clearParams($creds);
+//
+//        return $s3;
+//    }
 
 
 

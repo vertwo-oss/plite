@@ -35,26 +35,32 @@ use function vertwo\plite\redlog;
 
 class FileProviderAWS extends FileProviderBase
 {
-    /**
-     * @var S3Client
-     */
+    const DEBUG_INIT = true;
+
+
+
+    /** @var S3Client|bool $s3 */
     private $s3     = false;
     private $bucket = false;
 
 
 
-    function __construct ( $params )
+    /**
+     * FileProviderAWS constructor.
+     *
+     * @param $creds
+     *
+     * @throws Exception
+     */
+    function __construct ( $creds )
     {
-        $this->s3 = $params['s3'];
-
-        if ( array_key_exists('file_bucket', $params) )
-            $this->bucket = $params['file_bucket'];
+        $this->s3 = new S3Client($creds);
     }
 
 
 
     /**
-     * @param $params array|bool
+     * @param array|bool $params
      *
      * @throws Exception
      */
@@ -66,15 +72,19 @@ class FileProviderAWS extends FileProviderBase
             throw new Exception("Cannot get AWS S3 reference; aborting.");
         }
 
-        if ( false !== $params )
+        if ( false === $params )
         {
-            if ( array_key_exists("bucket", $params) )
-            {
-                $this->bucket = $params["bucket"];
-            }
+            throw new Exception("No parameters (thus no bucket) given.");
         }
 
-        //clog("FP.init()", "S3Client successfully init'ed.");
+        if ( !array_key_exists("bucket", $params) )
+        {
+            throw new Exception("No bucket given.");
+        }
+
+        $this->bucket = $params["bucket"];
+
+        if ( self::DEBUG_INIT ) clog("FP.init()", "S3Client successfully init'ed.");
     }
 
 

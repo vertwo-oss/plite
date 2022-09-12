@@ -10,6 +10,7 @@ use Aws\Exception\AwsException;
 use Aws\SecretsManager\SecretsManagerClient;
 use Exception;
 use vertwo\plite\Ball;
+use vertwo\plite\Config;
 use vertwo\plite\FJ;
 use vertwo\plite\Log;
 use function vertwo\plite\cclog;
@@ -18,7 +19,7 @@ use function vertwo\plite\redlog;
 
 
 
-class SecretsProvider
+class Secrets
 {
     const DEBUG_CREDS_DANGEROUS = false; // DANGER - In __PRODUCTION__, this must be set to (false)!!!!!
 
@@ -38,28 +39,27 @@ class SecretsProvider
      * In the case of AWS Secrets Manager, get() just retrieves a single secret.
      * In the case of S3, get() would retrieve the client.
      *
-     * @param PliteFactory $pf
-     * @param mixed        $secretName - Name of secret "blob"
-     * @param string|bool  $secretPath - Path into blob for specific "sub-secret".
+     * @param mixed       $secretName - Name of secret "blob"
+     * @param string|bool $secretPath - Path into blob for specific "sub-secret".
      *
      * @return mixed
      * @throws Exception
      */
-    public static function get ( $pf, $secretName, $secretPath = false )
+    public static function get ( $secretName, $secretPath = false )
     {
         $providerTypeKey = self::PROVIDER_TYPE_SECRET . "_provider";
-        $providerType    = $pf->get($providerTypeKey);
+        $providerType    = Config::get($providerTypeKey);
 
-        if ( self::DEBUG_SECRETS_MANAGER ) $pf->dump();
+        if ( self::DEBUG_SECRETS_MANAGER ) Config::dump();
 
         switch ( $providerType )
         {
-            case PliteFactory::PROVIDER_CLOUD:
-                $secretBlob = self::getSecretFromCloud($pf, $secretName);
+            case NouseFactory::PROVIDER_CLOUD:
+                $secretBlob = self::getSecretFromCloud($secretName);
                 break;
 
             default:
-                $secretBlob = self::getSecretLocally($pf, $secretName);
+                $secretBlob = self::getSecretLocally($secretName);
                 break;
         }
 
@@ -77,17 +77,16 @@ class SecretsProvider
 
 
     /**
-     * @param PliteFactory $pf
-     * @param string       $secretName
+     * @param string $secretName
      *
      * @return bool|mixed
      * @throws Exception
      */
-    private static function getSecretFromCloud ( $pf, $secretName )
+    private static function getSecretFromCloud ( $secretName )
     {
         if ( self::DEBUG_SECRETS_MANAGER ) clog("getSecr*tFromCloud() - ANTE AWS SecMan Client", $secretName);
 
-        $client = self::getSecretsManagerClient($pf);
+        $client = self::getSecretsManagerClient();
 
         if ( self::DEBUG_SECRETS_MANAGER ) clog("getSecr*tFromCloud() - POST AWS SecMan Client");
 
@@ -148,14 +147,14 @@ class SecretsProvider
      *
      * This is a chance from AL1 with IMDSv? (unknown in older version of ElasticBeanstalk).
      *
-     * @param PliteFactory $pf
+     * @param Config $config
      *
      * @return SecretsManagerClient|bool
      * @throws Exception
      */
-    private static function getSecretsManagerClient ( $pf )
+    private static function getSecretsManagerClient ()
     {
-        $creds = $pf->getCredsAWS();
+        $creds = Config::getCredsAWS();
         try
         {
             if ( self::DEBUG_CREDS_DANGEROUS ) clog("creds for SecMan", $creds);
@@ -214,23 +213,22 @@ class SecretsProvider
 
 
     /**
-     * @param PliteFactory $pf
-     * @param string       $secretName
+     * @param string $secretName
      *
      * @return mixed
      * @throws Exception
      */
-    private static function getSecretLocally ( $pf, $secretName )
+    private static function getSecretLocally ( $secretName )
     {
         clog("Looking for local secret", $secretName);
 
-        if ( $pf->has($secretName) )
+        if ( Config::has($secretName) )
         {
-            return $pf->get($secretName);
+            return Config::get($secretName);
         }
         else
         {
-            if ( self::DEBUG_SECRETS_MANAGER ) $pf->dump($secretName);
+            if ( self::DEBUG_SECRETS_MANAGER ) Config::dump("secret -> $secretName");
 
             throw new Exception("Cannot find secret [ $secretName ] in local AUTH params.");
         }

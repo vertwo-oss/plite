@@ -24,9 +24,9 @@ namespace vertwo\plite\Web;
 
 
 use Exception;
+use vertwo\plite\Config;
 use vertwo\plite\FJ;
 use vertwo\plite\Log;
-use vertwo\plite\Provider\PliteConfig;
 use function vertwo\plite\clog;
 use function vertwo\plite\cynlog;
 use function vertwo\plite\grnlog;
@@ -62,9 +62,6 @@ abstract class PliteRouter extends Ajax
     protected $path;
     protected $query;
 
-    /** @var PliteConfig $config - NOTE - This is available to subclasses. */
-    protected $config;
-
     private $routingRoot;
 
 
@@ -79,7 +76,16 @@ abstract class PliteRouter extends Ajax
      * @return Ajax
      * @throws Exception
      */
-    public static function newInstance () { return PliteConfig::loadPrefixedClass("Router"); }
+    public static function newInstance ()
+    {
+        $routerClass = Config::get("plite_router");
+        $router      = Config::loadClass($routerClass);
+
+        if ( !$router instanceof PliteRouter )
+            throw new Exception("Specified class [ " . $routerClass . " ] does not implement PliteRouter.");
+
+        return $router;
+    }
 
 
 
@@ -123,7 +129,7 @@ abstract class PliteRouter extends Ajax
     {
         parent::__construct();
 
-        $this->config      = PliteConfig::newInstance();
+        $this->config      = Config::newInstance();
         $this->routingRoot = $this->config->has(self::CONFIG_KEY_ROUTING_ROOT)
             ? $this->config->get(self::CONFIG_KEY_ROUTING_ROOT)
             : "";

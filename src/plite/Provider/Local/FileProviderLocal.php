@@ -26,24 +26,41 @@ namespace vertwo\plite\Provider\Local;
 use Exception;
 use vertwo\plite\Log;
 use vertwo\plite\Provider\Base\FileProviderBase;
+use vertwo\plite\Provider\FileProvider;
+use vertwo\plite\Provider\FileProviderFactory;
 use function vertwo\plite\clog;
+use function vertwo\plite\yellog;
 
 
 
 class FileProviderLocal extends FileProviderBase
 {
+    const DEBUG_INIT = true;
+
+
+
     private $parent = false;
     private $dir    = false;
 
 
 
+    /**
+     * FileProviderLocal constructor.
+     *
+     * @param $params
+     *
+     * @throws Exception
+     *
+     * @see FileProviderFactory::getParamsLocal()
+     */
     function __construct ( $params )
     {
-        $parent = $params["file_location"];
-        $dir    = $params['file_bucket'];
+        if ( !array_key_exists(FileProvider::LOCAL_ROOT_KEY, $params) )
+        {
+            throw new Exception("Does not have [ " . FileProvider::LOCAL_ROOT_KEY . " ] in config");
+        }
 
-        $this->parent = $parent;
-        $this->dir    = $parent . DIRECTORY_SEPARATOR . $dir;
+        $this->parent = $params[FileProvider::LOCAL_ROOT_KEY];
     }
 
 
@@ -55,15 +72,10 @@ class FileProviderLocal extends FileProviderBase
      */
     public function init ( $params = false )
     {
-        //clog("FP.init() params", $params);
+        if ( self::DEBUG_INIT ) clog("FP.init() params", $params);
 
         if ( false !== $params )
         {
-            if ( array_key_exists("dir", $params) )
-            {
-                $this->dir = $params["dir"];
-            }
-
             if ( array_key_exists("bucket", $params) )
             {
                 $bucket    = $params['bucket'];
@@ -91,15 +103,15 @@ class FileProviderLocal extends FileProviderBase
 
         if ( !is_readable($this->dir) )
         {
-            Log::warn("[ " . $this->dir . " ] is NOT readable.");
+            yellog("[ " . $this->dir . " ] is NOT readable.");
         }
 
         if ( !is_writeable($this->dir) )
         {
-            Log::warn("[ " . $this->dir . " ] is NOT writeable.");
+            yellog("[ " . $this->dir . " ] is NOT writeable.");
         }
 
-        //clog("FP.init()", "FileProvider (local - {$this->dir}) successfully init'ed.");
+        if ( self::DEBUG_INIT ) clog("FP.init()", "FileProvider (local - {$this->dir}) successfully init'ed.");
     }
 
 
@@ -137,6 +149,9 @@ class FileProviderLocal extends FileProviderBase
 
         return $files;
     }
+
+
+
     /**
      * @param bool|array $params
      *
@@ -144,7 +159,7 @@ class FileProviderLocal extends FileProviderBase
      */
     public function lsDirs ( $params = false )
     {
-        $prefix = (false !== $params || array_key_exists('prefix', $params)) ? $params['prefix'] : "";
+        $prefix = (false !== $params && array_key_exists('prefix', $params)) ? $params['prefix'] : "";
 
         $dirs    = [];
         $entries = $this->ls($params);
@@ -155,6 +170,9 @@ class FileProviderLocal extends FileProviderBase
         }
         return $dirs;
     }
+
+
+
     /**
      * @param bool|array $params
      *
@@ -187,8 +205,6 @@ class FileProviderLocal extends FileProviderBase
      */
     public function write ( $path, $data, $meta = false )
     {
-        $data = trim($data) . "\n";
-
         $wholePath = $this->getLocalPathFromKey($path);
 
         $wholeDir = dirname($wholePath);

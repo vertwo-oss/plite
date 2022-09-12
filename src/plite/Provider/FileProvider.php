@@ -31,6 +31,8 @@ interface FileProvider
     const DEBUG_S3         = false;
     const DEBUG_S3_VERBOSE = false;
 
+    const LOCAL_ROOT_KEY = "localRoot";
+
 
 
     public function init ( $params = false );
