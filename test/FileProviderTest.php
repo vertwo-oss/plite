@@ -31,6 +31,8 @@ class TestConfig implements ConfigInterface
     function getConfig ()
     {
         return [
+            "plite_app" => "plite",
+
             "aws_region"  => "us-east-2",
             "aws_version" => "latest",
 

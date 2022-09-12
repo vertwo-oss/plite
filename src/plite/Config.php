@@ -113,22 +113,14 @@ abstract class Config
     /**
      * @throws Exception
      */
-    public static function init ( $initParams = false )
-    {
-        if ( false === self::$PARAMS )
-        {
-            self::loadParams($initParams);
-        }
-    }
+    public static function init () { if ( false === self::$PARAMS ) self::loadParams(); }
 
 
 
     /**
-     * @params bool|mixed $initParams
-     *
      * @throws Exception
      */
-    private static function loadParams ( $initParams = false )
+    private static function loadParams ()
     {
         $info = self::bootstrapParams();
 
@@ -140,28 +132,22 @@ abstract class Config
         switch ( $type )
         {
             case "local":
-                $isLocal     = true;
-                $localRoot   = $info['local'];
-                $urlAppRegex = $info['regex'];
-                $app         = self::getAppFromUrlRegex($urlAppRegex);
-                clog("local - app", $app);
-                $params       = self::loadFileConfig($app, $localRoot);
-                self::$APP    = $app;
-                self::$CONFIG = $params[self::ENV_PLITE_CONFIG_KEY];
+                list($app, $config, $params) = self::getLocalConfig($info);
                 break;
 
             case "cloud":
-                $isLocal      = false;
-                $params       = self::loadSubclassConfig();
-                self::$APP    = $info['app'];
-                self::$CONFIG = $info['config'];
+                list($app, $config, $params) = self::getCloudConfig($info);
                 break;
 
             default:
                 throw new Exception ("Config type [ $type ]; unknown; check env var values.");
         }
 
-        if ( self::DEBUG_CONFIG_INFO ) clog("isLocal", $isLocal);
+        self::$APP    = $app;
+        self::$CONFIG = $config;
+
+        clog("   APP", self::$APP);
+        clog("CONFIG", self::$CONFIG);
 
         self::$PARAMS = $params;
     }
@@ -182,12 +168,10 @@ abstract class Config
         //
         // NOTE - Prod (from class-which-implements-ConfigInterface) + CLI
         //
-        $hasApp    = self::hasEnv(self::ENV_PLITE_APP_KEY);
         $hasConfig = self::hasEnv(self::ENV_PLITE_CONFIG_KEY);
 
         clog("has local (root)", $hasLocal);
         clog("has regex", $hasRegex);
-        clog("has app", $hasApp);
         clog("has config", $hasConfig);
 
         if ( $hasLocal || $hasRegex )
@@ -214,29 +198,14 @@ abstract class Config
                 ];
             }
         }
-        else if ( $hasApp || $hasConfig )
+        else if ( $hasConfig )
         {
-            $app    = self::loadEnv(self::ENV_PLITE_APP_KEY);
             $config = self::loadEnv(self::ENV_PLITE_CONFIG_KEY);
-
-            if ( $hasApp && $hasConfig )
-            {
-                return [
-                    "isValid" => true,
-                    "type"    => "cloud",
-                    "app"     => $app,
-                    "config"  => $config,
-                ];
-            }
-            else
-            {
-                return [
-                    "isValid" => false,
-                    "missing" => $hasApp
-                        ? self::ENV_PLITE_CONFIG_KEY
-                        : self::ENV_PLITE_APP_KEY,
-                ];
-            }
+            return [
+                "isValid" => true,
+                "type"    => "cloud",
+                "config"  => $config,
+            ];
         }
         else
         {
@@ -278,6 +247,34 @@ abstract class Config
         if ( self::DEBUG_ENV ) clog("ENV -> $key", $val);
 
         return $val;
+    }
+
+
+
+
+    /**
+     * @param array $info
+     *
+     * @return array
+     * @throws Exception
+     */
+    private static function getLocalConfig ( $info )
+    {
+        $isLocal     = true;
+        $localRoot   = $info['local'];
+        $urlAppRegex = $info['regex'];
+        $app         = self::getAppFromUrlRegex($urlAppRegex);
+        clog("local -    app", $app);
+
+        $params = self::loadFileConfig($app, $localRoot);
+
+        if ( !array_key_exists(self::ENV_PLITE_CONFIG_KEY, $params) )
+            throw new Exception("Config (cloud) does not have [ " . self::ENV_PLITE_CONFIG_KEY . " ] defined.");
+
+        $config = $params[self::ENV_PLITE_CONFIG_KEY];
+        clog("local - config", $config);
+
+        return [ $app, $config, $params ];
     }
 
 
@@ -365,35 +362,47 @@ abstract class Config
 
 
     /**
-     * @return mixed
+     * @param array $info
      *
+     * @return array
      * @throws Exception
      */
-    private static function loadSubclassConfig ()
+    private static function getCloudConfig ( $info )
     {
-        /** @var ConfigInterface $config */
-        $config = self::loadConfigClass();
+        $isLocal = false;
+        $config  = $info['config'];
 
-        return $config->getConfig();
+        $params = self::loadSubclassConfig($config);
+
+        if ( !array_key_exists(self::ENV_PLITE_APP_KEY, $params) )
+            throw new Exception("Config (cloud) does not have [ " . self::ENV_PLITE_APP_KEY . " ] defined.");
+
+        $app = $params[self::ENV_PLITE_APP_KEY];
+        clog("cloud - config", $config);
+        clog("cloud -    app", $app);
+
+        return [ $app, $config, $params ];
     }
 
 
 
     /**
+     * @param string $configClass
+     *
+     * @return mixed
      * @throws Exception
      */
-    private static function loadConfigClass ()
+    private static function loadSubclassConfig ( $configClass )
     {
-        $configClass = self::loadEnv(self::ENV_PLITE_CONFIG_KEY);
-
         if ( self::DEBUG_ENV ) clog("Loading INLINE config", $configClass);
 
+        /** @var ConfigInterface $config */
         $config = self::loadClass($configClass);
 
         if ( !$config instanceof ConfigInterface )
             throw new Exception("Specified class does not implement ConfigInterface.");
 
-        return $config;
+        return $config->getConfig();
     }
 
 
