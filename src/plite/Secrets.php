@@ -19,20 +19,13 @@
 
 
 
-namespace vertwo\plite\Provider;
+namespace vertwo\plite;
 
 
 
 use Aws\Exception\AwsException;
 use Aws\SecretsManager\SecretsManagerClient;
 use Exception;
-use vertwo\plite\Ball;
-use vertwo\plite\Config;
-use vertwo\plite\FJ;
-use vertwo\plite\Log;
-use function vertwo\plite\cclog;
-use function vertwo\plite\clog;
-use function vertwo\plite\redlog;
 
 
 
