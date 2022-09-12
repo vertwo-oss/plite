@@ -29,7 +29,7 @@ use Exception;
 
 /**
  *
- * NOTE - This is the critical configuration step.
+ * WARN - This is the critical configuration step.
  *
  * NOTE - Two primary considerations:
  *            1. Dev env, possibly working with multiple applications, each having a unique URL on localhost.
@@ -85,19 +85,11 @@ abstract class Config
 
 
 
-//    private static $PLITE_APP    = false;
-//    private static $PLITE_CONFIG = false;
-
     /** @var array|bool $PARAMS */
     private static $PARAMS = false;
 
-//    /** @var bool $IS_LOCAL */
-//    private static $IS_LOCAL = false;
-
     private static $APP    = false; // App name (Prod + CLI)
     private static $CONFIG = false; // Fully-qualified ConfigInterface subclass name (Prod + CLI)
-    private static $REGEX  = false; // Regex for getting app from URL
-    private static $LOCAL  = false; // Local config root
 
 
 
@@ -128,45 +120,6 @@ abstract class Config
             self::loadParams($initParams);
         }
     }
-//
-//
-//
-//    /**
-//     * Expects web server to have 'vertwo_class_prefix' as an
-//     * environment variable available to PHP via $_SERVER.
-//     *
-//     * Then, uses that value to instantiate the relevant
-//     * given subclass.
-//     *
-//     * @param string $clazz - Name of type, after prefix (e.g., "ProviderFactory", "Router")
-//     *
-//     * @return mixed
-//     * @throws Exception
-//     */
-//    public static function loadPrefixedClass ( $className )
-//    {
-//        if ( false === self::$PARAMS )
-//            throw new Exception("PliteConfig not init'ed; try calling PliteConfig::newInstance().");
-//
-//        if ( !array_key_exists(self::ENV_PLITE_PREFIX_KEY, self::$PARAMS) )
-//            throw new Exception("Cannot find 'plite_prefix' config setting.");
-//
-//        $prefix = self::$PARAMS[self::ENV_PLITE_PREFIX_KEY];
-//
-//        clog("prefix", $prefix);
-//
-//        if ( (strlen($prefix) == 0) || null == $prefix || !$prefix )
-//            throw new Exception("Invalid 'plite_prefix' config setting.");
-//
-//        $fqClass = $prefix . $className;
-//
-//        clog("prefix", $prefix);
-//        clog("Instantiating sublcass", $fqClass);
-//
-//        if ( !class_exists($fqClass) ) throw new Exception("Cannot load [ " . $fqClass . " ]");
-//
-//        return new $fqClass();
-//    }
 
 
 
@@ -212,48 +165,6 @@ abstract class Config
 
         self::$PARAMS = $params;
     }
-//
-//
-//
-//    /**
-//     * @throws Exception
-//     */
-//    private static function bootstrapParamsFromEnv ()
-//    {
-//        if ( self::$IS_ALREADY_BOOTSTRAPPING ) return;
-//
-//        self::$IS_ALREADY_BOOTSTRAPPING = true;
-//
-//        if ( false !== self::$PARAMS ) return;
-//
-//        $info = self::getConfigInfo();
-//
-//        if ( false === $info["isValid"] )
-//            throw new Exception("Invalid configuration; all fields missing--check Apache config (and SetEnv values).");
-//
-//        $type = $info['type'];
-//
-//        switch ( $type )
-//        {
-//            case "local":
-//                self::$IS_LOCAL = true;
-//                self::$PARAMS   = self::loadFileConfig();
-//                break;
-//
-//            case "cloud":
-//                self::$IS_LOCAL = false;
-//                self::$PARAMS   = self::loadDefaultConfig();
-//                break;
-//
-//            default:
-//                throw new Exception ("Config type [ $type ]; unknown; check env var values.");
-//        }
-//
-//        if ( self::DEBUG_CONFIG_INFO ) clog("self::\$IS_LOCAL", self::$IS_LOCAL);
-//        if ( self::DEBUG_CONFIG_INFO ) clog("self::\$PARAMS", self::$PARAMS);
-//
-//        self::$IS_ALREADY_BOOTSTRAPPING = false;
-//    }
 
 
 
@@ -599,9 +510,9 @@ abstract class Config
 
         return $source;
     }
-//
-//
-//
+
+
+
 //    private function isUsingProviderSource ( $providerType, $source )
 //    {
 //        $key = $providerType . "_provider";
@@ -667,18 +578,4 @@ abstract class Config
      * @throws Exception
      */
     private static function getAWSVersion () { return self::get(self::AWS_VERSION_ARRAY_KEY); }
-//
-//
-//
-//    /**
-//     * @param $secretName
-//     *
-//     * @return bool|mixed
-//     * @throws Exception
-//     */
-//    public function getSecret ( $secretName )
-//    {
-//        if ( false === self::$PARAMS ) Config::init();
-//        return Secrets::get($secretName);
-//    }
 }
