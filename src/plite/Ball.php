@@ -1,7 +1,7 @@
 <?php
 /**
- * Copyright (c) 2012-2021 Troy Wu
- * Copyright (c) 2021      Version2 OÜ
+ * Copyright (c) 2012-2022 Troy Wu
+ * Copyright (c) 2021-2022 Version2 OÜ
  * All rights reserved.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
@@ -20,13 +20,6 @@
 
 
 namespace vertwo\plite;
-
-
-
-use vertwo\plite\FJ;
-use vertwo\plite\Log;
-use function vertwo\plite\clog;
-use function vertwo\plite\redulog;
 
 
 
