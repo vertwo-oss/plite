@@ -57,10 +57,9 @@ use Exception;
  */
 abstract class Config
 {
-    const DEBUG_ENV                    = true;
-    const DEBUG_CONFIG_INFO            = true;
-    const DEBUG_CONFIG_INFO_WITH_DUMPS = false;
-    const DEBUG_AWS_CREDS              = false;
+    const DEBUG_ENV         = true;
+    const DEBUG_CONFIG_INFO = true;
+    const DEBUG_AWS_CREDS   = false;
 
     const DEBUG_CONFIG_INFO_JSON = false; // DANGER - In __PRODUCTION__, this must be set to (false)!!!!!
     const DEBUG_CREDS_DANGEROUS  = false; // DANGER - In __PRODUCTION__, this must be set to (false)!!!!!
@@ -210,7 +209,6 @@ abstract class Config
         }
 
         if ( self::DEBUG_CONFIG_INFO ) clog("isLocal", $isLocal);
-        if ( self::DEBUG_CONFIG_INFO ) clog("params", $params);
 
         self::$PARAMS = $params;
     }
