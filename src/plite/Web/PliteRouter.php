@@ -129,9 +129,8 @@ abstract class PliteRouter extends Ajax
     {
         parent::__construct();
 
-        $this->config      = Config::newInstance();
-        $this->routingRoot = $this->config->has(self::CONFIG_KEY_ROUTING_ROOT)
-            ? $this->config->get(self::CONFIG_KEY_ROUTING_ROOT)
+        $this->routingRoot = Config::has(self::CONFIG_KEY_ROUTING_ROOT)
+            ? Config::get(self::CONFIG_KEY_ROUTING_ROOT)
             : "";
 
         $isWorkerEnv = $this->isAWSWorkerEnv();
