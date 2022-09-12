@@ -58,7 +58,7 @@ use Exception;
 abstract class Config
 {
     const DEBUG_ENV                    = true;
-    const DEBUG_CONFIG_INFO            = false;
+    const DEBUG_CONFIG_INFO            = true;
     const DEBUG_CONFIG_INFO_WITH_DUMPS = false;
     const DEBUG_AWS_CREDS              = false;
 
@@ -188,10 +188,11 @@ abstract class Config
         switch ( $type )
         {
             case "local":
-                $isLocal      = true;
-                $localRoot    = $info['local'];
-                $urlAppRegex  = $info['regex'];
-                $app          = self::getAppFromUrlRegex($urlAppRegex);
+                $isLocal     = true;
+                $localRoot   = $info['local'];
+                $urlAppRegex = $info['regex'];
+                $app         = self::getAppFromUrlRegex($urlAppRegex);
+                clog("local - app", $app);
                 $params       = self::loadFileConfig($app, $localRoot);
                 self::$APP    = $app;
                 self::$CONFIG = $params[self::ENV_PLITE_CONFIG_KEY];
@@ -388,6 +389,10 @@ abstract class Config
         $configPath = $rootDir . "/config/" . $app . "-config.js";
         $authPath   = $rootDir . "/auth/" . $app . "-auth.js";
 
+        clog("root    dir", $rootDir);
+        clog("config path", $configPath);
+        clog("auth   path", $authPath);
+
         $conf   = self::loadConfigFile($configPath);
         $auth   = self::loadConfigFile($authPath);
         $params = array_merge($conf, $auth);
@@ -435,7 +440,17 @@ abstract class Config
 
         if ( self::DEBUG_CONFIG_INFO_JSON ) clog("config(json)", $json);
 
-        return FJ::jsDecode($json);
+        $params = FJ::jsDecode($json);
+
+        if ( is_array($params) )
+        {
+            return $params;
+        }
+        else
+        {
+            yelulog("Parameters are not an array; check syntax of config file.");
+            return [];
+        }
     }
 
 
