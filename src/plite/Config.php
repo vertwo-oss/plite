@@ -76,9 +76,8 @@ abstract class Config
     const AWS_REGION_ARRAY_KEY  = "aws_region";
     const AWS_VERSION_ARRAY_KEY = "aws_version";
 
-    const AWS_ACCESS_ARRAY_KEY      = "aws_access_key_id";
-    const AWS_SECRET_ARRAY_KEY      = "aws_secret_access_key";
-    const AWS_CREDENTIALS_ARRAY_KEY = "credentials";
+    const AWS_ACCESS_ARRAY_KEY = "aws_access_key_id";
+    const AWS_SECRET_ARRAY_KEY = "aws_secret_access_key";
 
     const PROVIDER_LOCAL = "local";
     const PROVIDER_PROXY = "proxy";
@@ -580,15 +579,22 @@ abstract class Config
                 #4 /Users/troy/proj/predictus2/web/route.php(61): vertwo\\plite\\Web\\PliteRouter->main()
                 #5 {main}\n  thrown in /Users/troy/proj/predictus2/web/src/predictus/DurkheimAPI.php on line 106, referer: http://localhost/~troy/fhios/dashboard
                  */
-                $creds["key"]    = $access;
-                $creds["secret"] = $secret;
+                //
+                // NOTE - This worked as of 2022 Aug.
+                //
+                // * https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/guide_credentials_hardcoded.html
+                //
+                $creds["credentials"] = [
+                    'key'    => $access, // WARN - WTF ARE YOU KIDDING ME, AWS???
+                    'secret' => $secret,
+                ];
             }
             else
             {
                 //
                 // NOTE - This worked as of 3.1.128, but is no longer working (2022 Aug)
                 //
-                $creds[self::AWS_CREDENTIALS_ARRAY_KEY] = [
+                $creds["credentials"] = [
                     'access' => $access,
                     'secret' => $secret,
                 ];
@@ -599,6 +605,9 @@ abstract class Config
 
         return $creds;
     }
+
+
+
     /**
      * @return mixed|null
      * @throws Exception
