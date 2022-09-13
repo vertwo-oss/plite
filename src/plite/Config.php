@@ -65,6 +65,7 @@ abstract class Config
     const DEBUG_CREDS_DANGEROUS  = false; // DANGER - In __PRODUCTION__, this must be set to (false)!!!!!
 
 
+    const AWS_IMPL_VERSION = 202209;
 
     const ENV_PLITE_APP_KEY    = "plite_app";    // NOTE - Prod + CLI
     const ENV_PLITE_CONFIG_KEY = "plite_config"; // NOTE - Prod + CLI
@@ -555,8 +556,8 @@ abstract class Config
             'version' => self::getAWSVersion(),
         ];
 
-        $hasAccess = self::get(self::AWS_ACCESS_ARRAY_KEY);
-        $hasSecret = self::get(self::AWS_SECRET_ARRAY_KEY);
+        $hasAccess = self::has(self::AWS_ACCESS_ARRAY_KEY);
+        $hasSecret = self::has(self::AWS_SECRET_ARRAY_KEY);
 
         $hasAwsCreds = $hasAccess && $hasSecret;
 
@@ -567,10 +568,31 @@ abstract class Config
 
             if ( self::DEBUG_AWS_CREDS ) clog(self::AWS_ACCESS_ARRAY_KEY, $access);
 
-            $creds[self::AWS_CREDENTIALS_ARRAY_KEY] = [
-                'access' => $access,
-                'secret' => $secret,
-            ];
+            if ( self::AWS_IMPL_VERSION >= 202208 )
+            {
+                /*
+                [Tue Sep 13 21:20:16.869611 2022] [php7:error] [pid 28314] [client 127.0.0.1:63150] PHP Fatal error:  Uncaught Error: Call to undefined method vertwo\\plite\\Provider\\AWS\\FileProviderAWS::get() in /Users/troy/proj/predictus2/web/src/predictus/DurkheimAPI.php:106
+                Stack trace:
+                #0 /Users/troy/proj/predictus2/web/src/predictus/DurkheimAPI.php(63): pattpred\\predictus\\DurkheimAPI::getSampleData('grp1-pt-1001')
+                #1 /Users/troy/proj/predictus2/web/src/fhios/FhiosRouter.php(523): pattpred\\predictus\\DurkheimAPI::callWithSample(Object(pattpred\\fhios\\FhiosRouter), 'grp1-pt-1001')
+                #2 /Users/troy/proj/predictus2/web/src/fhios/FhiosRouter.php(132): pattpred\\fhios\\FhiosRouter->callMentalHealthAPIWithSample()
+                #3 /Users/troy/proj/predictus2/web/vendor/vertwo/plite/src/plite/Web/PliteRouter.php(258): pattpred\\fhios\\FhiosRouter->handleRequest()
+                #4 /Users/troy/proj/predictus2/web/route.php(61): vertwo\\plite\\Web\\PliteRouter->main()
+                #5 {main}\n  thrown in /Users/troy/proj/predictus2/web/src/predictus/DurkheimAPI.php on line 106, referer: http://localhost/~troy/fhios/dashboard
+                 */
+                $creds["key"]    = $access;
+                $creds["secret"] = $secret;
+            }
+            else
+            {
+                //
+                // NOTE - This worked as of 3.1.128, but is no longer working (2022 Aug)
+                //
+                $creds[self::AWS_CREDENTIALS_ARRAY_KEY] = [
+                    'access' => $access,
+                    'secret' => $secret,
+                ];
+            }
         }
 
         if ( self::DEBUG_CREDS_DANGEROUS ) clog("getCredsAWS() - creds", $creds);
