@@ -103,9 +103,12 @@ abstract class PliteRouter extends Ajax
     /**
      * Subclass implements to handle HTTP request.
      *
+     * @param string $whole - The entire URI.
+     * @param string $page  - The "page" (after first /, before second /).
+     *
      * @return mixed
      */
-    public abstract function handleRequest ();
+    public abstract function handleRequest ( $whole, $page );
 
 
 
@@ -253,7 +256,7 @@ abstract class PliteRouter extends Ajax
     {
         $this->initSession();
         $this->initCacheHeaders();
-        $this->handleRequest();
+        $this->handleRequest($this->whole, $this->page);
         exit(0);
     }
 }
