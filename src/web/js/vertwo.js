@@ -247,7 +247,7 @@ function createDropZone($dz, $info, $uploadButton, formDataHandler) {
             var niceSize = fileSize(size);
             var type = file['type'];
 
-            var entry = '<tr class="dz-file-entry">'
+            var entry = '<tr class="vertwo-plite-dz-file-entry">'
                 + '<td>' + '<input type="checkbox" readonly/>' + '</td>'
                 + '<td>' + filename + '</td>'
                 + '<td>' + niceSize + '</td>'
@@ -256,7 +256,7 @@ function createDropZone($dz, $info, $uploadButton, formDataHandler) {
             tableContents = tableContents + entry;
         });
 
-        var table = '<table class="dz-file-list">\n'
+        var table = '<table class="vertwo-plite-dz-file-list">\n'
             + tableContents
             + '</table>';
 
