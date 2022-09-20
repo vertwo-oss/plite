@@ -64,7 +64,8 @@ PliteTemplate::init();
 
         #login_form {
             padding: 16px;
-            width: 40%;
+            width: 60%;
+            max-width: 600px;
             position: relative;
             top: 15%;
             margin: 0 auto;
