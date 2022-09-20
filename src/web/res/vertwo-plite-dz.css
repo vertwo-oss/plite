@@ -1,0 +1,50 @@
+.vertwo-plite-dz-info {
+    position: relative;
+    height: 40%;
+    max-height: 256px;
+    border: 4px dashed rgba(0, 255, 255, 0.5);
+    border-radius: 8px;
+
+    overflow: auto;
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+}
+
+.vertwo-plite-dz-info::-webkit-scrollbar {
+    display: none;
+}
+
+.vertwo-plite-dz-info > div:first-child {
+    position: relative;
+    margin-top: 0.5em;
+    font-size: 36px;
+    font-style: italic;
+    font-weight: 100;
+}
+
+table.vertwo-plite-dz-file-list {
+    width: calc(100% - 16px);
+    border-spacing: 0 4px;
+    margin: 8px;
+}
+
+table.vertwo-plite-dz-file-list td {
+    padding: 2px 4px;
+}
+
+table.vertwo-plite-dz-file-list td:first-child {
+    padding: 2px 0;
+}
+
+table.vertwo-plite-dz-file-list td:nth-child(3) {
+    font-family: "Fira Code", monospace;
+}
+
+table.vertwo-plite-dz-file-list td:nth-child(4) {
+    color: #444;
+}
+
+table.vertwo-plite-dz-file-list td:nth-child(3),
+table.vertwo-plite-dz-file-list td:nth-child(4) {
+    text-align: right;
+}
