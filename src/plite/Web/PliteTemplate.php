@@ -72,7 +72,7 @@ class PliteTemplate
             self::$string_APP_NAME            = "Unknown App";
             self::$html_elem_LOGO             = "<img src=\"res/question.png\" alt=\"unknown app\"/>";
             self::$string_REG_EMAIL           = "interest@example.com";
-            self::$css_value_PADDING_TOP_LOGO = "92px";
+            self::$css_value_PADDING_TOP_LOGO = "0";
             self::$css_value_BACKGROUND       = "#222";
             self::$string_LONG_COPYRIGHT      = "Copyleft";
             self::$IS_USING_POWERED_BY_V2     = false;

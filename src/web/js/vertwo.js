@@ -65,90 +65,6 @@ function parseOkResponse(url, data, onWin, onFail) {
 
 
 
-function shortenText(text, maxlen, showQuestionMark) {
-    if (maxlen < text.length) {
-        text = text.substr(0, maxlen);
-        var pos = text.lastIndexOf(' ');
-        text = text.substring(0, pos) + "..." + (showQuestionMark ? "?" : ".");
-    }
-
-    return text;
-}
-
-
-
-function px(n) { return ('' + n + 'px');}
-
-
-
-function computeDuration(now, then) {
-    var n = now.getTime();
-    var t = then.getTime();
-
-    var secsMin = 60;
-    var secsHour = 60 * secsMin;
-    var secsDay = 24 * secsHour;
-    var secsWeek = 7 * secsDay;
-    var secsMonth = 30 * secsDay;
-    var secsYear = 12 * secsMonth;
-
-    /*
-     * Number of seconds separating these two values.
-     */
-    var diff = (n - t) / 1000;
-
-    var unit = "";
-    var dur = 0;
-    var prefix = "";
-
-    if (diff < secsMin) {
-        return "just now";
-    }
-
-    if (diff < secsHour) {
-        unit = "min";
-        dur = diff / secsMin;
-    } else if (diff < secsDay) {
-        unit = "hour";
-        dur = diff / secsHour;
-    } else if (diff < secsWeek) {
-        unit = "day";
-        dur = diff / secsDay;
-    } else if (diff < secsMonth) {
-        unit = "week";
-    } else {
-        unit = "month";
-        dur = diff / secsMonth;
-
-        if (dur > 3) {
-            dur = 3;
-            prefix = "> ";
-        }
-    }
-
-    /*
-     * Make plural as necessary.
-     */
-    if (dur > 1) {
-        unit = unit + "s";
-    }
-
-    dur = new Number(dur).toFixed(0);
-
-    return prefix + dur + "&nbsp;" + unit + "&nbsp;ago";
-}
-
-
-
-function computePercentage(numerator, denominator, precision = 1) {
-    const scale = precision * 10;
-    let readablePct = (100 * numerator) / denominator;
-    let roundedPct = Math.round(scale * readablePct) / scale;
-    return roundedPct;
-}
-
-
-
 function createDropZone($dz, $info, $uploadButton, formDataHandler) {
     const progressHandler = function (ev) {
         console.log(ev);
@@ -209,24 +125,22 @@ function createDropZone($dz, $info, $uploadButton, formDataHandler) {
 
 
 
-    function highlightDropzone($info) {
-        $info.css("border", "4px solid cyan");
-        $info.css("background-color", "rgba(0, 255, 255, 0.25)");
-        $info.find('div:first-child')
-             .html("Let go at any time to drop these files!")
-             .css("color", "white")
-             .css("font-weight", "900");
+    function highlightDropzone($feedback) {
+        $feedback.css("border", "1px solid cyan");
+        $feedback.css("background-color", "rgba(0, 255, 255, 0.1)");
+        $feedback.find('div:first-child')
+                 .html("Let go at any time to drop files here.")
+                 .css("color", "white")
     }
 
 
 
-    function resetDropzone($info) {
-        $info.css("border", "4px dashed rgba(0, 255, 255, 0.5)");
-        $info.css("background-color", "rgba(0, 0, 0, 0)");
-        $info.find('div:first-child')
-             .html("Drag and drop files anywhere on this page!")
-             .css("color", "#ccc")
-             .css("font-weight", "100");
+    function resetDropzone($feedback) {
+        $feedback.css("border", "1px dashed rgba(0, 255, 255, 0.5)");
+        $feedback.css("background-color", "rgba(0, 0, 0, 0)");
+        $feedback.find('div:first-child')
+                 .html("Drag and drop files here for uploading!")
+                 .css("color", "#ccc")
     }
 
 
@@ -238,8 +152,8 @@ function createDropZone($dz, $info, $uploadButton, formDataHandler) {
 
 
 
-    function updateFileList($info, fileList) {
-        var tableContents = "";
+    function updateFileList($tbody, fileList) {
+        var tableRows = "";
 
         $.each(fileList, function (idx, file) {
             var filename = file['name'];
@@ -247,28 +161,65 @@ function createDropZone($dz, $info, $uploadButton, formDataHandler) {
             var niceSize = fileSize(size);
             var type = file['type'];
 
-            var entry = '<tr class="vertwo-plite-dz-file-entry">'
-                + '<td>' + '<input type="checkbox" readonly/>' + '</td>'
-                + '<td>' + filename + '</td>'
-                + '<td>' + niceSize + '</td>'
-                + '<td>' + type + '</td>'
+            var entry = '<tr class="vertwo-plite-dz-file-entry">\n'
+                + '<td>' + '<input type="checkbox" readonly/>' + '</td>\n'
+                + '<td>' + filename + '</td>\n'
+                + '<td>' + type + '</td>\n'
+                + '<td>' + niceSize + '</td>\n'
                 + '</tr>\n';
-            tableContents = tableContents + entry;
+            tableRows = tableRows + entry;
         });
 
-        var table = '<table class="vertwo-plite-dz-file-list">\n'
-            + tableContents
-            + '</table>';
-
-        $info.html(table);
+        $tbody.html(tableRows);
     }
 
 
+
+    const dropzoneHtml = `
+        <div id="dz-info" class="vertwo-plite-dz-info">
+            <div>
+                Drag and drop files here to select them for upload.
+            </div>
+        </div>
+
+        <div id="dz-list" class="vertwo-plite-dz-list">
+            <div>
+                <div>
+                    <div class="vertwo-plite-dz-file-meta-header">Files to upload <span
+                                class="vertwo-plite-dz-file-meta">(1 Total, 6.0 MB)</span></div>
+                    All files here will be uploaded.
+                </div>
+                <div class="clear"></div>
+            </div>
+            <div>
+                <table>
+                    <thead>
+                    <th><input type="checkbox" readonly/></th>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Size</th>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="separator"></div>
+        <div>
+            <button id="dz-upload-button" class="reset_pass">Upload Files</button>
+        </div>
+`;
+
+    $info.html(dropzoneHtml);
 
     $uploadButton.on("click", (ev) => {
         uploadFiles(pendingFileList);
     });
 
+
+    const $feedback = $info.find("div.vertwo-plite-dz-info");
+    const $list = $info.find("div.vertwo-plite-dz-list > div:nth-child(2)");
 
 
     $dz.on("drop", (ev) => {
@@ -278,11 +229,13 @@ function createDropZone($dz, $info, $uploadButton, formDataHandler) {
         console.log("drop");
         console.log(ev);
 
-        resetDropzone($info);
+        resetDropzone($feedback);
 
         const fileList = ev.dataTransfer.files;
 
-        updateFileList($info, fileList);
+        $tbody = $list.find("table:first-child > tbody");
+
+        updateFileList($tbody, fileList);
 
         pendingFileList = [];
 
@@ -303,7 +256,7 @@ function createDropZone($dz, $info, $uploadButton, formDataHandler) {
         ev.stopPropagation();
         ev.preventDefault();
 
-        highlightDropzone($info);
+        highlightDropzone($feedback);
 
         // Style the drag-and-drop as a "copy file" operation.
         ev.dataTransfer.dropEffect = 'copy';
@@ -311,12 +264,12 @@ function createDropZone($dz, $info, $uploadButton, formDataHandler) {
     $dz.on("dragend", (ev) => {
         ev.stopPropagation();
         ev.preventDefault();
-        resetDropzone($info);
+        resetDropzone($feedback);
     });
     $dz.on("dragleave", (ev) => {
         ev.stopPropagation();
         ev.preventDefault();
-        resetDropzone($info);
+        resetDropzone($feedback);
     });
 }
 

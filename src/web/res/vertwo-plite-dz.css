@@ -1,9 +1,9 @@
 .vertwo-plite-dz-info {
     position: relative;
-    height: 40%;
-    max-height: 256px;
-    border: 4px dashed rgba(0, 255, 255, 0.5);
-    border-radius: 8px;
+    padding: 1em;
+    border: 1px dashed rgba(0, 255, 255, 0.5);
+    border-radius: 2px;
+    background-color: rgba(0, 139, 139, 0.1);
 
     overflow: auto;
     -ms-overflow-style: none; /* IE and Edge */
@@ -16,35 +16,129 @@
 
 .vertwo-plite-dz-info > div:first-child {
     position: relative;
-    margin-top: 0.5em;
-    font-size: 36px;
-    font-style: italic;
-    font-weight: 100;
+    font-size: 18px;
+    padding: 1em;
 }
 
-table.vertwo-plite-dz-file-list {
-    width: calc(100% - 16px);
-    border-spacing: 0 4px;
-    margin: 8px;
+
+.vertwo-plite-dz-list {
+    margin-top: 1em;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    box-shadow: 0 1px 0 2px #111;
+
+    overflow: auto;
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
 }
 
-table.vertwo-plite-dz-file-list td {
-    padding: 2px 4px;
+.vertwo-plite-dz-list > div:first-child {
+    /*
+     * NOTE - First child! - List Meta
+     */
+    text-align: left;
+    padding: 16px;
+    border-bottom: 0;
 }
 
-table.vertwo-plite-dz-file-list td:first-child {
-    padding: 2px 0;
+.vertwo-plite-dz-list > div:first-child > div:first-child {
+    float: left;
+    font-size: 14px;
+    margin-bottom: 8px;
 }
 
-table.vertwo-plite-dz-file-list td:nth-child(3) {
-    font-family: "Fira Code", monospace;
+.vertwo-plite-dz-file-meta-header {
+    font-size: 20px;
+    font-weight: bold;
+    padding-bottom: 0;
+    margin-bottom: 6px;
 }
 
-table.vertwo-plite-dz-file-list td:nth-child(4) {
-    color: #444;
+.vertwo-plite-dz-file-meta {
+    font-weight: normal;
+    color: #888;
+    font-size: 18px;
 }
 
-table.vertwo-plite-dz-file-list td:nth-child(3),
-table.vertwo-plite-dz-file-list td:nth-child(4) {
+.vertwo-plite-dz-list > div:nth-child(2) {
+    /*
+     * NOTE - Second child! - List Data
+     */
+    background-color: rgba(0, 139, 139, 0.05);
+}
+
+.vertwo-plite-dz-list > div:nth-child(2) > table {
+    width: 100%;
+    border: none;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.vertwo-plite-dz-list > div:nth-child(2) > table > thead {
+    background-color: #222;
+    min-height: 200px;
+    padding: 4px;
+    border-top: 1px solid #333;
+    border-bottom: 1px solid #333;
+    color: #777;
+    text-align: left;
+}
+
+.vertwo-plite-dz-list > div:nth-child(2) > table th {
+    background-color: #222;
+    padding: 8px 16px;
+    border-spacing: 8px 16px;
+    border-left: 1px solid #333;
+}
+
+.vertwo-plite-dz-list > div:nth-child(2) > table th:first-child {
+    background-color: #222;
+    min-height: 200px;
+    padding: 8px 16px;
+    border-spacing: 8px 16px;
+    border-left: none;
+}
+
+.vertwo-plite-dz-list input {
+    padding: 0;
+    margin: 0;
+    max-height: 24px;
+}
+
+
+.vertwo-plite-dz-list > div:nth-child(2) > table th:first-child {
+    width: 5%;
+}
+
+.vertwo-plite-dz-list > div:nth-child(2) > table th:nth-child(2) {
+    width: 40%;
+}
+
+.vertwo-plite-dz-list > div:nth-child(2) > table th:nth-child(3) {
+    width: 35%;
+}
+
+.vertwo-plite-dz-list > div:nth-child(2) > table th:nth-child(4) {
+    width: 20%;
+}
+
+.vertwo-plite-dz-list > div:nth-child(2) > table td {
+    font-size: 15px;
+    background-color: rgba(0, 0, 0, 0);
+    padding: 8px 16px;
+    border-spacing: 8px 16px;
+}
+
+.vertwo-plite-dz-list > div:nth-child(2) > table td:last-child {
     text-align: right;
+    font-family: monospace;
+    font-size: 13px;
+}
+
+.clear {
+    overflow: auto;
+    content: "";
+    clear: both;
+    display: table;
 }

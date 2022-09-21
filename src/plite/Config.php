@@ -569,16 +569,6 @@ abstract class Config
 
             if ( self::AWS_IMPL_VERSION >= 202208 )
             {
-                /*
-                [Tue Sep 13 21:20:16.869611 2022] [php7:error] [pid 28314] [client 127.0.0.1:63150] PHP Fatal error:  Uncaught Error: Call to undefined method vertwo\\plite\\Provider\\AWS\\FileProviderAWS::get() in /Users/troy/proj/predictus2/web/src/predictus/DurkheimAPI.php:106
-                Stack trace:
-                #0 /Users/troy/proj/predictus2/web/src/predictus/DurkheimAPI.php(63): pattpred\\predictus\\DurkheimAPI::getSampleData('grp1-pt-1001')
-                #1 /Users/troy/proj/predictus2/web/src/fhios/FhiosRouter.php(523): pattpred\\predictus\\DurkheimAPI::callWithSample(Object(pattpred\\fhios\\FhiosRouter), 'grp1-pt-1001')
-                #2 /Users/troy/proj/predictus2/web/src/fhios/FhiosRouter.php(132): pattpred\\fhios\\FhiosRouter->callMentalHealthAPIWithSample()
-                #3 /Users/troy/proj/predictus2/web/vendor/vertwo/plite/src/plite/Web/PliteRouter.php(258): pattpred\\fhios\\FhiosRouter->handleRequest()
-                #4 /Users/troy/proj/predictus2/web/route.php(61): vertwo\\plite\\Web\\PliteRouter->main()
-                #5 {main}\n  thrown in /Users/troy/proj/predictus2/web/src/predictus/DurkheimAPI.php on line 106, referer: http://localhost/~troy/fhios/dashboard
-                 */
                 //
                 // NOTE - This worked as of 2022 Aug.
                 //
