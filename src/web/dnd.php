@@ -263,7 +263,6 @@ PliteTemplate::init();
 
         const $dz = $(document.body);
         var $dzInfo = $('#dnd');
-        var $dzUploadButton = $('#dz-upload-button');
 
         const progressHandler = function (ev) {
             var cur = ev['position'];
@@ -311,7 +310,7 @@ PliteTemplate::init();
 
 
 
-        createDropZone($dz, $dzInfo, $dzUploadButton, formDataHandler); // MEAT <==
+        createDropZone($dz, $dzInfo, formDataHandler); // MEAT <==
 
 
 

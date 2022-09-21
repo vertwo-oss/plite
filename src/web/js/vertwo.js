@@ -65,7 +65,7 @@ function parseOkResponse(url, data, onWin, onFail) {
 
 
 
-function createDropZone($dz, $info, $uploadButton, formDataHandler) {
+function createDropZone($dz, $info, formDataHandler) {
     const progressHandler = function (ev) {
         console.log(ev);
     };
@@ -207,11 +207,13 @@ function createDropZone($dz, $info, $uploadButton, formDataHandler) {
 
         <div class="separator"></div>
         <div>
-            <button id="dz-upload-button" class="reset_pass">Upload Files</button>
+            <button id="vertwo-plite-dz-upload-button">Upload Files</button>
         </div>
 `;
 
     $info.html(dropzoneHtml);
+
+    const $uploadButton = $info.find('#vertwo-plite-dz-upload-button');
 
     $uploadButton.on("click", (ev) => {
         uploadFiles(pendingFileList);
