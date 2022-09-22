@@ -68,7 +68,7 @@ function parseOkResponse(url, data, onWin, onFail) {
 
 function createDropZone(params) {
     const dropzoneHtml = `
-        <div id="dz-info" class="vertwo-plite-dz-info">
+        <div id="dz-target" class="vertwo-plite-dz-target">
             <div>
                 {{dndText}}
             </div>
@@ -241,7 +241,7 @@ function createDropZone(params) {
     });
 
 
-    const $feedback = $ui.find("div.vertwo-plite-dz-info");
+    const $feedback = $ui.find("div.vertwo-plite-dz-target");
     const $list = $ui.find("div.vertwo-plite-dz-list > div:nth-child(2)");
 
 
