@@ -252,6 +252,8 @@ PliteTemplate::init();
 </body>
 <!-- Zepto -->
 <script src="js/lib/zepto.min.js"></script>
+<!-- Mustache -->
+<script src="js/lib/mustache.js"></script>
 <!-- Version2 -->
 <script src="js/vertwo.js"></script>
 <script>
@@ -262,7 +264,7 @@ PliteTemplate::init();
         console.log("DND Test Starting!");
 
         const $dz = $(document.body);
-        var $dzInfo = $('#dnd');
+        var $dzui = $('#dnd');
 
         const progressHandler = function (ev) {
             var cur = ev['position'];
@@ -310,7 +312,15 @@ PliteTemplate::init();
 
 
 
-        createDropZone($dz, $dzInfo, formDataHandler); // MEAT <==
+        var params = {
+            "$dz"            : $dz,
+            "$ui"            : $dzui,
+            "formDataHandler": formDataHandler,
+            "dndText"        : "Drop Here!"
+        };
+
+        createDropZone(params);
+        // createDropZone($dz, $dzInfo, formDataHandler); // MEAT <==
 
 
 

@@ -65,7 +65,63 @@ function parseOkResponse(url, data, onWin, onFail) {
 
 
 
-function createDropZone($dz, $info, formDataHandler) {
+
+function createDropZone(params) {
+    const dropzoneHtml = `
+        <div id="dz-info" class="vertwo-plite-dz-info">
+            <div>
+                {{dndText}}
+            </div>
+        </div>
+
+        <div id="dz-list" class="vertwo-plite-dz-list">
+            <div>
+                <div>
+                    <div class="vertwo-plite-dz-file-meta-header">Files to upload <span
+                                class="vertwo-plite-dz-file-meta">(1 Total, 6.0 MB)</span></div>
+                    All files here will be uploaded.
+                </div>
+                <div class="clear"></div>
+            </div>
+            <div>
+                <table>
+                    <thead>
+                    <th><input type="checkbox" readonly/></th>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Size</th>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="separator"></div>
+        <div>
+            <button id="vertwo-plite-dz-upload-button">Upload Files</button>
+        </div>
+`;
+
+
+    $dz = params['$dz'];
+    $ui = params['$ui'];
+    formDataHandler = params['formDataHandler'];
+
+    var dndText;
+    if (params.hasOwnProperty("dndText")) {
+        dndText = params['dndText'];
+    } else {
+        dndText = "Drag and drop files here to select them for upload.";
+    }
+    const input = {
+        "dndText": dndText
+    };
+
+    var output = mustache.render(dropzoneHtml, input);
+
+
+
     const progressHandler = function (ev) {
         console.log(ev);
     };
@@ -175,53 +231,18 @@ function createDropZone($dz, $info, formDataHandler) {
 
 
 
-    const dropzoneHtml = `
-        <div id="dz-info" class="vertwo-plite-dz-info">
-            <div>
-                Drag and drop files here to select them for upload.
-            </div>
-        </div>
 
-        <div id="dz-list" class="vertwo-plite-dz-list">
-            <div>
-                <div>
-                    <div class="vertwo-plite-dz-file-meta-header">Files to upload <span
-                                class="vertwo-plite-dz-file-meta">(1 Total, 6.0 MB)</span></div>
-                    All files here will be uploaded.
-                </div>
-                <div class="clear"></div>
-            </div>
-            <div>
-                <table>
-                    <thead>
-                    <th><input type="checkbox" readonly/></th>
-                    <th>Name</th>
-                    <th>Type</th>
-                    <th>Size</th>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+    $ui.html(output);
 
-        <div class="separator"></div>
-        <div>
-            <button id="vertwo-plite-dz-upload-button">Upload Files</button>
-        </div>
-`;
-
-    $info.html(dropzoneHtml);
-
-    const $uploadButton = $info.find('#vertwo-plite-dz-upload-button');
+    const $uploadButton = $ui.find('#vertwo-plite-dz-upload-button');
 
     $uploadButton.on("click", (ev) => {
         uploadFiles(pendingFileList);
     });
 
 
-    const $feedback = $info.find("div.vertwo-plite-dz-info");
-    const $list = $info.find("div.vertwo-plite-dz-list > div:nth-child(2)");
+    const $feedback = $ui.find("div.vertwo-plite-dz-info");
+    const $list = $ui.find("div.vertwo-plite-dz-list > div:nth-child(2)");
 
 
     $dz.on("drop", (ev) => {
