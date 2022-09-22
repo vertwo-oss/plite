@@ -26,54 +26,41 @@ namespace vertwo\plite\Util;
 interface CSVisitor
 {
     /**
+     * Called when header line has been tokenized.
+     *
      * Handle columns headers (column names).  This is called BEFORE parse().
      *
-     * @param array $columns - Column headers.
+     * @param array $headers - Column headers.
      */
-    function parseHeaders ( $columns );
+    function onHeaders ( $headers );
 
 
 
     /**
-     * NOTE - "Main" method, called for each CSV line tokenized.
+     * Called when a new line of text is encountered (before tokenization).
      *
-     * @param int        $lineIndex - Index of line, inclusive of all lines.
-     * @param string[]   $tokens    - Array of strings.
-     * @param array|bool $columns   - (false) if no column names; otherwise, array of columns names
-     *
-     * @return mixed
+     * @param int    $lineIndex - Index of line, inclusive of all lines.
+     * @param string $line      - Raw line.
      */
-    function parse ( $lineIndex, $tokens, $columns = false );
+    function onLine ( $lineIndex, $line );
 
 
 
     /**
-     * @param $lineIndex
+     * MEAT - "Main" method, called for each CSV line tokenized.
      *
-     * @return mixed
+     * @param int      $lineIndex - Index of line, inclusive of all lines.
+     * @param string[] $tokens    - Array of comma-separated tokens.
      */
-    function ante ( $lineIndex );
+    function onTokens ( $lineIndex, $tokens );
+
 
 
     /**
-     * @param $lineIndex
-     * @param $tokens
+     * Called when CSV file is finished.
      *
-     * @return mixed
+     * @param $lineCount - Total number of lines, including possible-header line.
      */
-    function parseComment ( $lineIndex, $tokens );
+    function onFinish ( $lineCount );
 
-
-    /**
-     * @param $lineIndex
-     *
-     * @return mixed
-     */
-    function post ( $lineIndex );
-
-
-    /**
-     * @return mixed
-     */
-    function finish ();
 }

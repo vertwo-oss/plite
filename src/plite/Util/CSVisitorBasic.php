@@ -26,29 +26,16 @@ namespace vertwo\plite\Util;
 abstract class CSVisitorBasic implements CSVisitor
 {
     /**
-     * @param $lineIndex
+     * NOTE - "Main" method, called for each CSV line tokenized.
      *
-     * @return mixed
+     * @param int      $lineIndex - Index of line, inclusive of all lines.
+     * @param string[] $tokens    - Array of comma-separated tokens.
      */
-    function ante ( $lineIndex ) { return false; }
+    abstract function onTokens ( $lineIndex, $tokens );
 
-    /**
-     * @param $lineIndex
-     * @param $tokens
-     *
-     * @return mixed
-     */
-    function parseComment ( $lineIndex, $tokens ) { return false; }
 
-    /**
-     * @param $lineIndex
-     *
-     * @return mixed
-     */
-    function post ( $lineIndex ) { return false; }
 
-    /**
-     * @return mixed
-     */
-    function finish () { return false; }
+    function onHeaders ( $headers ) { }
+    function onLine ( $lineIndex, $line ) { }
+    function onFinish ( $lineCount ) { }
 }
