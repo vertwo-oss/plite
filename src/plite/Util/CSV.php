@@ -186,8 +186,6 @@ class CSV
             return;
         }
 
-        $hasResultHandler = false !== $this->resultHandler;
-
         $csv = fopen($this->filepath, "r");
 
         if ( false === $csv )
@@ -209,7 +207,6 @@ class CSV
 
         $lineIndex = -1;
 
-        //while ( false !== ($tokens = fgetcsv($csv, 0, $this->delim)) )
         while ( false !== ($line = fgets($csv)) )
         {
             ++$lineIndex;
@@ -221,26 +218,6 @@ class CSV
             if ( self::DEBUG_CSV_VERBOSE ) clog("start", $tokens);
 
             $visitor->onTokens($lineIndex, $tokens);
-
-//            $visitor->ante($lineIndex);
-
-            //$tokens = self::stripBOMHeader($tokens); // NOTE - stripping BOM headers on EVERY LINE???
-            //if ( self::DEBUG_CSV_VERBOSE ) clog("after BOM-strip", $tokens);
-
-//            if ( $this->isCommentLine($tokens) )
-//            {
-//                if ( self::DEBUG_CSV_VERBOSE ) cclog(Log::TEXT_COLOR_UL_YELLOW, "Skipping line: " . implode(",", $tokens));
-//                $visitor->parseComment($lineIndex, $tokens);
-//                $result = false;
-//            }
-//            else
-//            {
-//                $result = $visitor->parse($lineIndex, $tokens, $this->headers);
-//            }
-//
-//            $visitor->post($lineIndex);
-//
-//            if ( $hasResultHandler && false !== $result ) $this->resultHandler->handleResult($lineIndex, $result);
         }
 
         fclose($csv);
@@ -253,7 +230,7 @@ class CSV
      *
      * @throws Exception
      */
-    public function parseWithHeaderLine ( $visitor ) { $this->parse($visitor, true); }
+    public function parseWithHeaders ( $visitor ) { $this->parse($visitor, true); }
 
 
 
@@ -347,8 +324,6 @@ class CSV
      */
     private function readAsData ( $visitor, $hasHeaderLine )
     {
-//        $hasResultHandler = false !== $this->resultHandler;
-
         if ( self::DEBUG_CSV_VERBOSE ) clog("Using input as raw CSV data");
 
         //
@@ -363,7 +338,8 @@ class CSV
             $firstLineTokens = str_getcsv($lines[0]); // Assume first line has column names
             $this->headers   = self::stripBOMHeader($firstLineTokens); // Excel bullshit.
             if ( self::DEBUG_CSV_COLUMNS ) clog("columns", $this->headers);
-            $visitor->parseHeaders($this->headers);
+
+            $visitor->onHeaders($this->headers);
             ++$lineIndex;
         }
 
@@ -377,31 +353,69 @@ class CSV
 
             if ( self::DEBUG_CSV_VERBOSE ) clog("start", $tokens);
 
-            //$visitor->ante($lineIndex);
-
             $visitor->onTokens($lineIndex, $tokens);
-
-            //$tokens = self::stripBOMHeader($tokens); // NOTE - stripping BOM headers on EVERY LINE???
-            //if ( self::DEBUG_CSV_VERBOSE ) clog("after BOM-strip", $tokens);
-
-//            if ( $this->isCommentLine($tokens) )
-//            {
-//                if ( self::DEBUG_CSV_VERBOSE ) cclog(Log::TEXT_COLOR_UL_YELLOW, "Skipping line: " . implode(",", $tokens));
-//                $visitor->parseComment($lineIndex, $tokens);
-//                $result = false;
-//            }
-//            else
-//            {
-//                $result = $visitor->parse($lineIndex, $tokens, $this->headers);
-//            }
-//
-//            $visitor->post($lineIndex);
-//
-//            if ( $hasResultHandler && false !== $result ) $this->resultHandler->handleResult($lineIndex, $result);
-
         }
-//
+
         $visitor->onFinish($lineCount);
+
+
+//
+//
+////        $hasResultHandler = false !== $this->resultHandler;
+//
+//        if ( self::DEBUG_CSV_VERBOSE ) clog("Using input as raw CSV data");
+//
+//        //
+//        // WARN - Here, $this->filepath is actually the CSV data itself, not the filename.
+//        //
+//        $lines     = explode("\n", $this->filepath);
+//        $lineCount = count($lines);
+//        $lineIndex = 0;
+//
+//        if ( $hasHeaderLine )
+//        {
+//            $firstLineTokens = str_getcsv($lines[0]); // Assume first line has column names
+//            $this->headers   = self::stripBOMHeader($firstLineTokens); // Excel bullshit.
+//            if ( self::DEBUG_CSV_COLUMNS ) clog("columns", $this->headers);
+//            $visitor->parseHeaders($this->headers);
+//            ++$lineIndex;
+//        }
+//
+//        for ( ; $lineIndex < $lineCount; ++$lineIndex )
+//        {
+//            $line = $lines[$lineIndex];
+//
+//            $visitor->onLine($lineIndex, $line);
+//
+//            $tokens = str_getcsv($line);
+//
+//            if ( self::DEBUG_CSV_VERBOSE ) clog("start", $tokens);
+//
+//            //$visitor->ante($lineIndex);
+//
+//            $visitor->onTokens($lineIndex, $tokens);
+//
+//            //$tokens = self::stripBOMHeader($tokens); // NOTE - stripping BOM headers on EVERY LINE???
+//            //if ( self::DEBUG_CSV_VERBOSE ) clog("after BOM-strip", $tokens);
+//
+////            if ( $this->isCommentLine($tokens) )
+////            {
+////                if ( self::DEBUG_CSV_VERBOSE ) cclog(Log::TEXT_COLOR_UL_YELLOW, "Skipping line: " . implode(",", $tokens));
+////                $visitor->parseComment($lineIndex, $tokens);
+////                $result = false;
+////            }
+////            else
+////            {
+////                $result = $visitor->parse($lineIndex, $tokens, $this->headers);
+////            }
+////
+////            $visitor->post($lineIndex);
+////
+////            if ( $hasResultHandler && false !== $result ) $this->resultHandler->handleResult($lineIndex, $result);
+//
+//        }
+////
+//        $visitor->onFinish($lineCount);
     }
 
 
