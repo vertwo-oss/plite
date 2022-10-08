@@ -223,12 +223,8 @@ class FileProviderAWS extends FileProviderBase
      */
     public function read ( $path )
     {
-        $params = [
-            'Bucket' => $this->bucket,
-            'Key'    => $path,
-        ];
-
-        $data = $this->getRawFromS3($params);
+        $all  = $this->readWithMeta($path);
+        $data = $all['data'];
 
         return $data;
     }
@@ -252,24 +248,5 @@ class FileProviderAWS extends FileProviderBase
             "meta" => $meta,
             "data" => $data,
         ];
-    }
-
-
-
-    private function getRawFromS3 ( $params )
-    {
-        $result = $this->s3->getObject($params);
-
-        //
-        // When did this happen??
-        //
-        // * https://stackoverflow.com/questions/52053934/aws-s3-getobject-is-not-able-to-read-object-content-through-php-sdk
-        //
-        // DANGER - Somehow, V2 API suddenly has V3 semantics??
-        //
-        //$raw = $result['Body'];
-        $raw = $result['Body']->getContents();
-
-        return $raw;
     }
 }
