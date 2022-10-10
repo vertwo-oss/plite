@@ -104,11 +104,11 @@ function createDropZone(params) {
 `;
 
 
-    $dz = params['$dz'];
-    $ui = params['$ui'];
-    formDataHandler = params['formDataHandler'];
+    const $dz = params['$dz'];
+    const $ui = params['$ui'];
+    const formDataHandler = params['formDataHandler'];
 
-    var dndText;
+    let dndText;
     if (params.hasOwnProperty("dndText")) {
         dndText = params['dndText'];
     } else {
@@ -118,7 +118,7 @@ function createDropZone(params) {
         "dndText": dndText
     };
 
-    var output = mustache.render(dropzoneHtml, input);
+    const output = mustache.render(dropzoneHtml, input);
 
 
 
