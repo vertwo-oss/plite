@@ -57,7 +57,7 @@ abstract class PLI extends CLI
      * This provides an array of the long options, in getopts() format.
      *
      *    "file_provider_local_root_prefix" : "/Users/srv/",
-     * "file_provider_local_root_suffix" : "/data",
+     *    "file_provider_local_root_suffix" : "/data",
      *
      * @return array - getopt() spec (with colons); empty array is ok.
      */
