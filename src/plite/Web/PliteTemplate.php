@@ -32,7 +32,7 @@ use function vertwo\plite\yelulog;
 
 class PliteTemplate
 {
-    const DEBUG_INIT = true;
+    const DEBUG_INIT = false;
 
 
 
@@ -50,33 +50,34 @@ class PliteTemplate
 
     public static function init ()
     {
+        self::$string_html_TITLE          = "Unknown App";
+        self::$string_APP_NAME            = "Unknown App";
+        self::$html_elem_LOGO             = "<img src=\"res/question.png\" alt=\"unknown app\"/>";
+        self::$string_REG_EMAIL           = "interest@example.com";
+        self::$css_value_PADDING_TOP_LOGO = "0";
+        self::$css_value_BACKGROUND       = "#222";
+        self::$string_LONG_COPYRIGHT      = "Copyleft";
+        self::$IS_USING_POWERED_BY_V2     = false;
+
         try
         {
             Config::init(); // This isn't strictly necessary, but is hygienic.
-
-            self::$string_html_TITLE          = Config::get("wl_title");
-            self::$string_APP_NAME            = Config::get("wl_name");
-            self::$html_elem_LOGO             = Config::get("wl_logo");
-            self::$string_REG_EMAIL           = Config::get("wl_reg_email");
-            self::$css_value_PADDING_TOP_LOGO = Config::get("wl_logo_padding_top");
-            self::$css_value_BACKGROUND       = Config::get("wl_bg");
-            self::$string_LONG_COPYRIGHT      = Config::get("wl_copyright_notice");
-            self::$IS_USING_POWERED_BY_V2     = Config::get("wl_using_powered_by_v2");
         }
         catch ( Exception $e )
         {
             clog($e);
-            yelulog("Could not instantiate PliteFactory; using DEFAULT values.");
+            yelulog("Could not initialize Config; using DEFAULT values.");
 
-            self::$string_html_TITLE          = "Unknown App";
-            self::$string_APP_NAME            = "Unknown App";
-            self::$html_elem_LOGO             = "<img src=\"res/question.png\" alt=\"unknown app\"/>";
-            self::$string_REG_EMAIL           = "interest@example.com";
-            self::$css_value_PADDING_TOP_LOGO = "0";
-            self::$css_value_BACKGROUND       = "#222";
-            self::$string_LONG_COPYRIGHT      = "Copyleft";
-            self::$IS_USING_POWERED_BY_V2     = false;
         }
+
+        self::set(self::$string_html_TITLE, "wl_title");
+        self::set(self::$string_APP_NAME, "wl_name");
+        self::set(self::$html_elem_LOGO, "wl_logo");
+        self::set(self::$string_REG_EMAIL, "wl_reg_email");
+        self::set(self::$css_value_PADDING_TOP_LOGO, "wl_logo_padding_top");
+        self::set(self::$css_value_BACKGROUND, "wl_bg");
+        self::set(self::$string_LONG_COPYRIGHT, "wl_copyright_notice");
+        self::set(self::$IS_USING_POWERED_BY_V2, "wl_using_powered_by_v2");
 
         if ( self::DEBUG_INIT ) clog("white-label title", self::$string_html_TITLE);
         if ( self::DEBUG_INIT ) clog("white-label name", self::$string_APP_NAME);
@@ -85,6 +86,20 @@ class PliteTemplate
         if ( self::DEBUG_INIT ) clog("white-label reg-email", self::$string_REG_EMAIL);
         if ( self::DEBUG_INIT ) clog("white-label copyright", self::$string_LONG_COPYRIGHT);
         if ( self::DEBUG_INIT ) clog("white-label use_pbv2", self::$IS_USING_POWERED_BY_V2);
+    }
+
+
+
+    private static function set ( &$var, $key )
+    {
+        try
+        {
+            $val = Config::get($key);
+            if ( null !== $val ) $var = $val;
+        }
+        catch ( Exception $e )
+        {
+        }
     }
 
 

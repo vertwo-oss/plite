@@ -54,12 +54,12 @@ abstract class PliteRouter extends Ajax
 {
     const DEBUG = false;
 
-    const CONFIG_KEY_ROUTING_ROOT = "routing_root";
+    const CONFIG_KEY_ROUTING_ROOT = "plite_routing_root";
     const DEFAULT_INPUT_MAXLEN    = 256;
 
-    protected $whole;
-    protected $page;
+    protected $uri;
     protected $path;
+    protected $clean;
     protected $query;
 
     private $routingRoot;
@@ -103,12 +103,21 @@ abstract class PliteRouter extends Ajax
     /**
      * Subclass implements to handle HTTP request.
      *
-     * @param string $whole - The entire URI.
-     * @param string $page  - The "page" (after first /, before second /).
-     *
      * @return mixed
      */
-    public abstract function handleRequest ( $whole, $page );
+    public abstract function handleRequest ();
+
+
+
+//    /**
+//     * Subclass implements to handle HTTP request.
+//     *
+//     * @param string $whole - The entire URI.
+//     * @param string $page  - The "page" (after first /, before second /).
+//     *
+//     * @return mixed
+//     */
+//    public abstract function handleRequest ( $whole, $page );
 
 
 
@@ -132,53 +141,71 @@ abstract class PliteRouter extends Ajax
     {
         parent::__construct();
 
-        $this->routingRoot = Config::has(self::CONFIG_KEY_ROUTING_ROOT)
-            ? Config::get(self::CONFIG_KEY_ROUTING_ROOT)
-            : "";
-
         $isWorkerEnv = $this->isAWSWorkerEnv();
         $env         = $isWorkerEnv ? "SQS" : "Web";
 
         Log::setCustomPrefix("[$env] " . $this->getCustomLoggingPrefix());
 
-        $this->whole = $_SERVER['REQUEST_URI'];
+        $this->uri = $_SERVER['REQUEST_URI'];
 
-        $requri      = explode('?', $this->whole, 2);
-        $uri         = $requri[0];
-        $this->query = 2 == count($requri) ? $requri[1] : "";
+        clog("---- URI: [ " . $this->uri . " ] ----");
+
+        $uriTokens   = explode('?', $this->uri, 2);
+        $this->path  = $uriTokens[0];
+        $this->query = 2 == count($uriTokens) ? $uriTokens[1] : "";
+
+        //
+        // Remove "plite_routing_root" prefix from URI (usually in local test env).
+        //
+        $this->routingRoot = Config::has(self::CONFIG_KEY_ROUTING_ROOT)
+            ? Config::get(self::CONFIG_KEY_ROUTING_ROOT)
+            : "";
+
+        $this->clean = $this->getRequestWithoutPrefix($this->routingRoot);
+
+        clog("---- CLEAN: [ " . $this->clean . " ] ----");
+
+        if ( self::DEBUG ) clog("routing root", $this->routingRoot);
+        if ( self::DEBUG ) clog("cleaned URI", $this->clean);
+
 
         //
         // NOTE - Test if this is being routed by the PROPER .htaccess rewrite...
         //
-        $url = $this->testGet("url");
+        $rewrite  = $this->testBoth("rewrite");
+        $isRouted = false !== $rewrite;
 
-        if ( false !== $url )
-        {
-            $rewrittenTokens = explode("/", $url, 2);
-            $this->page      = $rewrittenTokens[0];
-            $this->path      = 2 == count($rewrittenTokens) ? $rewrittenTokens[1] : "";
-        }
-        else
-        {
-            $requri = explode('?', $this->whole, 2);
-            $uri    = $this->getRequestWithoutPrefix($this->routingRoot);
+        clog("Is routed by .htaccess", $isRouted);
 
-            if ( self::DEBUG ) clog("routing root", $this->routingRoot);
-            if ( self::DEBUG ) clog("actual request", $uri);
+//        if ( $isRouted )
+//        {
+//            clog("this->uri", $this->uri);
+//            clog("this->clean", $this->clean);
+//            clog("this->path", $this->path);
+//            clog("this->query", $this->query);
+//        }
+//        else
+//        {
+//            $uriTokens = explode('?', $this->uri, 2);
+//            $cleanUri  = $this->getRequestWithoutPrefix($this->routingRoot);
+//
+//            if ( self::DEBUG ) clog("routing root", $this->routingRoot);
+//            if ( self::DEBUG ) clog("actual request", $cleanUri);
+//
+//            $pathTokens = explode("/", $cleanUri, 3);
+//
+//            if ( self::DEBUG ) clog("path tokens", $pathTokens);
+//
+//            $this->page = 2 == count($pathTokens) ? $pathTokens[1] : "";
+//            $this->path = 3 == count($pathTokens) ? $pathTokens[2] : "";
+//        }
+//
+//        $this->page = self::cleanInput($this->page);
 
-            $pathTokens = explode("/", $uri, 3);
-
-            if ( self::DEBUG ) clog("path tokens", $pathTokens);
-
-            $this->page = 2 == count($pathTokens) ? $pathTokens[1] : "";
-            $this->path = 3 == count($pathTokens) ? $pathTokens[2] : "";
-        }
-
-        $this->page = self::cleanInput($this->page);
-
-        if ( self::DEBUG ) clog("whole", $this->whole);
-        if ( self::DEBUG ) clog("page", $this->page);
+        if ( self::DEBUG ) clog("uri", $this->uri);
+        if ( self::DEBUG ) clog("clean", $this->clean);
         if ( self::DEBUG ) clog("path", $this->path);
+        if ( self::DEBUG ) clog("query", $this->query);
     }
 
 
@@ -208,6 +235,13 @@ abstract class PliteRouter extends Ajax
      */
     function initCacheHeaders ()
     {
+        if ( self::DEBUG ) cynlog("----====[ Not touching cache ]====----");
+    }
+
+
+
+    function sendHeadersToDisableCache ()
+    {
         if ( self::DEBUG ) cynlog("----====[ Disabling Cache ]====----");
         header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Date in the past
         header("Expires: 0"); // Date in the past
@@ -223,9 +257,9 @@ abstract class PliteRouter extends Ajax
     {
         if ( false === $prefix || null === $prefix ) return "";
 
-        if ( FJ::startsWith($prefix, $this->whole) )
+        if ( FJ::startsWith($prefix, $this->uri) )
         {
-            return substr($this->whole, strlen($prefix));
+            return substr($this->uri, strlen($prefix));
         }
         else
         {
@@ -237,7 +271,7 @@ abstract class PliteRouter extends Ajax
 
     function abortIfNotRouted ( $abortPage )
     {
-        if ( FJ::endsWith(".php", $this->page) || FJ::endsWith(".html", $this->page) )
+        if ( FJ::endsWith(".php", $this->clean) || FJ::endsWith(".html", $this->clean) )
         {
             redulog("NOT-ROUTED: [ " . $this->page . " ]; aborting.");
             header("Location: $abortPage");
@@ -252,11 +286,12 @@ abstract class PliteRouter extends Ajax
      * MAIN entry point!
      *
      */
-    final public function main ()
+    final public function main () { $this->route(); }
+    final public function route ()
     {
         $this->initSession();
         $this->initCacheHeaders();
-        $this->handleRequest($this->whole, $this->page);
+        $this->handleRequest(); // $this->uri, $this->page);
         exit(0);
     }
 }

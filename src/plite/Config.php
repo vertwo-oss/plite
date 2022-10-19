@@ -57,8 +57,9 @@ use Exception;
  */
 abstract class Config
 {
-    const DEBUG_ENV         = true;
-    const DEBUG_CONFIG_INFO = true;
+    const DEBUG_ENV         = false;
+    const DEBUG_ENV_VERBOSE = false;
+    const DEBUG_CONFIG_INFO = false;
     const DEBUG_AWS_CREDS   = false;
 
     const DEBUG_CONFIG_INFO_JSON = false; // DANGER - In __PRODUCTION__, this must be set to (false)!!!!!
@@ -113,7 +114,15 @@ abstract class Config
     /**
      * @throws Exception
      */
-    public static function init () { if ( false === self::$PARAMS ) self::loadParams(); }
+    public static function init ()
+    {
+        $prefixToSave = Log::getCustomPrefix();
+        Log::setCustomPrefix("v2/plite/Config -> ");
+
+        if ( false === self::$PARAMS ) self::loadParams();
+
+        Log::setCustomPrefix($prefixToSave);
+    }
 
 
 
@@ -122,12 +131,14 @@ abstract class Config
      */
     private static function loadParams ()
     {
-        $info = self::bootstrapParams();
+        $info = self::getEnvironmentInfo();
 
         if ( false === $info["isValid"] )
             throw new Exception("Invalid configuration; all fields missing--check Apache config (and SetEnv values).");
 
         $type = $info['type'];
+
+        if ( self::DEBUG_ENV ) clog("Loading environment", $type);
 
         switch ( $type )
         {
@@ -146,8 +157,8 @@ abstract class Config
         self::$APP    = $app;
         self::$CONFIG = $config;
 
-        clog("   APP", self::$APP);
-        clog("CONFIG", self::$CONFIG);
+        if ( self::DEBUG_ENV ) clog("   APP", self::$APP);
+        if ( self::DEBUG_ENV ) clog("CONFIG", self::$CONFIG);
 
         self::$PARAMS = $params;
     }
@@ -158,7 +169,7 @@ abstract class Config
      * @return array
      * @throws Exception
      */
-    private static function bootstrapParams ()
+    private static function getEnvironmentInfo ()
     {
         //
         // NOTE - Dev (from filesystem + app-from-url)
@@ -170,9 +181,9 @@ abstract class Config
         //
         $hasConfig = self::hasEnv(self::ENV_PLITE_CONFIG_KEY);
 
-        clog("has local (root)", $hasLocal);
-        clog("has regex", $hasRegex);
-        clog("has config", $hasConfig);
+        if ( self::DEBUG_ENV_VERBOSE ) clog("has local (root)", $hasLocal);
+        if ( self::DEBUG_ENV_VERBOSE ) clog("has regex", $hasRegex);
+        if ( self::DEBUG_ENV_VERBOSE ) clog("has config", $hasConfig);
 
         if ( $hasLocal || $hasRegex )
         {
@@ -244,7 +255,7 @@ abstract class Config
 
         $val = trim($_SERVER[$key]);
 
-        if ( self::DEBUG_ENV ) clog("ENV -> $key", $val);
+        if ( self::DEBUG_ENV_VERBOSE ) clog("ENV -> $key", $val);
 
         return $val;
     }
@@ -260,21 +271,47 @@ abstract class Config
      */
     private static function getLocalConfig ( $info )
     {
-        $isLocal     = true;
         $localRoot   = $info['local'];
         $urlAppRegex = $info['regex'];
         $app         = self::getAppFromUrlRegex($urlAppRegex);
-        clog("local -    app", $app);
+        if ( self::DEBUG_ENV ) clog("local - app", $app);
 
         $params = self::loadFileConfig($app, $localRoot);
 
-        if ( !array_key_exists(self::ENV_PLITE_CONFIG_KEY, $params) )
-            throw new Exception("Config (cloud) does not have [ " . self::ENV_PLITE_CONFIG_KEY . " ] defined.");
+        //        if ( !array_key_exists(self::ENV_PLITE_CONFIG_KEY, $params) )
+        //        {
+        //            //throw new Exception("Cannot load local config: missing '" . self::ENV_PLITE_CONFIG_KEY . "' in config file.");
+        //            yelulog("Cannot load local config: missing '" . self::ENV_PLITE_CONFIG_KEY . "' in config file.");
+        //        }
+        //
+        //        if ( !array_key_exists(self::ENV_PLITE_CONFIG_KEY, $params) )
+        //            throw new Exception("Config (cloud) does not have [ " . self::ENV_PLITE_CONFIG_KEY . " ] defined.");
+        //
+        //        $config = $params[self::ENV_PLITE_CONFIG_KEY];
+        //        if ( self::DEBUG_ENV ) clog("local - config", $config);
 
-        $config = $params[self::ENV_PLITE_CONFIG_KEY];
-        clog("local - config", $config);
+        return [ $app, false, $params ];
+    }
 
-        return [ $app, $config, $params ];
+
+
+    /**
+     * @throws Exception
+     */
+    private static function getAppFromUrlRegex ( $regex )
+    {
+        $uri = $_SERVER['REQUEST_URI'];
+
+        if ( self::DEBUG_ENV_VERBOSE ) clog($regex, $uri);
+
+        preg_match($regex, $uri, $matches);
+
+        if ( count($matches) < 2 )
+            throw new Exception("Cannot get app from URI (" . $uri . "); check regex [ " . $regex . " ].");
+
+        $app = $matches[1];
+
+        return $app;
     }
 
 
@@ -289,62 +326,53 @@ abstract class Config
      */
     private static function loadFileConfig ( $app, $localRoot )
     {
-        if ( self::DEBUG_ENV ) clog("Loading LOCAL config (from filesystem [ " . $localRoot . " ])...");
+        if ( self::DEBUG_ENV_VERBOSE ) clog("Loading LOCAL config (from filesystem [ " . $localRoot . " ])...");
 
         $rootDir    = $localRoot . "/" . $app;
         $configPath = $rootDir . "/config/" . $app . "-config.js";
         $authPath   = $rootDir . "/auth/" . $app . "-auth.js";
 
-        clog("root    dir", $rootDir);
-        clog("config path", $configPath);
-        clog("auth   path", $authPath);
+        if ( self::DEBUG_ENV_VERBOSE ) clog("root dir", $rootDir);
 
-        $conf   = self::loadConfigFile($configPath);
-        $auth   = self::loadConfigFile($authPath);
-        $params = array_merge($conf, $auth);
+        //clog("config path", $configPath);
+        //clog("auth   path", $authPath);
 
-        if ( !array_key_exists(self::ENV_PLITE_CONFIG_KEY, $params) )
-            throw new Exception("Cannot load local config: missing '" . self::ENV_PLITE_CONFIG_KEY . "' in config file.");
+        $conf = self::loadFileConfigFromPath($configPath, "config");
+        $auth = self::loadFileConfigFromPath($authPath, "auth");
+
+        if ( !is_array($conf) && !is_array($auth) )
+        {
+            yelulog("Tried loading config, but nothing found (check dir/files?).");
+            $params = [];
+        }
+        else
+        {
+            $params = array_merge($conf, $auth);
+        }
+
+//        if ( !array_key_exists(self::ENV_PLITE_CONFIG_KEY, $params) )
+//        {
+//            //throw new Exception("Cannot load local config: missing '" . self::ENV_PLITE_CONFIG_KEY . "' in config file.");
+//            yelulog("Cannot load local config: missing '" . self::ENV_PLITE_CONFIG_KEY . "' in config file.");
+//        }
 
         return $params;
     }
 
 
 
-    /**
-     * @throws Exception
-     */
-    private static function getAppFromUrlRegex ( $regex )
-    {
-        $uri = $_SERVER['REQUEST_URI'];
-
-        clog($regex, $uri);
-
-        preg_match($regex, $uri, $matches);
-
-        if ( count($matches) < 2 )
-            throw new Exception("Cannot get app from URI (" . $uri . "); check regex [ " . $regex . " ].");
-
-        $app = $matches[1];
-
-        return $app;
-    }
-
-
-
-    private static function loadConfigFile ( $file )
+    private static function loadFileConfigFromPath ( $file, $type = false )
     {
         if ( !file_exists($file) || !is_readable($file) )
         {
-            redlog("Could not read config file: $file");
             return [];
         }
 
-        if ( self::DEBUG_CONFIG_INFO ) clog("Trying to load config file", $file);
+        if ( self::DEBUG_CONFIG_INFO ) clog("Found & loading $type file", $file);
 
         $json = file_get_contents($file);
 
-        if ( self::DEBUG_CONFIG_INFO_JSON ) clog("config(json)", $json);
+        if ( self::DEBUG_CONFIG_INFO_JSON ) clog("$type(json)", $json);
 
         $params = FJ::jsDecode($json);
 
@@ -354,7 +382,7 @@ abstract class Config
         }
         else
         {
-            yelulog("Parameters are not an array; check syntax of config file.");
+            yelulog("Parameters are not an array; check syntax of $type file.");
             return [];
         }
     }
@@ -369,8 +397,7 @@ abstract class Config
      */
     private static function getCloudConfig ( $info )
     {
-        $isLocal = false;
-        $config  = $info['config'];
+        $config = $info['config'];
 
         $params = self::loadSubclassConfig($config);
 
