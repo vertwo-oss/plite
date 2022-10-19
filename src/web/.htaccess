@@ -1,0 +1,10 @@
+#
+# Plite-based routing.
+#
+RewriteEngine on
+#
+# https://stackoverflow.com/questions/41575026/why-is-rewritecond-request-filename-d-mandatory
+#
+RewriteCond %{REQUEST_FILENAME} !-f
+#RewriteRule ^(.*)$ route.php?url=$1  [L,QSA]
+RewriteRule ^(.*)$ route.php?rewrite [L,QSA]
