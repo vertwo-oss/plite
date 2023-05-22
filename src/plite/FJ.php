@@ -37,9 +37,15 @@ class FJ
 
     public static function totime ( $timestamp = false ) { return false === $timestamp ? date("Ymd_His") : date("Ymd_His", $timestamp); }
     public static function todate ( $timestamp = false ) { return false === $timestamp ? date("Ymd") : date("Ymd", $timestamp); }
+    
+    
+    public static function convert ( $size )
+    {
+        $unit = array ('B', 'kB', 'MB', 'GB', 'TB', 'PB');
+        return @round($size / pow(1024, ($i = floor(log($size, 1024)))), 2) . ' ' . $unit[$i];
+    }
 
-
-
+    
     const DEBUG_B32_SUPER_VERBOSE = false;
     const B32_ALPHABET            = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
     const B32_PAD                 = [ "00000", "0000", "000", "00", "0", "" ];
