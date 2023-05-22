@@ -228,7 +228,7 @@ abstract class CLI
      *
      * @param int $mb - Max memory in MB.
      */
-    private function setMaxMem ( $mb )
+    public function setMaxMem ( $mb )
     {
         $mb = (int)$mb;
         
