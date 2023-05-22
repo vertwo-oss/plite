@@ -236,4 +236,27 @@ abstract class CLI
         
         ini_set('memory_limit', $mb . "M");
     }
+    
+    
+    /**
+     * Use `memory_get_peak_usage()` to get max mem used.
+     *
+     * @return int - Peak memory usage.
+     */
+    public function getPeakMem ()
+    {
+        return memory_get_peak_usage();
+    }
+    
+    
+    /**
+     * Use `memory_get_peak_usage()` to get max mem used.
+     *
+     * @return string - Human-friendly memory.
+     */
+    public function getPeakMemString ()
+    {
+        $mem = memory_get_peak_usage();
+        return FJ::convert($mem);
+    }
 }
