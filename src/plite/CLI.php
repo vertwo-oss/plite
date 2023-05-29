@@ -30,7 +30,7 @@ use Exception;
 
 abstract class CLI
 {
-    const DEBUG_ARGS = false;
+    const DEBUG_ARGS  = false;
     const DEBUG_CLASS = false;
 
 
@@ -43,12 +43,12 @@ abstract class CLI
     
     
     
-    private $argc;
-    private $argv;
-    protected $opts = [];
+    private   $argc;
+    private   $argv;
+    protected $opts      = [];
     protected $remaining = [];
-    protected $optind = 0;
-    private $argIndex = 0;
+    protected $optind    = 0;
+    private   $argIndex  = 0;
     
     
     
@@ -258,5 +258,13 @@ abstract class CLI
     {
         $mem = memory_get_peak_usage();
         return FJ::convert($mem);
+    }
+    
+    
+    public function getConsoleWidth ()
+    {
+        $width = shell_exec("tput cols");
+        if ( !$width ) return false;
+        return (int)(trim($width));
     }
 }
