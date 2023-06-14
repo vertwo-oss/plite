@@ -45,6 +45,7 @@ abstract class CLI
     
     private   $argc;
     private   $argv;
+    private   $prog;
     protected $opts      = [];
     protected $remaining = [];
     protected $optind    = 0;
@@ -77,6 +78,7 @@ abstract class CLI
     
     protected function argc () { return $this->argc; }
     protected function argv () { return $this->argv; }
+    protected function getProgramName () { return $this->prog; }
     
     
     
@@ -101,6 +103,7 @@ abstract class CLI
     {
         $this->argc = $_SERVER['argc'];
         $this->argv = $_SERVER['argv'];
+        $this->prog = $this->argv[0];
         
         $shortOpts = $this->getShortOpts();
         $longOpts  = $this->getLongOpts();

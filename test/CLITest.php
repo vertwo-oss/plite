@@ -20,13 +20,12 @@
 
 
 use PHPUnit\Framework\TestCase;
-use vertwo\plite\ConfigInterface;
-use vertwo\plite\Provider\FileProviderFactory;
+use vertwo\plite\CLI;
 use function vertwo\plite\clog;
 
 
 
-class CT extends \vertwo\plite\CLI
+class CT extends CLI
 {
     
     protected function getShortOpts ()
