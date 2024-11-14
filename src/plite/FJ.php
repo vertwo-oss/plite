@@ -32,24 +32,24 @@ class FJ
 {
     const FJ_DEFAULT_AES_MODE   = "ctr";
     const FJ_JSON_DETECT_ERRORS = false;
-
-
-
+    
+    
+    
     public static function totime ( $timestamp = false ) { return false === $timestamp ? date("Ymd_His") : date("Ymd_His", $timestamp); }
     public static function todate ( $timestamp = false ) { return false === $timestamp ? date("Ymd") : date("Ymd", $timestamp); }
     
     
     public static function convert ( $size )
     {
-        $unit = array ('B', 'kB', 'MB', 'GB', 'TB', 'PB');
+        $unit = array('B', 'kB', 'MB', 'GB', 'TB', 'PB');
         return @round($size / pow(1024, ($i = floor(log($size, 1024)))), 2) . ' ' . $unit[$i];
     }
-
+    
     
     const DEBUG_B32_SUPER_VERBOSE = false;
     const B32_ALPHABET            = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
-    const B32_PAD                 = [ "00000", "0000", "000", "00", "0", "" ];
-
+    const B32_PAD                 = ["00000", "0000", "000", "00", "0", ""];
+    
     /**
      * Encodes a string (binary) into Douglas Crockfords's Base32.
      *
@@ -65,28 +65,28 @@ class FJ
      */
     public static function enc ( $s )
     {
-        list($t, $b, $r) = [ self::B32_ALPHABET, "", "" ];
-
+        list($t, $b, $r) = [self::B32_ALPHABET, "", ""];
+        
         foreach ( str_split($s) as $c )
             $b = $b . sprintf("%08b", ord($c));
-
+        
         if ( self::DEBUG_B32_SUPER_VERBOSE ) clog("binary", $b);
-
+        
         $mod = strlen($b) % 5;
-
+        
         if ( self::DEBUG_B32_SUPER_VERBOSE ) clog("mod 5", $mod);
-
+        
         if ( 0 != $mod ) $b .= self::B32_PAD[$mod];
-
+        
         if ( self::DEBUG_B32_SUPER_VERBOSE ) clog("padded", $b);
-
+        
         foreach ( str_split($b, 5) as $c )
         {
             if ( self::DEBUG_B32_SUPER_VERBOSE ) clog("chunk", $c);
             if ( self::DEBUG_B32_SUPER_VERBOSE ) clog("enc", $t[bindec($c)]);
             $r = $r . $t[bindec($c)];
         }
-
+        
         return ($r);
     }
     /**
@@ -105,9 +105,9 @@ class FJ
     public static function dec ( $s )
     {
         $s = strtoupper($s); // NOTE - This is important to later...
-
-        list($t, $b, $r) = [ self::B32_ALPHABET, "", "" ];
-
+        
+        list($t, $b, $r) = [self::B32_ALPHABET, "", ""];
+        
         foreach ( str_split($s) as $c )
         {
             //
@@ -118,23 +118,23 @@ class FJ
                 case "O": // English letter "O": n_O_p
                     $c = 0;
                     break;
-
+                
                 case "I": // English letter "I": h_I_j
                 case "L": // English letter "L": k_L_m
                     $c = 1;
                     break;
-
+                
                 case "-";
                     continue 2; // https://www.php.net/manual/en/control-structures.continue.php
-
+                
                 default:
             }
-
+            
             if ( self::DEBUG_B32_SUPER_VERBOSE ) clog("dec", sprintf("%05b", strpos($t, $c)));
-
+            
             $b = $b . sprintf("%05b", strpos($t, $c));
         }
-
+        
         foreach ( str_split($b, 8) as $c )
         {
             if ( strlen($c) != 8 ) break;
@@ -142,12 +142,12 @@ class FJ
             if ( self::DEBUG_B32_SUPER_VERBOSE ) clog(bindec($c), chr(bindec($c)));
             $r = $r . chr(bindec($c));
         }
-
+        
         return ($r);
     }
-
-
-
+    
+    
+    
     /**
      * ****************************************************************
      * Base64url-encodes the input.
@@ -163,19 +163,19 @@ class FJ
         {
             return null;
         }
-
+        
         /*
         * Do stuff!
         */
         $b64 = base64_encode($s);
         //$b64u = rtrim( strtr( $b64, '+/', '-_' ), '=' );
         $b64u = strtr($b64, '+/', '-_');
-
+        
         return $b64u;
     }
-
-
-
+    
+    
+    
     /**
      * ****************************************************************
      * Base64url-decodes the input.
@@ -191,59 +191,59 @@ class FJ
         {
             return null;
         }
-
+        
         //return base64_decode( str_pad( strtr( $s, '-_', '+/' ), strlen( $s ) % 4, '=', STR_PAD_RIGHT ) );
         return base64_decode(strtr($s, '-_', '+/'));
     }
-
-
-
+    
+    
+    
     public static function stripNon7BitCleanASCII ( $string )
     {
         return preg_replace('/[\x00-\x1F\x7F-\xFF]/', '', $string);
     }
-
-
-
+    
+    
+    
     public static function stripSpaces ( $string )
     {
         return preg_replace("/[^[:alnum:]]/", "", $string);
     }
-
-
+    
+    
     public static function stripLower ( $string )
     {
         return strtolower(self::stripSpaces($string));
     }
-
-
+    
+    
     public static function spacesToDashes ( $string )
     {
         return preg_replace("/[[:space:]]/", "-", $string);
     }
-
-
-
+    
+    
+    
     public static function stripPunctuation ( $string )
     {
         return preg_replace('/\W+/', ' ', $string);
     }
-
-
-
+    
+    
+    
     public static function stripNonDigits ( $string )
     {
         return preg_replace('~\D~', '', $string);
     }
-
-
+    
+    
     public static function collapseSpaces ( $string )
     {
         return preg_replace('/\s+/', ' ', $string);
     }
-
-
-
+    
+    
+    
     /**
      * ****************************************************************
      * Slow as shit; uses JSON encode/decode to create brand new array.
@@ -257,9 +257,9 @@ class FJ
      * ****************************************************************
      */
     public static function deepCopy ( $ar ) { return self::js(self::js($ar)); }
-
-
-
+    
+    
+    
     /**
      * Hashes the input string into lowercase hexits.
      * By default, uses SHA-256.
@@ -275,17 +275,17 @@ class FJ
         $hash = hash($algo, $str);
         return (0 < $substrLen) ? substr($hash, 0, $substrLen) : $hash;
     }
-
-
-
+    
+    
+    
     public static function hashFile ( $path, $substrLen = 0, $algo = "SHA256" )
     {
         $hash = hash_file($algo, $path);
         return (0 < $substrLen) ? substr($hash, 0, $substrLen) : $hash;
     }
-
-
-
+    
+    
+    
     /**
      * Hashes the input string into lowercase hexits,
      * taking the first 128-bits, and converting it into UUID format.
@@ -302,9 +302,9 @@ class FJ
         $uuid = preg_replace("/(\w{8})(\w{4})(\w{4})(\w{4})(\w{12})/i", "$1-$2-$3-$4-$5", $hash);
         return $uuid;
     }
-
-
-
+    
+    
+    
     public static function encrypt ( $key, $iv, $plaintext )
     {
         $aes = new AES(self::FJ_DEFAULT_AES_MODE);
@@ -312,9 +312,9 @@ class FJ
         $aes->setIV($iv);
         return $aes->encrypt($plaintext);
     }
-
-
-
+    
+    
+    
     public static function decrypt ( $key, $iv, $ciphertext )
     {
         $aes = new AES(self::FJ_DEFAULT_AES_MODE);
@@ -322,9 +322,9 @@ class FJ
         $aes->setIV($iv);
         return $aes->decrypt($ciphertext);
     }
-
-
-
+    
+    
+    
     /**
      * If array is already sorted, uses binary search.
      *
@@ -346,27 +346,27 @@ class FJ
         }
         return false;
     }
-
-
-
+    
+    
+    
     public static function endsWith ( $needle, $haystack, $len = false )
     {
         if ( false === $len ) $len = strlen($needle);
         if ( 0 == $len ) return true;
-
+        
         return $needle === substr($haystack, -$len);
     }
-
-
-
+    
+    
+    
     public static function startsWith ( $needle, $haystack, $len = false )
     {
         if ( false === $len ) $len = strlen($needle);
         return $needle === substr($haystack, 0, $len);
     }
-
-
-
+    
+    
+    
     public static function matches ( $a, $b ) { return strtolower(trim($a)) === strtolower(trim($b)); }
     public static function matchesNumerically ( $a, $b ) { return self::stripNonDigits($a) === self::stripNonDigits($b); }
     public static function matchesInArray ( $needle, $haystack )
@@ -374,13 +374,13 @@ class FJ
         foreach ( $haystack as $h ) if ( self::matches($needle, $h) ) return true;
         return false;
     }
-
-
-
+    
+    
+    
     public static function makeNiceName ( $name ) { return ucwords(strtolower(self::collapseSpaces(trim($name)))); }
-
-
-
+    
+    
+    
     public static function stripExtension ( $filename )
     {
         $extWithPeriod = strrchr($filename, ".");
@@ -388,20 +388,20 @@ class FJ
         $hasPeriod     = 0 < $extlen;
         $namelen       = strlen($filename) - $extlen;
         $name          = $hasPeriod ? substr($filename, 0, $namelen) : $filename;
-
+        
         return $name;
     }
-
-
-
+    
+    
+    
     public static function stripExtensionAndDir ( $filepath )
     {
         $basename = basename($filepath);
         return self::stripExtension($basename);
     }
-
-
-
+    
+    
+    
     /**
      * https://stackoverflow.com/questions/2791998/convert-dashes-to-camelcase-in-php
      *
@@ -415,9 +415,9 @@ class FJ
         $str = str_replace(' ', '', ucwords(str_replace('-', ' ', $string)));
         return $startWithLower ? lcfirst($str) : $str;
     }
-
-
-
+    
+    
+    
     /**
      * Takes a string of the form 'abcxyz' and converts it to 'ab...yz'.
      *
@@ -433,9 +433,9 @@ class FJ
         if ( $l < $len ) return $string;
 
 //        clog("clipping!");
-
+        
         $dlen = strlen($delimiter);
-
+        
         $slen      = $len - $dlen;
         $half      = $slen / 2;
         $fh        = floor($half);
@@ -449,66 +449,66 @@ class FJ
 //        clog("o-ha", $otherHalf);
 //        clog("dlen", $dlen);
 //        clog("end", $end);
-
+        
         $front = substr($string, 0, $half);
         $back  = substr($string, $end);
 
 //        clog("front", $front);
 //        clog("back", $back);
-
+        
         return $front . $delimiter . $back;
     }
-
-
+    
+    
     public static function js ( $obj )
     {
         if ( null === $obj ) return null;
         if ( false === $obj ) return false;
         return is_string($obj) ? self::jsDecode($obj) : self::jsEncode($obj);
     }
-
-
-
+    
+    
+    
     public static function jsEncode ( $obj )
     {
         $json = json_encode($obj);
-
+        
         if ( self::FJ_JSON_DETECT_ERRORS ) self::detectJSONError($obj, $json, true);
-
+        
         return $json;
     }
-
-
-
+    
+    
+    
     public static function jsPrettyEncode ( $obj )
     {
         $json = json_encode($obj, JSON_PRETTY_PRINT);
-
+        
         if ( self::FJ_JSON_DETECT_ERRORS ) self::detectJSONError($obj, $json, true);
-
+        
         return $json;
     }
-
-
-
+    
+    
+    
     public static function jsDecode ( $json, $useAssoc = true )
     {
         $string = json_decode($json, $useAssoc);
-
+        
         if ( self::FJ_JSON_DETECT_ERRORS ) self::detectJSONError($json, $string, false);
-
+        
         return $string;
     }
-
-
-
+    
+    
+    
     private static function detectJSONError ( $input, $output, $isEncode = true )
     {
         $function = $isEncode ? "encoding" : "decoding";
-
+        
         if ( false === $output )
             clog("JSON error $function [ $input ]");
-
+        
         switch ( json_last_error() )
         {
             case JSON_ERROR_NONE:
@@ -533,17 +533,17 @@ class FJ
                 $jsonErrorMessage = '- Unknown error';
                 break;
         }
-
+        
         if ( null !== $jsonErrorMessage )
             clog("-----=====[ JSON encoding error $jsonErrorMessage ]=====-----");
     }
-
-
-
+    
+    
+    
     /**
      * @param $length
      *
-     * @return bool|string
+     * @return string
      * @throws Exception
      */
     public static function randBytes ( $length )
@@ -575,13 +575,20 @@ class FJ
         {
             return mcrypt_create_iv($length, MCRYPT_DEV_URANDOM);
         }
-
+        
         // We've failed to get a good random number; throw exception.
         throw new Exception("Could not get high-quality random number (openssl, /dev/urandom, mcrypt all FAILED); aborting.");
     }
-
-
-
+    /**
+     * @param $length
+     *
+     * @return string
+     * @throws Exception
+     */
+    public static function randBytesHex ( $length ) { return bin2hex(static::randBytes($length)); }
+    
+    
+    
     /**
      * @param string     $method
      * @param string     $url
@@ -599,29 +606,29 @@ class FJ
         $debugProxy   = self::getParam("debugProxy", $params);
         $debugPort    = self::getParam("debugPort", $params);
         $debugHost    = self::getParam("debugHost", $params);
-
+        
         $shouldDisableSSLCheck = self::getParam("disableSSLCheck", $params);
-
+        
         $curl = curl_init();
-
+        
         switch ( $method )
         {
             case "POST":
                 curl_setopt($curl, CURLOPT_POST, 1);
-
+                
                 if ( false !== $data )
                 {
                     curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
                     if ( false !== $debugVerbose ) clog("POST data (as query string)", http_build_query($data));
                 }
                 break;
-
+            
             case "PUT":
                 curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
                 curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
                 curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($data));
                 break;
-
+            
             default:
                 if ( false !== $data )
                 {
@@ -629,14 +636,14 @@ class FJ
                     $url = sprintf("%s?%s", $url, http_build_query($data));
                 }
         }
-
+        
         if ( false !== $pass && false !== $user )
         {
             // Optional Authentication:
             curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
             curl_setopt($curl, CURLOPT_USERPWD, "$user:$pass");
         }
-
+        
         //
         // WARN - Disables SSL Cert checking (e.g., hitting an endpoint with
         //        an expired cert).
@@ -646,13 +653,13 @@ class FJ
             curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
             curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
         }
-
+        
         if ( false !== $debug ) clog("Hitting URL", $url);
         if ( false !== $debugVerbose ) curl_setopt($curl, CURLOPT_VERBOSE, true);
-
+        
         curl_setopt($curl, CURLOPT_URL, $url);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-
+        
         if ( false !== $debugProxy )
         {
             //
@@ -660,30 +667,30 @@ class FJ
             //
             $port = false === $debugPort ? 8888 : $debugPort;
             $host = false === $debugHost ? "localhost" : $debugHost;
-
+            
             curl_setopt($curl, CURLOPT_PROXY, "http://$host:$port/");
         }
-
+        
         $result = curl_exec($curl);
-
+        
         curl_close($curl);
-
+        
         return trim($result);
     }
     public static function postAPI ( $url, $data = false, $params = false ) { return self::callAPI("POST", $url, $data, $params); }
     public static function getAPI ( $url, $data = false, $params = false ) { return self::callAPI("GET", $url, $data, $params); }
     public static function putAPI ( $url, $data = false, $params = false ) { return self::callAPI("PUT", $url, $data, $params); }
-
-
-
+    
+    
+    
     static function getParam ( $needle, $haystack )
     {
         if ( false === $haystack || !$haystack ) return false;
         return array_key_exists($needle, $haystack) ? $haystack[$needle] : false;
     }
-
-
-
+    
+    
+    
     /**
      * Method: POST, PUT, GET etc
      * Data: array("param" => "value") ==> index.php?param=value
@@ -698,23 +705,23 @@ class FJ
     public static function _callAPI ( $method, $url, $data = false, $debug = false )
     {
         $curl = curl_init();
-
+        
         switch ( $method )
         {
             case "POST":
                 curl_setopt($curl, CURLOPT_POST, 1);
-
+                
                 if ( false !== $data )
                 {
                     curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
                     if ( false !== $debug ) clog("POST data (as query string)", http_build_query($data));
                 }
                 break;
-
+            
             case "PUT":
                 curl_setopt($curl, CURLOPT_PUT, 1);
                 break;
-
+            
             default:
                 if ( false !== $data )
                 {
@@ -726,27 +733,27 @@ class FJ
 //        // Optional Authentication:
 //        curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
 //        curl_setopt($curl, CURLOPT_USERPWD, "username:password");
-
+        
         if ( false !== $debug ) clog("Hitting URL", $url);
-
+        
         curl_setopt($curl, CURLOPT_URL, $url);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-
+        
         if ( false !== $debug )
         {
             curl_setopt($curl, CURLOPT_PROXY, 'http://localhost:8888/');
             curl_setopt($curl, CURLOPT_VERBOSE, true);
         }
-
+        
         $result = curl_exec($curl);
-
+        
         curl_close($curl);
-
+        
         return trim($result);
     }
-
-
-
+    
+    
+    
     private static function normalizeSimpleXML ( $obj, &$result )
     {
         $data = $obj;
@@ -775,9 +782,9 @@ class FJ
             $result = $data;
         }
     }
-
-
-
+    
+    
+    
     /**
      * Converts XML to JSON (ignoring attributes).
      *
@@ -788,21 +795,21 @@ class FJ
     public static function xmlDecodeComplex ( $xml )
     {
         self::normalizeSimpleXML(simplexml_load_string($xml), $result);
-
+        
         return $result;
-
+        
         //return json_encode($result);
     }
-
-
+    
+    
     public static function xmlDecode ( $xml )
     {
         $object = simplexml_load_string($xml);
         return @json_decode(@json_encode($object), 1);
     }
-
-
-
+    
+    
+    
     public static function diehard ()
     {
         redlog("----====> Dying hard! <====----");
