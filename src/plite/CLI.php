@@ -96,7 +96,7 @@ abstract class CLI
     function hasMoreArgs () { return $this->argIndex < count($this->remaining); }
     function reset () { $this->argIndex = 0; }
     function remaining () { return $this->remaining; }
-    function unshifted () { return array_slice($this->argv, $this->argIndex); }
+    function unshifted () { return array_slice($this->argv, 1 + $this->argIndex); }
     
     
     
