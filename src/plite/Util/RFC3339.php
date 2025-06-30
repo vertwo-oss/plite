@@ -391,14 +391,15 @@ class RFC3339 implements Wired
     public function isOffsetUnknownLocal () { return self::UNKNOWN_OFFSET_STRING == $this->offsetString(); }
     
     
-    /** @return string - A strictly-conforming RFC-3339 timespec string. */
-    public function rfc () { return $this->generateISO(true); }
-    
-    
     /** @return string - A strictly-conforming RFC-3339 timespec string without the fractional component. */
     public function iso () { return $this->generateISO(false); }
-    public function isoPlusMillis () { return $this->generateISO(true); }
-    public function isoPlusFraction () { return $this->generateISO(true); }
+    
+    
+    /** @return string - A strictly-conforming RFC-3339 timespec string. */
+    public function rfc () { return $this->generateISO(true); }
+    public function frac () { return $this->generateISO(true); }
+    public function isoWithMillis () { return $this->generateISO(true); }
+    public function isoWithFraction () { return $this->generateISO(true); }
     
     
     private function isoBasic () { return $this->date() . "T" . $this->time(); }
