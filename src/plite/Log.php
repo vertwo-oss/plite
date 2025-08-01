@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2012-2022 Troy Wu
+ * Copyright (c) 2012-2025 Troy Wu
  * Copyright (c) 2021-2022 Version2 OÜ
  * All rights reserved.
  *
@@ -34,7 +34,7 @@ class Log
     const DEBUG_TIMING = false;
     const DEBUG_REMOTE = false;
     const DEBUG_COLOR  = false;
-
+    
     const CLOG_ERROR_LOG_CONSTANT      = 'error_log';
     const CLOG_FILENAME                = "php.clog";
     const CLOG_TIMING_THRESHOLD        = 50; // millis before we mark it red.
@@ -42,7 +42,7 @@ class Log
     const CLOG_DEBUG_ERROR_LOG_DEFAULT = false;
     const CLOG_FOPEN_MODE              = "a+";
     const CLOG_PASSWORD_PATTERN        = "/(passw[o]*[r]*[d]*|scramble|secret|key)/i";
-
+    
     // CLOG options.
     const CLOG_VERSION_LITE         = 1;
     const CLOG_VERSION_DEBUG        = 9;
@@ -55,12 +55,12 @@ class Log
     const CLOG_SESSION              = true;
     const CLOG_ARRAY_KEY_FANCY      = true;
     const CLOG_DEPTH_INDENT         = 4;
-
+    
     // Timer options.
     const TIMER_PREFIX_LEN     = (20 + 6);
     const TIMER_TEXT_LEN       = (self::CLOG_MESG_BODY_WIDTH - self::TIMER_PREFIX_LEN);
     const TIME_LIMIT_5_MINUTES = (5 * 60);
-
+    
     // Logging constants
     const TEXT_COLOR_WHITE  = "\033[1;37m";
     const TEXT_COLOR_RED    = "\033[0;31m";
@@ -69,28 +69,32 @@ class Log
     const TEXT_COLOR_BLUE   = "\033[0;34m";
     const TEXT_COLOR_CYAN   = "\033[0;36m";
     const TEXT_COLOR_ORANGE = "\033[0;33m";
-
+    
     const TEXT_COLOR_BG_RED    = "\033[41m";
     const TEXT_COLOR_BG_YELLOW = "\033[30;43m";
-
-    const TEXT_COLOR_SUFFIX    = "\033[0m";
+    
     const TEXT_COLOR_UL_CYAN   = "\033[4;36m";
     const TEXT_COLOR_UL_BLACK  = "\033[4;30m";
     const TEXT_COLOR_UL_WHITE  = "\033[4;37m";
     const TEXT_COLOR_UL_GREEN  = "\033[4;32m";
     const TEXT_COLOR_UL_YELLOW = "\033[4;33m";
     const TEXT_COLOR_UL_RED    = "\033[4;31m";
-
-
+    
+    //
+    // NOTE -- This closes the ANSI escape sequence!
+    //
+    const TEXT_COLOR_SUFFIX = "\033[0m"; // NOTE -- This closes the ANSI escape sequence!
+    
+    
     const CLOG_ALT_FILE_DIRS = [
-        "/Users/srv/www/logs",  // macOS root filesystem is read-only now...so moving to /Users
-        "/srv/www/logs",        // Orig dev
-        "/var/log/apache2",     // New apache
-        "/var/log/apache",      // Old apache
-        "/var/log/httpd",       // Alt apache
+      "/Users/srv/www/logs",  // macOS root filesystem is read-only now...so moving to /Users
+      "/srv/www/logs",        // Orig dev
+      "/var/log/apache2",     // New apache
+      "/var/log/apache",      // Old apache
+      "/var/log/httpd",       // Alt apache
     ];
-
-
+    
+    
     /**
      * @var resource
      */
@@ -103,15 +107,15 @@ class Log
      * @var bool $shouldColor
      */
     private static $shouldColor = null;
-
-
+    
+    
     public static function color ( $color, $str )
     {
         $str = (null === $str) ? "(null)" : strval($str);
-
+        
         return self::shouldColor() ? ($color . $str . self::TEXT_COLOR_SUFFIX) : $str;
     }
-
+    
     public static function red ( $str ) { return self::color(self::TEXT_COLOR_RED, $str); }
     public static function cyan ( $str ) { return self::color(self::TEXT_COLOR_CYAN, $str); }
     public static function yellow ( $str ) { return self::color(self::TEXT_COLOR_YELLOW, $str); }
@@ -119,25 +123,101 @@ class Log
     public static function green ( $str ) { return self::color(self::TEXT_COLOR_GREEN, $str); }
     public static function blue ( $str ) { return self::color(self::TEXT_COLOR_BLUE, $str); }
     public static function orange ( $str ) { return self::color(self::TEXT_COLOR_ORANGE, $str); }
-
+    
     public static function ulred ( $str ) { return self::color(self::TEXT_COLOR_UL_RED, $str); }
     public static function ulcyan ( $str ) { return self::color(self::TEXT_COLOR_UL_CYAN, $str); }
     public static function ulyellow ( $str ) { return self::color(self::TEXT_COLOR_UL_YELLOW, $str); }
     public static function ulwhite ( $str ) { return self::color(self::TEXT_COLOR_UL_WHITE, $str); }
     public static function ulgreen ( $str ) { return self::color(self::TEXT_COLOR_UL_GREEN, $str); }
-
+    
     public static function bgred ( $str ) { return self::color(self::TEXT_COLOR_BG_RED, $str); }
     public static function bgyellow ( $str ) { return self::color(self::TEXT_COLOR_BG_YELLOW, $str); }
-
-
-
+    
+    
+    /**
+     * This opens a log file statically.
+     *
+     * DANGER - This has a side effect of setting the static file handler.
+     */
+    private static function initFileHandle ()
+    {
+        if ( self::CLOG_DEBUG_ERROR_LOG_DEFAULT ) error_log("isCLI? " . (isCli() ? "Y" : "n"));
+        
+        if ( isCLI() )
+        {
+            if ( self::CLOG_DEBUG_ERROR_LOG_DEFAULT ) error_log("IS-CLI; aborting!");
+            
+            self::$logfp = false;
+            return;
+        }
+        
+        if ( false !== self::$logfp ) return;
+        
+        $errorLogPath = ini_get(self::CLOG_ERROR_LOG_CONSTANT);
+        
+        if ( self::CLOG_DEBUG_ERROR_LOG_DEFAULT ) error_log("Log - error-log-path: $errorLogPath");
+        
+        $errorLogDir = dirname($errorLogPath);
+        
+        if ( !$errorLogPath || 0 == strlen($errorLogDir) )
+        {
+            $logdir = pathinfo(realpath("/proc/" . getmypid() . "/fd/2"), PATHINFO_DIRNAME);
+            
+            if ( self::CLOG_DEBUG_ERROR_LOG_DEFAULT ) error_log("Log - log-dir: $logdir");
+            
+            if ( !$logdir || 0 == strlen($logdir) )
+            {
+                self::initAlternateFileHandles();
+                return;
+            }
+            else
+            {
+                $clogFilePath = $logdir . DIRECTORY_SEPARATOR . self::CLOG_FILENAME;
+            }
+        }
+        else
+        {
+            $clogFilePath = $errorLogDir . DIRECTORY_SEPARATOR . self::CLOG_FILENAME;
+        }
+        
+        if ( self::CLOG_DEBUG_ERROR_LOG_DEFAULT ) error_log("Trying to open clog file @ $clogFilePath...");
+        
+        self::$logfp = @fopen($clogFilePath, self::CLOG_FOPEN_MODE);
+    }
+    
+    
+    private static function initAlternateFileHandles ()
+    {
+        self::$logfp = false;
+        
+        foreach ( self::CLOG_ALT_FILE_DIRS as $dir )
+        {
+            $path = $dir . DIRECTORY_SEPARATOR . self::CLOG_FILENAME;
+            
+            if ( self::CLOG_DEBUG_ERROR_LOG_DEFAULT ) error_log("Log - Trying to open [ $path ] ...");
+            
+            $fp = @fopen($path, self::CLOG_FOPEN_MODE);
+            if ( false !== $fp )
+            {
+                if ( self::CLOG_DEBUG_ERROR_LOG_DEFAULT ) error_log("Log - WIN - opened path [ $path ].");
+                
+                self::$logfp = $fp;
+                return;
+            }
+        }
+    }
+    
+    
+    private static function isFileOpen () { return false !== self::$logfp; }
+    
+    
     public static function log ()
     {
         self::initFileHandle();
-
+        
         $debugPrefix = (!self::DEBUG_TIMING && !self::DEBUG_REMOTE) ? "" : self::makeDebugPrefix();
         $argc        = func_num_args();
-
+        
         if ( 2 == $argc )
         {
             $key    = func_get_arg(0);
@@ -151,7 +231,7 @@ class Log
             $val    = func_get_arg(0);
             $prefix = $debugPrefix;
         }
-
+        
         if ( is_scalar($val) )
         {
             //
@@ -159,10 +239,10 @@ class Log
             //
             $val  = self::obfuscatePasswords($key, $val);
             $mesg = is_bool($val)
-                ? ($val ? self::ulgreen("true") : self::ulred("FALSE"))
-                : (is_numeric($val)
-                    ? self::yellow($val)
-                    : strval($val));
+              ? ($val ? self::ulgreen("true") : self::ulred("FALSE"))
+              : (is_numeric($val)
+                ? self::yellow($val)
+                : strval($val));
             self::_log($prefix . $mesg);
         }
         else
@@ -170,9 +250,9 @@ class Log
             self::logObject($debugPrefix, $key, $val);
         }
     }
-
-
-
+    
+    
+    
     private static function logObject ( $debugPrefix, $key, $val )
     {
         if ( null === $val )
@@ -182,11 +262,11 @@ class Log
             self::log($debugPrefix . $str);
             return;
         }
-
+        
         if ( is_array($val) )
         {
             $descString = (0 == strlen($key)) ? "[]" : "$key []";
-
+            
             self::logArray($debugPrefix, $descString, $val);
         }
         else if ( $val instanceof Exception )
@@ -202,8 +282,8 @@ class Log
                     $ref        = new \ReflectionClass($val);
                     $type       = $ref->getName();
                     $descString = (0 == strlen($key)) ? "[$type]" : "$key [$type]";
-                    $wiredHash  = call_user_func([ $val, "toHash" ]);
-
+                    $wiredHash  = call_user_func([$val, "toHash"]);
+                    
                     self::logArray($debugPrefix, $descString, $wiredHash);
                     return;
                 }
@@ -220,12 +300,12 @@ class Log
                     $type  = $ref->getName();
                     $data  = var_export($val, true);
                     $color = self::TEXT_COLOR_RED;
-
+                    
                     $str = FJ::jsEncode($data);
-
+                    
                     $type = self::yellow("[$type]");
                     $str  = self::color($color, $str);
-
+                    
                     self::log($debugPrefix . "$type: $str");
                 }
                 catch ( \ReflectionException $e )
@@ -235,9 +315,9 @@ class Log
             }
         }
     }
-
-
-
+    
+    
+    
     /**
      * ****************************************************************
      *
@@ -257,14 +337,14 @@ class Log
     {
         $indentCount = (self::CLOG_DEPTH_INDENT * $depth) + ((0 === $depth) ? 0 : 2);
         $indent      = str_repeat(' ', $indentCount);
-
+        
         //self::log("clogHandleArray/prefix: $prefix");
         //self::log("clogHandleArray/indent: [$indent]");
         //self::log("clogHandleArray/parent-pre: [$parentPre]");
         //print_r($item);
-
+        
         $count = count($item);
-
+        
         if ( 0 == $count )
         {
             $str = self::bgyellow("[EMPTY array]");
@@ -272,7 +352,7 @@ class Log
             self::log($prefix . $indent . $str);
             return;
         }
-
+        
         $arKeys = array_keys($item);
         if ( is_int($arKeys[0]) )
         {
@@ -302,25 +382,25 @@ class Log
             $blank     = "%s";
             $keyColor  = self::TEXT_COLOR_CYAN;
         }
-
+        
         $pre = sprintf($blank, $desc);
         $pre = self::ulyellow($pre);
-
+        
         //self::log("clogHandleArray/pre: $pre");
-
+        
         if ( 0 === $depth ) self::log($prefix . $pre);
-
+        
         foreach ( $item as $key => $val )
         {
             $pre = sprintf($preFormat, $key);
             $pre = self::color($keyColor, $pre);
-
+            
             if ( is_array($val) )
             {
                 $post = self::cyan("[]");
                 $str  = $pre . $post;
                 self::log($prefix . $indent . $str);
-
+                
                 // Recursion.
                 self::logArray($prefix, $desc, $val, 1 + $depth);
             }
@@ -331,20 +411,20 @@ class Log
                 //
                 $val  = self::obfuscatePasswords($key, $val);
                 $mesg = is_bool($val)
-                    ? ($val ? self::ulgreen("true") : self::ulred("FALSE"))
-                    : (is_numeric($val)
-                        ? self::yellow($val)
-                        : strval($val));
-
+                  ? ($val ? self::ulgreen("true") : self::ulred("FALSE"))
+                  : (is_numeric($val)
+                    ? self::yellow($val)
+                    : strval($val));
+                
                 $str = $pre . $mesg;
-
+                
                 self::log($prefix . $indent . $str);
             }
         }
     }
-
-
-
+    
+    
+    
     /**
      * ****************************************************************
      * Pretty-prints and Exception object.
@@ -363,26 +443,26 @@ class Log
             return;
         }
         */
-
+        
         $depth = 0;
-
+        
         $prefixLen = strlen(dirname(__DIR__)) + 1;
         $file      = $ex->getFile();
         $file      = substr($file, $prefixLen);
         $mesg      = $ex->getMessage();
-
+        
         $str = sprintf("%3d) %s - (%s:%d)", $depth, $mesg, $file, $ex->getLine());
         $str = self::bgred($str);
         self::log($str);
-
+        
         $trace      = $ex->getTrace();
         $traceCount = count($trace);
-
+        
         for ( $i = ($traceCount - 1); $i >= 0; --$i )
         {
             ++$depth;
             $exceptionLineGap = self::CLOG_MESG_EXCEPTION_WIDTH;
-
+            
             $frame  = array_shift($trace);
             $file   = isset($frame['file']) ? $frame['file'] : "?";
             $line   = isset($frame['line']) ? $frame['line'] : "?";
@@ -392,116 +472,37 @@ class Log
                 $class  = $frame['class'];
                 $caller = "$class.$caller";
             }
-
+            
             $file = basename($file);
             $mesg = "$file:$line";
-
+            
             $str = sprintf("%3d) %s%-{$exceptionLineGap}s - (%s)", $depth, "", $caller, $mesg);
             $str = self::bgred($str);
             self::log($str);
         }
     }
-
-
-
+    
+    
+    
     private static function obfuscatePasswords ( $key, $val )
     {
         // Deal with password-like fields.
         return !preg_match(self::CLOG_PASSWORD_PATTERN, $key)
-            ? $val
-            : self::bgyellow(str_repeat('*', strlen($val)));
+          ? $val
+          : self::bgyellow(str_repeat('*', strlen($val)));
     }
-
-
-
-    /**
-     * This opens a log file statically.
-     *
-     * DANGER - This has a side effect of setting the static file handler.
-     */
-    private static function initFileHandle ()
-    {
-        if ( self::CLOG_DEBUG_ERROR_LOG_DEFAULT ) error_log("isCLI? " . (isCli() ? "Y" : "n"));
-
-        if ( isCLI() )
-        {
-            if ( self::CLOG_DEBUG_ERROR_LOG_DEFAULT ) error_log("IS-CLI; aborting!");
-
-            self::$logfp = false;
-            return;
-        }
-
-        if ( false !== self::$logfp ) return;
-
-        $errorLogPath = ini_get(self::CLOG_ERROR_LOG_CONSTANT);
-
-        if ( self::CLOG_DEBUG_ERROR_LOG_DEFAULT ) error_log("Log - error-log-path: $errorLogPath");
-
-        $errorLogDir = dirname($errorLogPath);
-
-        if ( !$errorLogPath || 0 == strlen($errorLogDir) )
-        {
-            $logdir = pathinfo(realpath("/proc/" . getmypid() . "/fd/2"), PATHINFO_DIRNAME);
-
-            if ( self::CLOG_DEBUG_ERROR_LOG_DEFAULT ) error_log("Log - log-dir: $logdir");
-
-            if ( !$logdir || 0 == strlen($logdir) )
-            {
-                self::initAlternateFileHandles();
-                return;
-            }
-            else
-            {
-                $clogFilePath = $logdir . DIRECTORY_SEPARATOR . self::CLOG_FILENAME;
-            }
-        }
-        else
-        {
-            $clogFilePath = $errorLogDir . DIRECTORY_SEPARATOR . self::CLOG_FILENAME;
-        }
-
-        if ( self::CLOG_DEBUG_ERROR_LOG_DEFAULT ) error_log("Trying to open clog file @ $clogFilePath...");
-
-        self::$logfp = @fopen($clogFilePath, self::CLOG_FOPEN_MODE);
-    }
-
-
-
-    private static function initAlternateFileHandles ()
-    {
-        self::$logfp = false;
-
-        foreach ( self::CLOG_ALT_FILE_DIRS as $dir )
-        {
-            $path = $dir . DIRECTORY_SEPARATOR . self::CLOG_FILENAME;
-
-            if ( self::CLOG_DEBUG_ERROR_LOG_DEFAULT ) error_log("Log - Trying to open [ $path ] ...");
-
-            $fp = @fopen($path, self::CLOG_FOPEN_MODE);
-            if ( false !== $fp )
-            {
-                if ( self::CLOG_DEBUG_ERROR_LOG_DEFAULT ) error_log("Log - WIN - opened path [ $path ].");
-
-                self::$logfp = $fp;
-                return;
-            }
-        }
-    }
-
-
-    private static function isFileOpen () { return false !== self::$logfp; }
-
-
-
+    
+    
+    
     private static function shouldColor ()
     {
         //if ( null === self::$shouldColor ) self::$shouldColor = (self::isFileOpen() || isCLI());
         //return self::$shouldColor;
         return true;
     }
-
-
-
+    
+    
+    
     private static function _log ( $mesg )
     {
         if ( self::DEBUG_COLOR )
@@ -510,7 +511,7 @@ class Log
             error_log("  isFileOpen()? " . (self::isFileOpen() ? "Y" : "n"));
             error_log("  isCLI()     ? " . (isCLI() ? "Y" : "n"));
         }
-
+        
         if ( isWeb() && array_key_exists('REQUEST_TIME_FLOAT', $_SERVER) )
         {
             if ( self::DEBUG_COLOR )
@@ -518,26 +519,26 @@ class Log
                 error_log("Why doesn't this appear??");
                 error_log("  shouldColor()? " . (self::shouldColor() ? "Y" : "n"));
             }
-
+            
             $now = new PrecTime();
             $rfc = $now->rfc();
-
+            
             $mesgCustom = self::shouldColor() ? $rfc : "";
-
+            
             $sessID = session_id();
             $sessID = substr($sessID, 0, 8);
-
+            
             $mesgCustom .= " " . $sessID;
-
+            
             $nowMillis         = $now->getWholeMillis();
             $reqTimeSec        = $_SERVER['REQUEST_TIME_FLOAT'];
             $reqTimeMillis     = $reqTimeSec * 1000;
             $diffMillis        = $nowMillis - $reqTimeMillis;
             $diffMillisRounded = round($diffMillis);
-
+            
             $color = (self::CLOG_TIMING_THRESHOLD < $diffMillisRounded)
-                ? self::TEXT_COLOR_BG_RED
-                : self::TEXT_COLOR_YELLOW;
+              ? self::TEXT_COLOR_BG_RED
+              : self::TEXT_COLOR_YELLOW;
 
 //            if ( self::CLOG_DEBUG_TIMING )
 //            {
@@ -547,50 +548,50 @@ class Log
 //                //error_log("dif: $diffMillis");
 //                //error_log("dif-rounded: $diffMillisRounded");
 //            }
-
+            
             $diffString = sprintf("(+%'_3dms)", $diffMillisRounded);
-
+            
             $diffInfo   = self::color($color, $diffString);
             $mesgCustom .= " $diffInfo";
-
+            
             $self = (false !== self::$customPrefix)
-                ? self::$customPrefix
-                : $_SERVER['PHP_SELF'];
-
+              ? self::$customPrefix
+              : $_SERVER['PHP_SELF'];
+            
             $self = self::green($self);
-
+            
             $mesgCustom .= " $self $mesg";
-
+            
             if ( self::shouldColor() && isCLI() ) $mesgCustom .= "\n";
         }
         else
         {
             $mesgCustom = $mesg;
         }
-
+        
         self::_outputLog($mesgCustom);
     }
-
-
-
+    
+    
+    
     public static function setCustomPrefix ( $prefix ) { self::$customPrefix = $prefix; }
     public static function getCustomPrefix () { return self::$customPrefix; }
     public static function resetCustomPrefix () { self::$customPrefix = false; }
-
-
-
+    
+    
+    
     private static function _outputLog ( $mesg )
     {
         if ( self::isFileOpen() ) @fwrite(self::$logfp, $mesg . "\n");
         else error_log($mesg);
     }
-
-
-
+    
+    
+    
     private static function makeDebugPrefix ()
     {
         $time = $remote = "";
-
+        
         if ( self::DEBUG_TIMING )
         {
             $time = microtime(true);
@@ -599,7 +600,7 @@ class Log
             $time .= ' ';
             $time = self::red($time);
         }
-
+        
         if ( self::DEBUG_REMOTE && isWeb() )
         {
             //$remote = $_SERVER['REMOTE_ADDR'] . ":" . $_SERVER['REMOTE_PORT'] . " ";
@@ -607,14 +608,14 @@ class Log
             $remote = $_SERVER['REMOTE_ADDR'] . "/" . $_SERVER['REQUEST_METHOD'] . " ";
             //$remote = self::yellow($remote);
         }
-
+        
         $prefix = $time . $remote;
-
+        
         return $prefix;
     }
-
-
-
+    
+    
+    
     /**
      * Pretty-prints a dump of the current call-stack.
      */
@@ -629,13 +630,13 @@ class Log
             self::logException($e);
         }
     }
-
-
-
+    
+    
+    
     public static function warn ()
     {
         $argc = func_num_args();
-
+        
         if ( 2 == $argc )
         {
             $desc = func_get_arg(0);
@@ -648,13 +649,13 @@ class Log
             clog(self::ulyellow("WARNING - $item"));
         }
     }
-
-
-
+    
+    
+    
     public static function error ( $mesg, $shouldAbort = false, $errorCode = 1 )
     {
         clog(self::ulred("ERROR - $mesg"));
-
+        
         try
         {
             throw new Exception($mesg);
@@ -663,13 +664,13 @@ class Log
         {
             clog($e);
         }
-
+        
         if ( false !== $shouldAbort ) exit($errorCode);
-
+        
         return false;
     }
-
-
-
+    
+    
+    
     public static function abort ( $mesg, $errorCode = 1 ) { self::error($mesg, true, $errorCode); }
 }
