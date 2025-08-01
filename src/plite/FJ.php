@@ -209,6 +209,7 @@ class FJ
     {
         return preg_replace("/[^[:alnum:]]/", "", $string);
     }
+    public static function stripNonAlnum ( $s ) { return self::stripSpaces($s); }
     
     
     public static function stripLower ( $string )
