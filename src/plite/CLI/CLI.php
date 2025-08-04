@@ -19,12 +19,14 @@
 
 
 
-namespace vertwo\plite;
+namespace vertwo\plite\CLI;
 
 
 
 use ErrorException;
 use Exception;
+use vertwo\plite\FJ;
+use function vertwo\plite\clog;
 
 
 
@@ -182,6 +184,8 @@ abstract class CLI
         /** @var CLI $cli */
         $cli = new $class();
         $cli->main();
+        
+        
     }
     
     

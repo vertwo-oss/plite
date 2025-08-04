@@ -20,7 +20,7 @@
 
 
 use PHPUnit\Framework\TestCase;
-use vertwo\plite\CLI;
+use vertwo\plite\CLI\CLI;
 use function vertwo\plite\clog;
 
 
