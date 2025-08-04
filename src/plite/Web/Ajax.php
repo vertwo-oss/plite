@@ -26,7 +26,21 @@ namespace vertwo\plite\Web;
 use vertwo\plite\FJ;
 use vertwo\plite\Log;
 use vertwo\plite\Util\PrecTime;
-use function vertwo\plite\clog;
+
+
+function clog ()
+{
+    switch ( func_num_args() )
+    {
+        case 2:
+            WebLog::log(func_get_arg(0), func_get_arg(1));
+            break;
+        
+        default:
+            WebLog::log(func_get_arg(0));
+            break;
+    }
+}
 
 
 

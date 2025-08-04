@@ -26,7 +26,22 @@ namespace vertwo\plite\CommandLine;
 use ErrorException;
 use Exception;
 use vertwo\plite\FJ;
-use function vertwo\plite\clog;
+
+
+
+function clog ()
+{
+    switch ( func_num_args() )
+    {
+        case 2:
+            ConsoleLog::log(func_get_arg(0), func_get_arg(1));
+            break;
+        
+        default:
+            ConsoleLog::log(func_get_arg(0));
+            break;
+    }
+}
 
 
 

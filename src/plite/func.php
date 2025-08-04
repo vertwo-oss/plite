@@ -22,35 +22,10 @@
 namespace vertwo\plite;
 
 
-
-function clog ()
-{
-    switch ( func_num_args() )
-    {
-        case 2:
-            Log::log(func_get_arg(0), func_get_arg(1));
-            break;
-
-        default:
-            Log::log(func_get_arg(0));
-            break;
-    }
-}
-
-
-function cclog ( $color, $mesg ) { clog(Log::color($color, $mesg)); }
-
-
-function redlog ( $mesg ) { cclog(Log::TEXT_COLOR_RED, $mesg); }
-function yellog ( $mesg ) { cclog(Log::TEXT_COLOR_YELLOW, $mesg); }
-function grnlog ( $mesg ) { cclog(Log::TEXT_COLOR_GREEN, $mesg); }
-function cynlog ( $mesg ) { cclog(Log::TEXT_COLOR_CYAN, $mesg); }
-function redulog ( $mesg ) { cclog(Log::TEXT_COLOR_UL_RED, $mesg); }
-function yelulog ( $mesg ) { cclog(Log::TEXT_COLOR_UL_YELLOW, $mesg); }
-function grnulog ( $mesg ) { cclog(Log::TEXT_COLOR_UL_GREEN, $mesg); }
-function cynulog ( $mesg ) { cclog(Log::TEXT_COLOR_UL_CYAN, $mesg); }
-
-
+function red ( $s ) { return Log::TEXT_COLOR_RED . $s . Log::TEXT_COLOR_SUFFIX; }
+function yel ( $s ) { return Log::TEXT_COLOR_YELLOW . $s . Log::TEXT_COLOR_SUFFIX; }
+function grn ( $s ) { return Log::TEXT_COLOR_GREEN . $s . Log::TEXT_COLOR_SUFFIX; }
+function cyn ( $s ) { return Log::TEXT_COLOR_CYAN . $s . Log::TEXT_COLOR_SUFFIX; }
 
 function isCLI () { return !isset($_SERVER["SERVER_PORT"]) && (php_sapi_name() === 'cli'); }
 function isWeb () { return !isCLI(); }
