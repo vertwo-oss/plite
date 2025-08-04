@@ -65,9 +65,17 @@ abstract class CLI
     /**
      * This provides an array of the long options, in getopts() format.
      *
+     * For each element of the array (a string), can be used with the
+     * `req()` and `opt()` utility static methods here, to specify
+     * REQUIRED and OPTIONAL arguments to `getopt()`.
+     *
+     * For example:
+     *
+     *     return [ self::req("name"), self::opt("verbose") ];
+     *
      * @return array - getopt() spec (with colons); empty array is ok.
      */
-    abstract protected function getLongOpts ();
+    protected function getLongOpts () { return []; }
     
     /**
      * CLI entry point.
