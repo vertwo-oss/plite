@@ -31,7 +31,9 @@ fi
 
 echo "vendor_proj: [$VEND_PROJ]"
 
-rsync -av ../src/web/ $PROJ_DIR
+TEMPLATE_DIR="web-template"
+
+rsync -av ../src/$TEMPLATE_DIR/ $PROJ_DIR
 
 if [ -d ~/Sites ] ; then
     SITE=$(basename $PROJ_DIR)
