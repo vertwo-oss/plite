@@ -23,6 +23,10 @@ namespace vertwo\plite;
 
 
 
+use vertwo\plite\CommandLine\CLI;
+
+
+
 abstract class PLI extends CLI
 {
     /**

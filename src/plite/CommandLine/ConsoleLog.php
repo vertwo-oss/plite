@@ -19,7 +19,7 @@
 
 
 
-namespace vertwo\plite\CLI;
+namespace vertwo\plite\CommandLine;
 
 
 
