@@ -72,11 +72,6 @@ abstract class CLI extends BoringCLI
     
     public static function run ()
     {
-        //
-        // Dynamically loading 'clog' in global namespace.
-        //
-        include(__DIR__ . "/clog-cli.php");
-        
         $class = get_called_class();
         if ( self::DEBUG_CLASS ) clog("get_called_class", $class);
         

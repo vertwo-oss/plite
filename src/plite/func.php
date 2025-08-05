@@ -19,7 +19,10 @@
 
 
 
-namespace vertwo\plite;
+use vertwo\plite\Log;
+use vertwo\plite\CommandLine\ConsoleLog;
+use vertwo\plite\Web\WebLog;
+
 
 
 function red ( $s ) { return Log::TEXT_COLOR_RED . $s . Log::TEXT_COLOR_SUFFIX; }
@@ -28,5 +31,40 @@ function grn ( $s ) { return Log::TEXT_COLOR_GREEN . $s . Log::TEXT_COLOR_SUFFIX
 function cyn ( $s ) { return Log::TEXT_COLOR_CYAN . $s . Log::TEXT_COLOR_SUFFIX; }
 function wht ( $s ) { return LOG::TEXT_COLOR_WHITE . $s . Log::TEXT_COLOR_SUFFIX; }
 
+
 function isCLI () { return !isset($_SERVER["SERVER_PORT"]) && (php_sapi_name() === 'cli'); }
 function isWeb () { return !isCLI(); }
+
+
+if ( isCLI() )
+{
+    function clog ()
+    {
+        switch ( func_num_args() )
+        {
+            case 2:
+                ConsoleLog::log(func_get_arg(0), func_get_arg(1));
+                break;
+            
+            default:
+                ConsoleLog::log(func_get_arg(0));
+                break;
+        }
+    }
+}
+else
+{
+    function clog ()
+    {
+        switch ( func_num_args() )
+        {
+            case 2:
+                WebLog::log(func_get_arg(0), func_get_arg(1));
+                break;
+            
+            default:
+                WebLog::log(func_get_arg(0));
+                break;
+        }
+    }
+}
