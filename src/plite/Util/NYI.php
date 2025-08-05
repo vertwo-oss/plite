@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2012-2021 Troy Wu
+ * Copyright (c) 2012-2025 Troy Wu
  * Copyright (c) 2021      Version2 OÜ
  * All rights reserved.
  *
@@ -34,6 +34,6 @@ class NYI extends Exception
     public function __construct ( $message = "", $code = 0, Throwable $previous = null )
     {
         parent::__construct("NYI", $code, $previous);
-        Log::dump();
+        Log::dumpStackTrace();
     }
 }

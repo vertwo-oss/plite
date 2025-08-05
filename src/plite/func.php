@@ -29,7 +29,7 @@ function red ( $s ) { return Log::TEXT_COLOR_RED . $s . Log::TEXT_COLOR_SUFFIX; 
 function yel ( $s ) { return Log::TEXT_COLOR_YELLOW . $s . Log::TEXT_COLOR_SUFFIX; }
 function grn ( $s ) { return Log::TEXT_COLOR_GREEN . $s . Log::TEXT_COLOR_SUFFIX; }
 function cyn ( $s ) { return Log::TEXT_COLOR_CYAN . $s . Log::TEXT_COLOR_SUFFIX; }
-function wht ( $s ) { return LOG::TEXT_COLOR_WHITE . $s . Log::TEXT_COLOR_SUFFIX; }
+function wht ( $s ) { return Log::TEXT_COLOR_WHITE . $s . Log::TEXT_COLOR_SUFFIX; }
 
 
 function isCLI () { return !isset($_SERVER["SERVER_PORT"]) && (php_sapi_name() === 'cli'); }

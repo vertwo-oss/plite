@@ -528,7 +528,7 @@ abstract class Log
     /**
      * Pretty-prints a dump of the current call-stack.
      */
-    public static function dump ()
+    public static function dumpStackTrace ()
     {
         try
         {

@@ -1,6 +1,6 @@
 <?php
-/**
- * Copyright (c) 2012-2022 Troy Wu
+/*
+ * Copyright (c) 2012-2025 Troy Wu
  * Copyright (c) 2021-2022 Version2 OÜ
  * All rights reserved.
  *
@@ -564,8 +564,8 @@ class Ball
             }
             else
             {
-                Log::dump();
-                redulog("Can it be other things?? - [$v]");
+                Log::dumpStackTrace();
+                clog(red("Can it be other things?? - [$v]"));
             }
         }
 

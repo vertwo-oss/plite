@@ -813,9 +813,9 @@ class FJ
     
     public static function diehard ()
     {
-        redlog("----====> Dying hard! <====----");
-        Log::dump();
-        redlog("----====> DYING NOW! (99) <====----");
+        clog(red("----====> Dying hard! <====----"));
+        Log::dumpStackTrace();
+        clog(red("----====> DYING NOW! (99) <====----"));
         exit(99);
     }
 }
