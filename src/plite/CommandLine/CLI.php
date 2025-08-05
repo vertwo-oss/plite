@@ -24,124 +24,13 @@ namespace vertwo\plite\CommandLine;
 
 
 use ErrorException;
-use Exception;
-use vertwo\plite\FJ;
 
 
 
-function clog ()
-{
-    switch ( func_num_args() )
-    {
-        case 2:
-            ConsoleLog::log(func_get_arg(0), func_get_arg(1));
-            break;
-        
-        default:
-            ConsoleLog::log(func_get_arg(0));
-            break;
-    }
-}
-
-
-
-abstract class CLI
+abstract class CLI extends BoringCLI
 {
     const DEBUG_ARGS  = false;
     const DEBUG_CLASS = false;
-
-
-
-//    static function isCLI () { return isCLI(); }
-//    static function isWeb () { return isWeb(); }
-    
-    static function req ( $string ) { return $string . ":"; }
-    static function opt ( $string ) { return $string . "::"; }
-    
-    
-    
-    private   $argc;
-    private   $argv;
-    private   $prog;
-    protected $opts      = [];
-    protected $remaining = [];
-    protected $optind    = 0;
-    private   $argIndex  = 0;
-    
-    
-    
-    /**
-     * This provides a list of the short options, in classic getopts() format.
-     *
-     * @return string - Classic getopt() spec (with colons); empty string ok.
-     */
-    abstract protected function getShortOpts ();
-    
-    /**
-     * This provides an array of the long options, in getopts() format.
-     *
-     * For each element of the array (a string), can be used with the
-     * `req()` and `opt()` utility static methods here, to specify
-     * REQUIRED and OPTIONAL arguments to `getopt()`.
-     *
-     * For example:
-     *
-     *     return [ self::req("name"), self::opt("verbose") ];
-     *
-     * @return array - getopt() spec (with colons); empty array is ok.
-     */
-    protected function getLongOpts () { return []; }
-    
-    /**
-     * CLI entry point.
-     *
-     * @return int
-     */
-    abstract public function main ();
-    
-    
-    
-    protected function argc () { return $this->argc; }
-    protected function argv () { return $this->argv; }
-    protected function getProgramName () { return $this->prog; }
-    
-    
-    
-    /**
-     * @return string
-     * @throws Exception
-     */
-    function shift ()
-    {
-        if ( count($this->remaining) == $this->argIndex )
-            throw new Exception("No argv[{$this->argIndex}]");
-        
-        return $this->remaining[$this->argIndex++];
-    }
-    function hasMoreArgs () { return $this->argIndex < count($this->remaining); }
-    function reset () { $this->argIndex = 0; }
-    function remaining () { return $this->remaining; }
-    function unshifted () { return array_slice($this->argv, 1 + $this->argIndex); }
-    
-    
-    
-    public function __construct ()
-    {
-        $this->argc = $_SERVER['argc'];
-        $this->argv = $_SERVER['argv'];
-        $this->prog = $this->argv[0];
-        
-        $shortOpts = $this->getShortOpts();
-        $longOpts  = $this->getLongOpts();
-        
-        $this->optind = 0;
-        $this->opts   = getopt($shortOpts, $longOpts, $this->optind);
-        
-        $this->remaining = array_slice($this->argv, $this->optind);
-        
-        if ( self::DEBUG_ARGS ) $this->dump();
-    }
-    
     
     
     /**
@@ -165,10 +54,9 @@ abstract class CLI
     }
     
     
-    
     public function dump ()
     {
-        clog($this->argc, $this->argv);
+        clog("argc: " . $this->argc, $this->argv);
         
         $shortOpts = $this->getShortOpts();
         $longOpts  = $this->getLongOpts();
@@ -182,120 +70,18 @@ abstract class CLI
     }
     
     
-    
-    protected function getopt ( $opt ) { return array_key_exists($opt, $this->opts) ? $this->opts[$opt] : false; }
-    protected function hasopt ( $opt ) { return array_key_exists($opt, $this->opts); }
-    protected function noopt ( $opt ) { return !$this->hasopt($opt); }
-    protected function optCount ( $opt ) { return $this->noopt($opt) ? 0 : count($this->opts[$opt]); }
-    
-    
-    
-    public static function cleanInput ( $string )
-    {
-        $string = strtolower($string);
-        $string = preg_replace("/[^a-z0-9\-]/", "", $string);
-        return $string;
-    }
-    
-    
-    
     public static function run ()
     {
+        //
+        // Dynamically loading 'clog' in global namespace.
+        //
+        include(__DIR__ . "/clog-cli.php");
+        
         $class = get_called_class();
         if ( self::DEBUG_CLASS ) clog("get_called_class", $class);
         
         /** @var CLI $cli */
         $cli = new $class();
         $cli->main();
-        
-        
-    }
-    
-    
-    
-    public function readPassword ( $mesg )
-    {
-        $counter = 1;
-        do
-        {
-            $mesg2 = (1 == $counter) ? $mesg : "$counter) $mesg";
-            
-            $p1    = self::readSinglePasswordFromCLI($mesg2);
-            $p2    = self::readSinglePasswordFromCLI($mesg2 . " (again)");
-            $match = (0 === strcmp($p1, $p2));
-            if ( !$match )
-            {
-                clog("  Sorry, both those passwords didn't match.  Try again, please.");
-            }
-        }
-        while ( !$match );
-        
-        return $p1;
-    }
-    
-    
-    
-    private function readSinglePasswordFromCLI ( $mesg )
-    {
-        do
-        {
-            // Get password without echo'ing.
-            echo "$mesg: ";
-            system('stty -echo');
-            $passwd = trim(fgets(STDIN));
-            system('stty echo');
-            // add a new line since the users CR didn't echo
-            echo "\n";
-        }
-        while ( 0 == strlen($passwd) );
-        
-        return $passwd;
-    }
-    
-    
-    
-    /**
-     * use `ini_set` and 'memory_limit' to set maximum memory.
-     *
-     * @param int $mb - Max memory in MB.
-     */
-    public function setMaxMem ( $mb )
-    {
-        $mb = (int)$mb;
-        
-        if ( 0 >= $mb ) return;
-        
-        ini_set('memory_limit', $mb . "M");
-    }
-    
-    
-    /**
-     * Use `memory_get_peak_usage()` to get max mem used.
-     *
-     * @return int - Peak memory usage.
-     */
-    public function getPeakMem ()
-    {
-        return memory_get_peak_usage();
-    }
-    
-    
-    /**
-     * Use `memory_get_peak_usage()` to get max mem used.
-     *
-     * @return string - Human-friendly memory.
-     */
-    public function getPeakMemString ()
-    {
-        $mem = memory_get_peak_usage();
-        return FJ::convert($mem);
-    }
-    
-    
-    public function getConsoleWidth ()
-    {
-        $width = shell_exec("tput cols");
-        if ( !$width ) return false;
-        return (int)(trim($width));
     }
 }
