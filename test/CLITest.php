@@ -21,21 +21,14 @@
 
 use PHPUnit\Framework\TestCase;
 use vertwo\plite\CommandLine\CLI;
-use function vertwo\plite\clog;
 
 
 
 class CT extends CLI
 {
     
-    protected function getShortOpts ()
-    {
-        return "";
-    }
-    protected function getLongOpts ()
-    {
-        return [];
-    }
+    protected function getShortOpts () { return ""; }
+    
     public function main ()
     {
         $width = $this->getConsoleWidth();

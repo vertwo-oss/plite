@@ -35,7 +35,6 @@
 use phpseclib3\Crypt\AES;
 use PHPUnit\Framework\TestCase;
 use vertwo\plite\FJ;
-use function vertwo\plite\clog;
 
 
 

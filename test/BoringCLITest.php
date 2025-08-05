@@ -20,47 +20,35 @@
 
 
 use PHPUnit\Framework\TestCase;
-use vertwo\plite\ConfigInterface;
-use vertwo\plite\Provider\FileProviderFactory;
+use vertwo\plite\CommandLine\BoringCLI;
 
 
 
-class TestConfig implements ConfigInterface
+//use vertwo\plite\CommandLine\CLI;
+//use vertwo\plite\CommandLine\clog as clog;
+
+
+
+class BCT extends BoringCLI
 {
-    function getConfig ()
+    
+    protected function getShortOpts () { return ""; }
+    
+    public function main ()
     {
-        return [
-          "plite_app" => "plite",
-          
-          //"aws_region"  => "us-east-2",
-          //"aws_version" => "latest",
-          
-          "file_provider_local_root_prefix" => "/Users/srv/",
-          "file_provider_local_root_suffix" => "/data",
-          
-          "file_provider" => "local",
-        ];
+        $width = $this->getConsoleWidth();
+        printf("[Boring] console width (tput cols): %d\n", $width);
     }
 }
 
 
-class FileProviderTest extends TestCase
+class BoringCLITest extends TestCase
 {
     /**
      * @throws Exception
      */
     public function testEnv ()
     {
-        print_r($_SERVER);
-        
-        $fileProv = FileProviderFactory::getProvider();
-        
-        $fileProv->init(["bucket" => "test-bucket"]);
-        $entries = $fileProv->ls();
-        $dirs    = $fileProv->lsDirs();
-        
-        print_r($entries);
-        
-        print_r($dirs);
+        BCT::run();
     }
 }
