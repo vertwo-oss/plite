@@ -27,7 +27,6 @@ use Exception;
 use vertwo\plite\Config;
 use vertwo\plite\Provider\AWS\FileProviderAWS;
 use vertwo\plite\Provider\Local\FileProviderLocal;
-use function vertwo\plite\clog;
 
 
 

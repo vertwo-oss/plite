@@ -28,8 +28,6 @@ use vertwo\plite\Log;
 use vertwo\plite\Provider\Base\FileProviderBase;
 use vertwo\plite\Provider\FileProvider;
 use vertwo\plite\Provider\FileProviderFactory;
-use function vertwo\plite\clog;
-use function vertwo\plite\yellog;
 
 
 
@@ -103,12 +101,12 @@ class FileProviderLocal extends FileProviderBase
 
         if ( !is_readable($this->dir) )
         {
-            yellog("[ " . $this->dir . " ] is NOT readable.");
+            clog(yel("[ " . $this->dir . " ] is NOT readable."));
         }
 
         if ( !is_writeable($this->dir) )
         {
-            yellog("[ " . $this->dir . " ] is NOT writeable.");
+            clog(yel("[ " . $this->dir . " ] is NOT writeable."));
         }
 
         if ( self::DEBUG_INIT ) clog("FP.init()", "FileProvider (local - {$this->dir}) successfully init'ed.");
