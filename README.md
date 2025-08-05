@@ -188,10 +188,10 @@ doesn't call the `clog()` function. And, if you're making
 "performance-sensitive" CLI stuff, this is your class.
 
 I like a pretty printer, especially one in the global namespace. I tried to
-choose something that wasn't going to get in the way.  Maybe if I cared 
-enough to play around with namespaces, etc, but my whole library uses, and 
-all my code calls it, so it seems SUPER-onerous to go back and add `use` 
-statements.  I should probably do this.  IDC right now.
+choose something that wasn't going to get in the way. Maybe if I cared
+enough to play around with namespaces, etc, but my whole library uses, and
+all my code calls it, so it seems SUPER-onerous to go back and add `use`
+statements. I should probably do this. IDC right now.
 
 ### Conclusion
 
@@ -221,11 +221,11 @@ The SecretsManager abstraction layer uses your local filesystem to provide
 "secrets", which are just JSON blobs (when you're not ready to push your
 secrets to the cloud).
 
-The SES abstraction allows you to send mail (and it can also connect to any 
-SMTP server, per your designation).  SES is a bitch to setup, though, and I 
-wouldn't touch it with a 10-foot pole.  It's another one of these: "Even 
-though I'm  paying, because SMTP is so often abused to send spam, Amazon 
-must "vet" your application before allowing you to use SES.  I hate it.  I'd 
+The SES abstraction allows you to send mail (and it can also connect to any
+SMTP server, per your designation). SES is a bitch to setup, though, and I
+wouldn't touch it with a 10-foot pole. It's another one of these: "Even
+though I'm paying, because SMTP is so often abused to send spam, Amazon
+must "vet" your application before allowing you to use SES. I hate it. I'd
 rather setup a host that's running postfix on EC2 than deal with SES.
 
 There are several entry points for using this library, depending on the intended
@@ -242,7 +242,7 @@ PHP pages, and "paths" in the URL reflected the layout of files in the
 application directory. This would be affected by things like `DocumentRoot`
 and `VirtualHost`, at least in Apache HTTPD parlance.
 
-Then, you just the `Ajax` class to help you with stuff (like pulling files 
+Then, you just the `Ajax` class to help you with stuff (like pulling files
 out of POSTs, or seeing request times, etc).
 
 And, you can still use `plite` this way.
@@ -265,9 +265,14 @@ use of Web Server env variables. But, it is what it is right now.)*
 The `.htaccess` file looks like this:
 
 ```apache
+SetEnv plite_local_root /Users/srv/
+SetEnv plite_url_app_regex ,/~dritchie/([[:alnum:]\-\_]*)/,
 RewriteEngine on
 RewriteRule ^(.*)$ route.php?url=$1  [L,QSA]
 ```
+
+which means that you'll have to open the AllowOverride in your
+local `httpd.conf`.
 
 And the `route.php` (in the root of the project directory) looks like this:
 
@@ -416,9 +421,9 @@ TODO
 
 ## As an Output/Logging Library
 
-If you're just using this library for the logger, you don't have to do 
-anything.  I've polluted the global namespace with a function called `clog()`, 
-which is inspired from the front-end (`console.log()` in Javascript, shortened 
+If you're just using this library for the logger, you don't have to do
+anything. I've polluted the global namespace with a function called `clog()`,
+which is inspired from the front-end (`console.log()` in Javascript, shortened
 to `clog()`).
 
 It's simple to use:
