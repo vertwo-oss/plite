@@ -1,0 +1,2 @@
+RewriteEngine on
+RewriteRule ^(.*)$ route.php?url=$1  [L,QSA]
