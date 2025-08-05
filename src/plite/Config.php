@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2012-2022 Troy Wu
+ * Copyright (c) 2012-2025 Troy Wu
  * Copyright (c) 2021-2022 Version2 OÜ
  * All rights reserved.
  *
@@ -51,7 +51,88 @@ use Exception;
  *               a. plite_app
  *               b. plite_class_prefix
  *
- * Class PliteConfig
+ *
+ * Aug, 2025 -- Outline the cases.  Don't just talk about needs.
+ *
+ * There are a few cases:
+ *
+ * 1) Prod (web)
+ *
+ *      Running in AWS ElasticBeanstalk, with only control over
+ *      SetEnv variables.
+ *
+ * 2) Dev (web)
+ *
+ *      Running local webserver, with control over everything,
+ *      but with the caveat that we are running multiple apps
+ *      (think contractor with multiple, simultaneous clients)
+ *      running on the same machine, same web server.
+ *
+ * 3) Embedded-CLI
+ *
+ *      Running stuff on the CLI, so usually things like Unit
+ *      Testing, or writing small utilities.  Here, we don't
+ *      mind specifying config separately as code.
+ *
+ * 4) CLI (using Prod or Local config).
+ *
+ *      This is when we're running utilties against the prod
+ *      or local environments (i.e., not testing, but doing
+ *      real work).  If it's against Prod, this is easy; we
+ *      just use the Prod embedded config.  But, if it's the
+ *      local environment, we have a weird situation where we
+ *      don't have a URL to parse (with regex), don't have an
+ *      embedded config, but only have a local filesystem root.
+ *
+ * There are various considerations for each:
+ *
+ * 1) Prod (web)
+ *
+ *      We can only control Environment Variables.  But, it's
+ *      reasonably to assume that each project (i.e., a project
+ *      needing separate config has -IT'S OWN- EB environment.
+ *      Therefore, we can embed the config in a class file, and
+ *      use SetEnv to tell us where to find this class file.
+ *      Get the app name from inside this class file.
+ *
+ *      1 (ONE) variable.
+ *
+ * 2) Embedded-CLI or CLI-using-Prod-config
+ *
+ *      Same as Web-Prod.  We're embedding the config in a
+ *      class file.  Set Shell env vars to tell us where to
+ *      find this class file.  Get the app name from inside
+ *      this class file.
+ *
+ *      1 (ONE) variable.
+ *
+ * 3) Dev (web)
+ *
+ *      This is actually the weirdest environment.  Because a
+ *      single dev might be working on multiple projects, we
+ *      need a way to figure out, based on URL (because we're
+ *      not going to setup a virtual host for every client)
+ *      what the project is.  FUCK CONTAINERS.  This is a
+ *      million times simpler.
+ *
+ *      So, we need a regex (to extract the app name).
+ *      And, we need a local filesystem root--the place to
+ *      find the config file.  We're using a config file
+ *      here because we don't want to use the Prod environment
+ *      config (say, we're going offline, and want local
+ *      abstractions for certain services).
+ *
+ *      2 (TWO) variables.
+ *
+ * 4) Local-CLI (using Local config)
+ *
+ *      This is like the Dev (web) config, except that we
+ *      can't get the app name from the REQUEST_URI.  Duh.
+ *      So, we have to pass it in.
+ *
+ *      2 (TWO) variables:
+ *
+ * Class Config
  *
  * @package vertwo\plite\Provider
  */
@@ -60,39 +141,45 @@ abstract class Config
     const DEBUG_ENV         = true;
     const DEBUG_CONFIG_INFO = true;
     const DEBUG_AWS_CREDS   = false;
-
+    
     const DEBUG_CONFIG_INFO_JSON = false; // DANGER - In __PRODUCTION__, this must be set to (false)!!!!!
     const DEBUG_CREDS_DANGEROUS  = false; // DANGER - In __PRODUCTION__, this must be set to (false)!!!!!
-
-
+    
+    
     const AWS_IMPL_VERSION = 202209;
-
-    const ENV_PLITE_APP_KEY    = "plite_app";    // NOTE - Prod + CLI
-    const ENV_PLITE_CONFIG_KEY = "plite_config"; // NOTE - Prod + CLI
-
+    
+    /*
+     * DANGER - New versions should use `plite_config_class_name`,
+     *          and not `plite_config`, which does not tell give
+     *          us any idea of what this is for.
+     */
+    const ENV_PLITE_APP_KEY               = "plite_app";               // NOTE - Prod + CLI
+    const ENV_PLITE_CONFIG_KEY            = "plite_config";            // NOTE - Prod + CLI
+    const ENV_PLITE_CONFIG_CLASS_NAME_KEY = "plite_config_class_name"; // NOTE - Prod + CLI
+    
     const ENV_PLITE_LOCAL_ROOT_KEY    = "plite_local_root";    // NOTE - Dev
     const ENV_PLITE_URL_APP_REGEX_KEY = "plite_url_app_regex"; // NOTE - Dev
-
+    
     const AWS_REGION_ARRAY_KEY  = "aws_region";
     const AWS_VERSION_ARRAY_KEY = "aws_version";
-
+    
     const AWS_ACCESS_ARRAY_KEY = "aws_access_key_id";
     const AWS_SECRET_ARRAY_KEY = "aws_secret_access_key";
-
+    
     const PROVIDER_LOCAL = "local";
     const PROVIDER_PROXY = "proxy";
     const PROVIDER_CLOUD = "cloud";
-
-
-
+    
+    
+    
     /** @var array|bool $PARAMS */
     private static $PARAMS = false;
-
+    
     private static $APP    = false; // App name (Prod + CLI)
     private static $CONFIG = false; // Fully-qualified ConfigInterface subclass name (Prod + CLI)
-
-
-
+    
+    
+    
     /**
      * @param string $fqClass - Fully-qualified Class Name (including namespaces).
      *
@@ -102,121 +189,262 @@ abstract class Config
     public static function loadClass ( $fqClass )
     {
         clog("Instantiating class", $fqClass);
-
+        
         if ( !class_exists($fqClass) ) throw new Exception("Cannot load [ " . $fqClass . " ]");
-
+        
         return new $fqClass();
     }
-
-
-
+    
+    
+    
     /**
      * @throws Exception
      */
-    public static function init () { if ( false === self::$PARAMS ) self::loadParams(); }
-
-
-
+    public static function init () { if ( false === self::$PARAMS ) self::load(); }
+    
+    
+    
     /**
+     * @return array|void
      * @throws Exception
      */
-    private static function loadParams ()
+    private static function load ()
     {
-        $info = self::bootstrapParams();
-
-        if ( false === $info["isValid"] )
-            throw new Exception("Invalid configuration; all fields missing--check Apache config (and SetEnv values).");
-
-        $type = $info['type'];
-
-        switch ( $type )
+        $hasLocal           = self::hasEnv(self::ENV_PLITE_LOCAL_ROOT_KEY);     // Local + CLI(local)
+        $hasRegex           = self::hasEnv(self::ENV_PLITE_URL_APP_REGEX_KEY);  // Local
+        $hasApp             = self::hasEnv(self::ENV_PLITE_APP_KEY);            // Web (Local or Prod)
+        $hasConfigClassName =                                                        // Prod + CLI(embed)
+          self::hasEnv(self::ENV_PLITE_CONFIG_KEY)
+          ||
+          self::hasEnv(self::ENV_PLITE_CONFIG_CLASS_NAME_KEY);
+        
+        clog([
+               "has local (root)"      => $hasLocal,
+               "has regex"             => $hasRegex,
+               "has app"               => $hasApp,
+               "has config class name" => $hasConfigClassName,
+             ]);
+        
+        if ( $hasLocal && $hasRegex )
         {
-            case "local":
-                list($app, $config, $params) = self::getLocalConfig($info);
-                break;
-
-            case "cloud":
-                list($app, $config, $params) = self::getCloudConfig($info);
-                break;
-
-            default:
-                throw new Exception ("Config type [ $type ]; unknown; check env var values.");
+            //
+            // Local-Web.
+            //
+            $localRoot = self::loadEnv(self::ENV_PLITE_LOCAL_ROOT_KEY);
+            $regex     = self::loadEnv(self::ENV_PLITE_URL_APP_REGEX_KEY);
+            $appName   = self::getAppFromUrlRegex($regex);
+            
+            $params = self::loadFileConfig($appName, $localRoot);
         }
-
-        self::$APP    = $app;
-        self::$CONFIG = $config;
-
-        clog("   APP", self::$APP);
-        clog("CONFIG", self::$CONFIG);
-
-        self::$PARAMS = $params;
-    }
-
-
-
-    /**
-     * @return array
-     * @throws Exception
-     */
-    private static function bootstrapParams ()
-    {
-        //
-        // NOTE - Dev (from filesystem + app-from-url)
-        //
-        $hasLocal = self::hasEnv(self::ENV_PLITE_LOCAL_ROOT_KEY);
-        $hasRegex = self::hasEnv(self::ENV_PLITE_URL_APP_REGEX_KEY);
-        //
-        // NOTE - Prod (from class-which-implements-ConfigInterface) + CLI
-        //
-        $hasConfig = self::hasEnv(self::ENV_PLITE_CONFIG_KEY);
-
-        clog("has local (root)", $hasLocal);
-        clog("has regex", $hasRegex);
-        clog("has config", $hasConfig);
-
-        if ( $hasLocal || $hasRegex )
+        else if ( $hasLocal && $hasApp )
         {
-            if ( $hasLocal && $hasRegex )
-            {
-                $local = self::loadEnv(self::ENV_PLITE_LOCAL_ROOT_KEY);
-                $regex = self::loadEnv(self::ENV_PLITE_URL_APP_REGEX_KEY);
-
-                return [
-                    "isValid" => true,
-                    "type"    => "local",
-                    "local"   => $local,
-                    "regex"   => $regex,
-                ];
-            }
-            else
-            {
-                return [
-                    "isValid" => false,
-                    "missing" => $hasLocal
-                        ? self::ENV_PLITE_URL_APP_REGEX_KEY
-                        : self::ENV_PLITE_LOCAL_ROOT_KEY,
-                ];
-            }
+            //
+            // Local-CLI.
+            //
+            $localRoot = self::loadEnv(self::ENV_PLITE_LOCAL_ROOT_KEY);
+            $appName   = self::loadEnv(self::ENV_PLITE_APP_KEY);
+            
+            $params = self::loadFileConfig($appName, $localRoot);
         }
-        else if ( $hasConfig )
+        else if ( $hasConfigClassName )
         {
-            $config = self::loadEnv(self::ENV_PLITE_CONFIG_KEY);
-            return [
-                "isValid" => true,
-                "type"    => "cloud",
-                "config"  => $config,
-            ];
+            //
+            // Prod-Web / Embed-CLI.
+            //
+            $configClassName = self::loadEnv(self::ENV_PLITE_CONFIG_KEY);
+            
+            $params = self::loadSubclassConfig($configClassName);
+            
+            if ( !array_key_exists(self::ENV_PLITE_APP_KEY, $params) )
+                throw new Exception("Config (cloud) does not have [ " . self::ENV_PLITE_APP_KEY . " ] defined.");
+            
+            $appName = $params[self::ENV_PLITE_APP_KEY];
         }
         else
         {
-            return [
-                "isValid" => false,
-            ];
+            throw new Exception("Cannot load config; must be missing bootstrap elements; see Config::load().");
         }
+        
+        self::$APP    = $appName;
+        self::$PARAMS = $params;
     }
-
-
-
+    
+    
+    
+    ///**
+    // * @throws Exception
+    // */
+    //private static function loadParams ()
+    //{
+    //    $info = self::loadBootstrapParams();
+    //
+    //    if ( false === $info["isValid"] )
+    //        throw new Exception("Invalid configuration; all fields missing--check Apache config (and SetEnv values).");
+    //
+    //    $type = $info['type'];
+    //
+    //    switch ( $type )
+    //    {
+    //        case "local":
+    //            list($app, $params) = self::getLocalConfig($info);
+    //            break;
+    //
+    //        case "cli":
+    //        case "cloud":
+    //            list($app, $params) = self::getCloudConfig($info);
+    //            break;
+    //
+    //        default:
+    //            throw new Exception ("Config type [ $type ]; unknown; check env var values.");
+    //    }
+    //
+    //    self::$APP    = $app;
+    //    self::$PARAMS = $params;
+    //
+    //    clog("   APP", self::$APP);
+    //}
+    //
+    //
+    //
+    ///**
+    // * @return array
+    // * @throws Exception
+    // */
+    //private static function loadBootstrapParams ()
+    //{
+    //    //
+    //    // NOTE - Dev (from filesystem + app-from-url)
+    //    //
+    //    $hasLocal = self::hasEnv(self::ENV_PLITE_LOCAL_ROOT_KEY);      // Local + CLI(local)
+    //    $hasRegex = self::hasEnv(self::ENV_PLITE_URL_APP_REGEX_KEY);   // Local
+    //    $hasApp   = self::hasEnv(self::ENV_PLITE_APP_KEY);             // Web (Local or Prod)
+    //    //
+    //    // NOTE - Prod (from class-which-implements-ConfigInterface) + CLI
+    //    //
+    //    $hasConfigClassName =                                               // Prod + CLI(embed)
+    //      self::hasEnv(self::ENV_PLITE_CONFIG_KEY)
+    //      ||
+    //      self::hasEnv(self::ENV_PLITE_CONFIG_CLASS_NAME_KEY);
+    //
+    //    clog([
+    //           "has local (root)"      => $hasLocal,
+    //           "has regex"             => $hasRegex,
+    //           "has app"               => $hasApp,
+    //           "has config class name" => $hasConfigClassName,
+    //         ]);
+    //
+    //    if ( $hasLocal && $hasRegex )
+    //    {
+    //        // Local-Web.
+    //        list($app, $config, $params) = self::getLocalConfig($info);
+    //
+    //    }
+    //    else if ( $hasLocal )
+    //    {
+    //        // Local-CLI.
+    //        list($app, $config, $params) = self::getCloudConfig($info);
+    //    }
+    //    else if ( $hasConfigClassName )
+    //    {
+    //        //
+    //        // Prod-Web / Embed-CLI.
+    //        //
+    //        $configClassName = self::loadEnv(self::ENV_PLITE_CONFIG_KEY);
+    //
+    //        clog("cloud - config", $configClassName);
+    //
+    //        self::$PARAMS = self::loadSubclassConfig($configClassName);
+    //
+    //        if ( !array_key_exists(self::ENV_PLITE_APP_KEY, self::$PARAMS) )
+    //            throw new Exception("Config (cloud) does not have [ " . self::ENV_PLITE_APP_KEY . " ] defined.");
+    //
+    //        self::$APP = self::$PARAMS[self::ENV_PLITE_APP_KEY];
+    //    }
+    //    else
+    //    {
+    //        Log::error("Can't load configuration (missing something).");
+    //        clog([
+    //               "has local (root)"      => $hasLocal,
+    //               "has regex"             => $hasRegex,
+    //               "has app"               => $hasApp,
+    //               "has config class name" => $hasConfigClassName,
+    //             ]);
+    //        throw new Exception("Cannot load config (must be missing env variables for this env).");
+    //    }
+    //
+    //
+    //    if ( $hasLocal )
+    //    {
+    //        $local = self::loadEnv(self::ENV_PLITE_LOCAL_ROOT_KEY);
+    //
+    //        if ( $hasRegex )
+    //        {
+    //            $regex = self::loadEnv(self::ENV_PLITE_URL_APP_REGEX_KEY);
+    //
+    //            clog("SOURCE", yel("----====> LOCAL + Web <====----"));
+    //
+    //            return [
+    //              "isValid" => true,
+    //              "type"    => "local",
+    //              "local"   => $local,
+    //              "regex"   => $regex,
+    //            ];
+    //        }
+    //        else
+    //        {
+    //            if ( $hasApp )
+    //            {
+    //                if ( !isCLI() )
+    //                {
+    //                    return [
+    //                      "isValid" => false,
+    //                      "isCLI"   => false,
+    //                    ];
+    //                }
+    //                else
+    //                {
+    //                    $app = self::loadEnv(self::ENV_PLITE_APP_KEY);
+    //
+    //                    // Suspect this is local+CLI.
+    //                    return [
+    //                      "isValid" => true,
+    //                      "type"    => "local",
+    //                      "local"   => $local,
+    //                      "app"     => $app,
+    //                    ];
+    //                }
+    //            }
+    //            else
+    //            {
+    //                return [
+    //                  "isValid" => false,
+    //                  "missing" => self::ENV_PLITE_URL_APP_REGEX_KEY,
+    //                ];
+    //            }
+    //        }
+    //    }
+    //    else if ( $hasConfigClassName )
+    //    {
+    //        $configClassName = self::loadEnv(self::ENV_PLITE_CONFIG_KEY);
+    //
+    //        clog("SOURCE", cyn("----====> cloud / CLI(embed) <====----"));
+    //
+    //        return [
+    //          "isValid" => true,
+    //          "type"    => "cloud",
+    //          "config"  => $configClassName,
+    //        ];
+    //    }
+    //    else
+    //    {
+    //        return [
+    //          "isValid" => false,
+    //        ];
+    //    }
+    //}
+    
+    
+    
     /**
      * Determines if a key exists in the WebServer Environment.
      *
@@ -225,9 +453,9 @@ abstract class Config
      * @return boolean - Does environment variable exist?
      */
     private static function hasEnv ( $key ) { return array_key_exists($key, $_SERVER); }
-
-
-
+    
+    
+    
     /**
      * Gets a key from the WebServer Environment.
      *
@@ -241,44 +469,54 @@ abstract class Config
     {
         if ( !array_key_exists($key, $_SERVER) )
             throw new Exception("Environment variable [ $key ] doesn't exist.");
-
+        
         $val = trim($_SERVER[$key]);
-
+        
         if ( self::DEBUG_ENV ) clog("ENV -> $key", $val);
-
+        
         return $val;
     }
-
-
-
-
-    /**
-     * @param array $info
-     *
-     * @return array
-     * @throws Exception
-     */
-    private static function getLocalConfig ( $info )
-    {
-        $isLocal     = true;
-        $localRoot   = $info['local'];
-        $urlAppRegex = $info['regex'];
-        $app         = self::getAppFromUrlRegex($urlAppRegex);
-        clog("local -    app", $app);
-
-        $params = self::loadFileConfig($app, $localRoot);
-
-        if ( !array_key_exists(self::ENV_PLITE_CONFIG_KEY, $params) )
-            throw new Exception("Config (cloud) does not have [ " . self::ENV_PLITE_CONFIG_KEY . " ] defined.");
-
-        $config = $params[self::ENV_PLITE_CONFIG_KEY];
-        clog("local - config", $config);
-
-        return [ $app, $config, $params ];
-    }
-
-
-
+    
+    
+    
+    
+    ///**
+    // * @param array $info
+    // *
+    // * @return array
+    // * @throws Exception
+    // */
+    //private static function getLocalConfig ( $info )
+    //{
+    //    $isLocal   = true;
+    //    $localRoot = $info["local"];
+    //
+    //    // This is broken when we're running a CLI harness (e.g., for testing).
+    //    if ( array_key_exists("app", $info) )
+    //    {
+    //        $app = $info["app"];
+    //    }
+    //    else
+    //    {
+    //        $urlAppRegex = $info["regex"];
+    //        $app         = self::getAppFromUrlRegex($urlAppRegex);
+    //    }
+    //
+    //    clog("local -    app", $app);
+    //
+    //    $params = self::loadFileConfig($app, $localRoot);
+    //
+    //    if ( !array_key_exists(self::ENV_PLITE_CONFIG_KEY, $params) )
+    //        throw new Exception("Config (cloud) does not have [ " . self::ENV_PLITE_CONFIG_KEY . " ] defined.");
+    //
+    //    $config = $params[self::ENV_PLITE_CONFIG_KEY];
+    //    clog("local - config", $config);
+    //
+    //    return [$app, $config, $params];
+    //}
+    
+    
+    
     /**
      * @param string $app
      * @param string $localRoot
@@ -290,133 +528,132 @@ abstract class Config
     private static function loadFileConfig ( $app, $localRoot )
     {
         if ( self::DEBUG_ENV ) clog("Loading LOCAL config (from filesystem [ " . $localRoot . " ])...");
-
+        
         $rootDir    = $localRoot . "/" . $app;
         $configPath = $rootDir . "/config/" . $app . "-config.js";
         $authPath   = $rootDir . "/auth/" . $app . "-auth.js";
-
+        
         clog("root    dir", $rootDir);
         clog("config path", $configPath);
         clog("auth   path", $authPath);
-
+        
         $conf   = self::loadConfigFile($configPath);
         $auth   = self::loadConfigFile($authPath);
         $params = array_merge($conf, $auth);
-
+        
         if ( !array_key_exists(self::ENV_PLITE_CONFIG_KEY, $params) )
             throw new Exception("Cannot load local config: missing '" . self::ENV_PLITE_CONFIG_KEY . "' in config file.");
-
+        
         return $params;
     }
-
-
-
+    
+    
+    
     /**
      * @throws Exception
      */
     private static function getAppFromUrlRegex ( $regex )
     {
         $uri = $_SERVER['REQUEST_URI'];
-
+        
         clog($regex, $uri);
-
+        
         preg_match($regex, $uri, $matches);
-
+        
         if ( count($matches) < 2 )
             throw new Exception("Cannot get app from URI (" . $uri . "); check regex [ " . $regex . " ].");
-
+        
         $app = $matches[1];
-
+        
         return $app;
     }
-
-
-
+    
+    
+    
     private static function loadConfigFile ( $file )
     {
         if ( !file_exists($file) || !is_readable($file) )
         {
-            redlog("Could not read config file: $file");
+            clog(red("Could not read config file: $file"));
             return [];
         }
-
+        
         if ( self::DEBUG_CONFIG_INFO ) clog("Trying to load config file", $file);
-
+        
         $json = file_get_contents($file);
-
+        
         if ( self::DEBUG_CONFIG_INFO_JSON ) clog("config(json)", $json);
-
+        
         $params = FJ::jsDecode($json);
-
+        
         if ( is_array($params) )
         {
             return $params;
         }
         else
         {
-            yelulog("Parameters are not an array; check syntax of config file.");
+            clog(yel("Parameters are not an array; check syntax of config file."));
             return [];
         }
     }
-
-
-
+    
+    
+    
+    ///**
+    // * @param array $info
+    // *
+    // * @return array
+    // * @throws Exception
+    // */
+    //private static function getCloudConfig ( $info )
+    //{
+    //    $configClassName = $info['config'];
+    //
+    //    $params = self::loadSubclassConfig($configClassName);
+    //
+    //    if ( !array_key_exists(self::ENV_PLITE_APP_KEY, $params) )
+    //        throw new Exception("Config (cloud) does not have [ " . self::ENV_PLITE_APP_KEY . " ] defined.");
+    //
+    //    $app = $params[self::ENV_PLITE_APP_KEY];
+    //    clog("cloud - config", $configClassName);
+    //    clog("cloud -    app", $app);
+    //
+    //    return [$app, $configClassName, $params];
+    //}
+    
+    
+    
     /**
-     * @param array $info
-     *
-     * @return array
-     * @throws Exception
-     */
-    private static function getCloudConfig ( $info )
-    {
-        $isLocal = false;
-        $config  = $info['config'];
-
-        $params = self::loadSubclassConfig($config);
-
-        if ( !array_key_exists(self::ENV_PLITE_APP_KEY, $params) )
-            throw new Exception("Config (cloud) does not have [ " . self::ENV_PLITE_APP_KEY . " ] defined.");
-
-        $app = $params[self::ENV_PLITE_APP_KEY];
-        clog("cloud - config", $config);
-        clog("cloud -    app", $app);
-
-        return [ $app, $config, $params ];
-    }
-
-
-
-    /**
-     * @param string $configClass
+     * @param string $configClassName
      *
      * @return mixed
      * @throws Exception
      */
-    private static function loadSubclassConfig ( $configClass )
+    private static function loadSubclassConfig ( string $configClassName )
     {
-        if ( self::DEBUG_ENV ) clog("Loading INLINE config", $configClass);
-
+        if ( self::DEBUG_ENV ) clog("Loading INLINE config", $configClassName);
+        
         /** @var ConfigInterface $config */
-        $config = self::loadClass($configClass);
-
+        $config = self::loadClass($configClassName);
+        
         if ( !$config instanceof ConfigInterface )
             throw new Exception("Specified class does not implement ConfigInterface.");
-
+        
         return $config->getConfig();
     }
-
-
-
-    /**
-     * @throws Exception
-     */
-    private static function throwNotInit ()
-    {
-        throw new Exception("Config not initialized; try Config::init().");
-    }
-
-
-
+    
+    
+    
+    ///**
+    // * @throws Exception
+    // */
+    //private static function throwNotInit ()
+    //{
+    //    throw new Exception("Config not initialized; try Config::init().");
+    //}
+    
+    
+    
     ////////////////////////////////////////////////////////////////
     //
     //
@@ -424,9 +661,9 @@ abstract class Config
     //
     //
     ////////////////////////////////////////////////////////////////
-
-
-
+    
+    
+    
     /**
      * @param bool $mesg
      *
@@ -501,9 +738,9 @@ abstract class Config
         if ( false === self::$PARAMS ) Config::init();
         return self::$APP;
     }
-
-
-
+    
+    
+    
     /**
      * @param $providerType
      *
@@ -513,10 +750,10 @@ abstract class Config
     public static function getProviderSource ( $providerType )
     {
         if ( false === self::$PARAMS ) Config::init();
-
+        
         $provKey = $providerType . "_provider";
         $source  = self::get($provKey);
-
+        
         return $source;
     }
 
@@ -530,9 +767,9 @@ abstract class Config
 //    private function isUsingLocalProvider ( $provider ) { return $this->isUsingProviderSource($provider, self::PROVIDER_LOCAL); }
 //    private function isUsingCloudProvider ( $provider ) { return $this->isUsingProviderSource($provider, self::PROVIDER_CLOUD); }
 //    private function isUsingProxyProvider ( $provider ) { return $this->isUsingProviderSource($provider, self::PROVIDER_PROXY); }
-
-
-
+    
+    
+    
     /**
      * If this is running on a local machine with a config file,
      * use the credentials in the config file; otherwise, NOTE: DO NOTHING.
@@ -549,24 +786,24 @@ abstract class Config
     final public static function getCredsAWS ()
     {
         if ( false === self::$PARAMS ) Config::init();
-
+        
         $creds = [
-            'region'  => self::getAWSRegion(),
-            'version' => self::getAWSVersion(),
+          'region'  => self::getAWSRegion(),
+          'version' => self::getAWSVersion(),
         ];
-
+        
         $hasAccess = self::has(self::AWS_ACCESS_ARRAY_KEY);
         $hasSecret = self::has(self::AWS_SECRET_ARRAY_KEY);
-
+        
         $hasAwsCreds = $hasAccess && $hasSecret;
-
+        
         if ( $hasAwsCreds )
         {
             $access = self::get(self::AWS_ACCESS_ARRAY_KEY);
             $secret = self::get(self::AWS_SECRET_ARRAY_KEY);
-
+            
             if ( self::DEBUG_AWS_CREDS ) clog(self::AWS_ACCESS_ARRAY_KEY, $access);
-
+            
             if ( self::AWS_IMPL_VERSION >= 202208 )
             {
                 //
@@ -575,8 +812,8 @@ abstract class Config
                 // * https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/guide_credentials_hardcoded.html
                 //
                 $creds["credentials"] = [
-                    'key'    => $access, // WARN - WTF ARE YOU KIDDING ME, AWS???
-                    'secret' => $secret,
+                  'key'    => $access, // WARN - WTF ARE YOU KIDDING ME, AWS???
+                  'secret' => $secret,
                 ];
             }
             else
@@ -585,19 +822,19 @@ abstract class Config
                 // NOTE - This worked as of 3.1.128, but is no longer working (2022 Aug)
                 //
                 $creds["credentials"] = [
-                    'access' => $access,
-                    'secret' => $secret,
+                  'access' => $access,
+                  'secret' => $secret,
                 ];
             }
         }
-
+        
         if ( self::DEBUG_CREDS_DANGEROUS ) clog("getCredsAWS() - creds", $creds);
-
+        
         return $creds;
     }
-
-
-
+    
+    
+    
     /**
      * @return mixed|null
      * @throws Exception
