@@ -24,7 +24,6 @@ namespace vertwo\plite\Web;
 
 
 use vertwo\plite\Log;
-use function vertwo\plite\isCLI;
 
 
 
@@ -64,15 +63,7 @@ class WebLog extends Log
      */
     private static function initFileHandle ()
     {
-        if ( self::CLOG_DEBUG_ERROR_LOG_DEFAULT ) error_log("isCLI? " . (isCli() ? "Y" : "n"));
-        
-        if ( isCLI() )
-        {
-            if ( self::CLOG_DEBUG_ERROR_LOG_DEFAULT ) error_log("IS-CLI; aborting!");
-            
-            self::$logfp = false;
-            return;
-        }
+        //if ( self::CLOG_DEBUG_ERROR_LOG_DEFAULT ) error_log("isCLI? " . (isCli() ? "Y" : "n"));
         
         if ( false !== self::$logfp ) return;
         

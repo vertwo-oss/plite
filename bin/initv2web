@@ -99,6 +99,8 @@ pushd $SITE_PATH
 		sed -e "s,require_once(.*__DIR__.*\..*\"/../../,require_once(__DIR__ . \"/," $file > ${file}__fix
 		/bin/mv -fv ${file}__fix $file
 	done
+
+	mv -vf ROUTE.htaccess .htaccess
 popd
 
 echo "Done."
