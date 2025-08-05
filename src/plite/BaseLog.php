@@ -486,7 +486,7 @@ abstract class BaseLog
             $mesgCustom = $mesg;
         }
         
-        _outputLog($mesgCustom);
+        static::_outputLog($mesgCustom);
     }
     
     
