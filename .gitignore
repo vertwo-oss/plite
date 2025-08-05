@@ -8,6 +8,7 @@
 /build
 /captures
 .externalNativeBuild
+.phpunit.result.cache
 
 # Built application files
 *.apk
