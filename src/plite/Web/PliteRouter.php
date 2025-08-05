@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2012-2022 Troy Wu
+ * Copyright (c) 2012-2025 Troy Wu
  * Copyright (c) 2021-2022 Version2 OÜ
  * All rights reserved.
  *
@@ -27,11 +27,6 @@ use Exception;
 use vertwo\plite\Config;
 use vertwo\plite\FJ;
 use vertwo\plite\Log;
-use function vertwo\plite\clog;
-use function vertwo\plite\cynlog;
-use function vertwo\plite\grnlog;
-use function vertwo\plite\redulog;
-use function vertwo\plite\yellog;
 
 
 
@@ -130,6 +125,8 @@ abstract class PliteRouter extends Ajax
      */
     function __construct ()
     {
+        
+        
         parent::__construct();
 
         $this->routingRoot = Config::has(self::CONFIG_KEY_ROUTING_ROOT)
@@ -191,11 +188,11 @@ abstract class PliteRouter extends Ajax
         if ( PHP_SESSION_NONE === session_status() )
         {
             session_start();
-            if ( self::DEBUG ) grnlog("----====[ Session STARTED ]====----");
+            if ( self::DEBUG ) clog(grn("----====[ Session STARTED ]====----"));
         }
         else
         {
-            if ( self::DEBUG ) yellog("----====[ Session resuming ]====----");
+            if ( self::DEBUG ) clog(yel("----====[ Session resuming ]====----"));
         }
     }
 
@@ -208,7 +205,7 @@ abstract class PliteRouter extends Ajax
      */
     function initCacheHeaders ()
     {
-        if ( self::DEBUG ) cynlog("----====[ Disabling Cache ]====----");
+        if ( self::DEBUG ) clog(cyn("----====[ Disabling Cache ]====----"));
         header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Date in the past
         header("Expires: 0"); // Date in the past
         header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
@@ -239,7 +236,7 @@ abstract class PliteRouter extends Ajax
     {
         if ( FJ::endsWith(".php", $this->page) || FJ::endsWith(".html", $this->page) )
         {
-            redulog("NOT-ROUTED: [ " . $this->page . " ]; aborting.");
+            clog(red("NOT-ROUTED: [ " . $this->page . " ]; aborting."));
             header("Location: $abortPage");
             exit(1);
         }
