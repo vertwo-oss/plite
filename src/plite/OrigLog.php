@@ -29,15 +29,18 @@ use vertwo\plite\Util\Wired;
 
 
 
-abstract class Log
+class OrigLog
 {
     const DEBUG_TIMING = false;
     const DEBUG_REMOTE = false;
     const DEBUG_COLOR  = false;
     
+    const CLOG_ERROR_LOG_CONSTANT      = 'error_log';
+    const CLOG_FILENAME                = "php.clog";
     const CLOG_TIMING_THRESHOLD        = 50; // millis before we mark it red.
     const CLOG_DEBUG_TIMING            = false;
     const CLOG_DEBUG_ERROR_LOG_DEFAULT = false;
+    const CLOG_FOPEN_MODE              = "a+";
     const CLOG_PASSWORD_PATTERN        = "/(passw[o]*[r]*[d]*|scramble|secret|key)/i";
     
     // CLOG options.
@@ -92,18 +95,18 @@ abstract class Log
     ];
     
     
-    
-    abstract protected static function _outputLog ( $mesg );
-    
-    
     /**
      * @var resource
      */
-    protected static $customPrefix = false;
+    private static $customPrefix = false;
+    /**
+     * @var bool|Resource
+     */
+    private static $logfp = false;
     /**
      * @var bool $shouldColor
      */
-    protected static $shouldColor = null;
+    private static $shouldColor = null;
     
     
     public static function color ( $color, $str )
@@ -131,8 +134,87 @@ abstract class Log
     public static function bgyellow ( $str ) { return self::color(self::TEXT_COLOR_BG_YELLOW, $str); }
     
     
+    /**
+     * This opens a log file statically.
+     *
+     * DANGER - This has a side effect of setting the static file handler.
+     */
+    private static function initFileHandle ()
+    {
+        if ( self::CLOG_DEBUG_ERROR_LOG_DEFAULT ) error_log("isCLI? " . (isCli() ? "Y" : "n"));
+        
+        if ( isCLI() )
+        {
+            if ( self::CLOG_DEBUG_ERROR_LOG_DEFAULT ) error_log("IS-CLI; aborting!");
+            
+            self::$logfp = false;
+            return;
+        }
+        
+        if ( false !== self::$logfp ) return;
+        
+        $errorLogPath = ini_get(self::CLOG_ERROR_LOG_CONSTANT);
+        
+        if ( self::CLOG_DEBUG_ERROR_LOG_DEFAULT ) error_log("Log - error-log-path: $errorLogPath");
+        
+        $errorLogDir = dirname($errorLogPath);
+        
+        if ( !$errorLogPath || 0 == strlen($errorLogDir) )
+        {
+            $logdir = pathinfo(realpath("/proc/" . getmypid() . "/fd/2"), PATHINFO_DIRNAME);
+            
+            if ( self::CLOG_DEBUG_ERROR_LOG_DEFAULT ) error_log("Log - log-dir: $logdir");
+            
+            if ( !$logdir || 0 == strlen($logdir) )
+            {
+                self::initAlternateFileHandles();
+                return;
+            }
+            else
+            {
+                $clogFilePath = $logdir . DIRECTORY_SEPARATOR . self::CLOG_FILENAME;
+            }
+        }
+        else
+        {
+            $clogFilePath = $errorLogDir . DIRECTORY_SEPARATOR . self::CLOG_FILENAME;
+        }
+        
+        if ( self::CLOG_DEBUG_ERROR_LOG_DEFAULT ) error_log("Trying to open clog file @ $clogFilePath...");
+        
+        self::$logfp = @fopen($clogFilePath, self::CLOG_FOPEN_MODE);
+    }
+    
+    
+    private static function initAlternateFileHandles ()
+    {
+        self::$logfp = false;
+        
+        foreach ( self::CLOG_ALT_FILE_DIRS as $dir )
+        {
+            $path = $dir . DIRECTORY_SEPARATOR . self::CLOG_FILENAME;
+            
+            if ( self::CLOG_DEBUG_ERROR_LOG_DEFAULT ) error_log("Log - Trying to open [ $path ] ...");
+            
+            $fp = @fopen($path, self::CLOG_FOPEN_MODE);
+            if ( false !== $fp )
+            {
+                if ( self::CLOG_DEBUG_ERROR_LOG_DEFAULT ) error_log("Log - WIN - opened path [ $path ].");
+                
+                self::$logfp = $fp;
+                return;
+            }
+        }
+    }
+    
+    
+    private static function isFileOpen () { return false !== self::$logfp; }
+    
+    
     public static function log ()
     {
+        self::initFileHandle();
+        
         $debugPrefix = (!self::DEBUG_TIMING && !self::DEBUG_REMOTE) ? "" : self::makeDebugPrefix();
         $argc        = func_num_args();
         
@@ -168,6 +250,7 @@ abstract class Log
             self::logObject($debugPrefix, $key, $val);
         }
     }
+    
     
     
     private static function logObject ( $debugPrefix, $key, $val )
@@ -401,7 +484,7 @@ abstract class Log
     
     
     
-    protected static function obfuscatePasswords ( $key, $val )
+    private static function obfuscatePasswords ( $key, $val )
     {
         // Deal with password-like fields.
         return !preg_match(self::CLOG_PASSWORD_PATTERN, $key)
@@ -486,7 +569,7 @@ abstract class Log
             $mesgCustom = $mesg;
         }
         
-        static::_outputLog($mesgCustom);
+        self::_outputLog($mesgCustom);
     }
     
     
@@ -494,6 +577,14 @@ abstract class Log
     public static function setCustomPrefix ( $prefix ) { self::$customPrefix = $prefix; }
     public static function getCustomPrefix () { return self::$customPrefix; }
     public static function resetCustomPrefix () { self::$customPrefix = false; }
+    
+    
+    
+    private static function _outputLog ( $mesg )
+    {
+        if ( self::isFileOpen() ) @fwrite(self::$logfp, $mesg . "\n");
+        else error_log($mesg);
+    }
     
     
     

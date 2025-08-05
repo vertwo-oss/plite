@@ -23,11 +23,11 @@ namespace vertwo\plite\CommandLine;
 
 
 
-use vertwo\plite\BaseLog;
+use vertwo\plite\Log;
 
 
 
-class ConsoleLog extends BaseLog
+class ConsoleLog extends Log
 {
     protected static function _outputLog ( $mesg )
     {

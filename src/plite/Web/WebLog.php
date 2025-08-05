@@ -23,12 +23,12 @@ namespace vertwo\plite\Web;
 
 
 
-use vertwo\plite\BaseLog;
+use vertwo\plite\Log;
 use function vertwo\plite\isCLI;
 
 
 
-class WebLog extends BaseLog
+class WebLog extends Log
 {
     const CLOG_ERROR_LOG_CONSTANT = 'error_log';
     const CLOG_FILENAME           = "php.clog";
