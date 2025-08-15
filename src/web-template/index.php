@@ -252,47 +252,6 @@ PliteTemplate::init();
     ?>
 </table>
 
-<!--
-<form id="login_form">
-    <div id="login_form_inner">
-        <?php echo PliteTemplate::$LOGO; ?>
-        <h1>Sign in to <b><?php echo PliteTemplate::$APPNAME; ?></b></h1>
-        <div>
-            <label>
-                <img src="res/account.png" alt="log"/>
-                <input id="username" type="text" placeholder="Username" required="" autofocus/>
-            </label>
-        </div>
-        <div>
-            <label>
-                <img src="res/lock.png" alt="pw"/>
-                <input id="password" type="password" placeholder="Password" required=""/>
-            </label>
-        </div>
-        <button type="submit" class="btn btn-default submit">Log In</button>
-
-
-        <div class="separator"></div>
-        <div>
-            <a class="reset_pass" href="#">Lost your password?</a>
-        </div>
-
-        <div class="clearfix"></div>
-
-        <div class="separator">
-            <p class="change_link">New to site?
-                <a href="#signup" class="to_register"> Create Account </a>
-            </p>
-
-            <div class="clearfix"></div>
-            <br/>
-
-            <span id="response" class="hidden">yo</span>
-        </div>
-    </div>
-</form>
--->
-
 <div id="solid_footer">
     <?php printf("%s\n", PliteTemplate::getSolidFooterContents()); ?>
 </div>
