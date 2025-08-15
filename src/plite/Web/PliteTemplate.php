@@ -34,13 +34,13 @@ class PliteTemplate
     
     
     
-    static $string_html_TITLE;
-    static $string_APP_NAME;
-    static $html_elem_LOGO;
-    static $string_REG_EMAIL;
-    static $css_value_PADDING_TOP_LOGO;
-    static $css_value_BACKGROUND;
-    static $string_LONG_COPYRIGHT;
+    static $TITLE;
+    static $APPNAME;
+    static $LOGO;
+    static $REG_EMAIL;
+    static $TOP_PAD;
+    static $BGCOLOR;
+    static $COPYRIGHT;
     
     static $IS_USING_POWERED_BY_V2;
     
@@ -52,44 +52,64 @@ class PliteTemplate
         {
             Config::init(); // This isn't strictly necessary, but is hygienic.
             
-            self::$string_html_TITLE          = Config::get("wl_title");
-            self::$string_APP_NAME            = Config::get("wl_name");
-            self::$html_elem_LOGO             = Config::get("wl_logo");
-            self::$string_REG_EMAIL           = Config::get("wl_reg_email");
-            self::$css_value_PADDING_TOP_LOGO = Config::get("wl_logo_padding_top");
-            self::$css_value_BACKGROUND       = Config::get("wl_bg");
-            self::$string_LONG_COPYRIGHT      = Config::get("wl_copyright_notice");
-            self::$IS_USING_POWERED_BY_V2     = Config::get("wl_using_powered_by_v2");
+            self::$TITLE                  = Config::get("wl_title");
+            self::$APPNAME                = Config::get("wl_name");
+            self::$LOGO                   = Config::get("wl_logo");
+            self::$REG_EMAIL              = Config::get("wl_reg_email");
+            self::$TOP_PAD                = Config::get("wl_logo_padding_top");
+            self::$BGCOLOR                = Config::get("wl_bg");
+            self::$COPYRIGHT              = Config::get("wl_copyright_notice");
+            self::$IS_USING_POWERED_BY_V2 = Config::get("wl_using_powered_by_v2");
         }
         catch ( Exception $e )
         {
             clog($e);
             clog(yel("Could not instantiate PliteFactory; using DEFAULT values."));
             
-            self::$string_html_TITLE          = "Unknown App";
-            self::$string_APP_NAME            = "Unknown App";
-            self::$html_elem_LOGO             = "<img src=\"res/question.png\" alt=\"unknown app\"/>";
-            self::$string_REG_EMAIL           = "interest@example.com";
-            self::$css_value_PADDING_TOP_LOGO = "0";
-            self::$css_value_BACKGROUND       = "#222";
-            self::$string_LONG_COPYRIGHT      = "Copyleft";
-            self::$IS_USING_POWERED_BY_V2     = false;
+            self::$TITLE                  = "Unknown App";
+            self::$APPNAME                = "Unknown App";
+            self::$LOGO                   = "<img src=\"res/question.png\" alt=\"unknown app\"/>";
+            self::$REG_EMAIL              = "interest@example.com";
+            self::$TOP_PAD                = "0";
+            self::$BGCOLOR                = "#222";
+            self::$COPYRIGHT              = "Copyleft";
+            self::$IS_USING_POWERED_BY_V2 = false;
         }
         
-        if ( self::DEBUG_INIT ) clog("white-label title", self::$string_html_TITLE);
-        if ( self::DEBUG_INIT ) clog("white-label name", self::$string_APP_NAME);
-        if ( self::DEBUG_INIT ) clog("white-label logo", self::$html_elem_LOGO);
-        if ( self::DEBUG_INIT ) clog("white-label bg", self::$css_value_BACKGROUND);
-        if ( self::DEBUG_INIT ) clog("white-label reg-email", self::$string_REG_EMAIL);
-        if ( self::DEBUG_INIT ) clog("white-label copyright", self::$string_LONG_COPYRIGHT);
-        if ( self::DEBUG_INIT ) clog("white-label use_pbv2", self::$IS_USING_POWERED_BY_V2);
+        if ( self::DEBUG_INIT ) clog(
+          [
+            "white-label title"            => self::$TITLE,
+            "white-label name"             => self::$APPNAME,
+            "white-label logo"             => self::$LOGO,
+            "white-label padding-from-top" => self::$TOP_PAD,
+            "white-label bg"               => self::$BGCOLOR,
+            "white-label reg-email"        => self::$REG_EMAIL,
+            "white-label copyright"        => self::$COPYRIGHT,
+            "white-label use_pbv2"         => self::$IS_USING_POWERED_BY_V2,
+          ]
+        );
     }
     
     
     
+    public static function getMap ()
+    {
+        return [
+          "title"            => self::$TITLE,
+          "name"             => self::$APPNAME,
+          "logo"             => self::$LOGO,
+          "padding-from-top" => self::$TOP_PAD,
+          "bg"               => self::$BGCOLOR,
+          "reg-email"        => self::$REG_EMAIL,
+          "copyright"        => self::$COPYRIGHT,
+          "use_pbv2"         => self::$IS_USING_POWERED_BY_V2,
+        ];
+    }
+    
+    
     public static function getSolidFooterContents ()
     {
-        $copyright = self::$string_LONG_COPYRIGHT;
+        $copyright = self::$COPYRIGHT;
         $pby       = self::$IS_USING_POWERED_BY_V2
           ? '<p>Powered by <span class="v2">Version2</span></p>'
           : "";

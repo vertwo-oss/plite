@@ -41,11 +41,11 @@ PliteTemplate::init();
 ?>
 <html lang="en">
 <head>
-    <title><?php echo PliteTemplate::$string_html_TITLE; ?></title>
+    <title><?php echo PliteTemplate::$TITLE; ?></title>
     <link href="res/vertwo-plite-dz.css" rel="stylesheet"/>
     <style>
         html {
-            background: <?php echo PliteTemplate::$css_value_BACKGROUND; ?> no-repeat center center;
+            background: <?php echo PliteTemplate::$BGCOLOR; ?> no-repeat center center;
             background-size: cover;
             height: 100%;
         }
@@ -79,7 +79,7 @@ PliteTemplate::init();
             width: calc(100% - 32px);
             border-radius: 8px;
             background-color: rgba(128, 128, 128, 0);
-            padding: <?php echo PliteTemplate::$css_value_PADDING_TOP_LOGO; ?> 32px 32px 32px;
+            padding: <?php echo PliteTemplate::$TOP_PAD; ?> 32px 32px 32px;
         }
 
         #dnd-box > img:first-child {
@@ -239,7 +239,7 @@ PliteTemplate::init();
 </head>
 <body>
 <div id="dnd-box">
-    <?php echo PliteTemplate::$html_elem_LOGO; ?>
+    <?php echo PliteTemplate::$LOGO; ?>
     <h1>Drag-and-Drop</h1>
 
     <div id="dnd">

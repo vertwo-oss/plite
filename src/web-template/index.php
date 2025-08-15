@@ -1,6 +1,6 @@
 <?php
-/**
- * Copyright (c) 2012-2022 Troy Wu
+/*
+ * Copyright (c) 2012-2025 Troy Wu
  * Copyright (c) 2021-2022 Version2 OÜ
  * All rights reserved.
  *
@@ -30,7 +30,7 @@ use vertwo\plite\Web\PliteTemplate;
 
 
 
-require_once(__DIR__ . "/../../vendor/autoload.php"); // FIXME
+require_once(__DIR__ . "/vendor/autoload.php"); // FIXME
 
 
 
@@ -43,7 +43,7 @@ PliteTemplate::init();
 <head>
     <style>
         html {
-            background: <?php echo PliteTemplate::$css_value_BACKGROUND; ?> no-repeat center center;
+            background: <?php echo PliteTemplate::$BGCOLOR; ?> no-repeat center center;
             background-size: cover;
             height: 100%;
         }
@@ -79,7 +79,7 @@ PliteTemplate::init();
             margin: 0 auto;
             border-radius: 8px;
             background-color: rgba(128, 128, 128, 0);
-            padding: <?php echo PliteTemplate::$css_value_PADDING_TOP_LOGO; ?> 32px 32px 32px;
+            padding: <?php echo PliteTemplate::$TOP_PAD; ?> 32px 32px 32px;
         }
 
         #login_form > div:first-child > img:first-child {
@@ -228,15 +228,36 @@ PliteTemplate::init();
             }
         }
     </style>
-    <title><?php echo PliteTemplate::$string_html_TITLE; ?></title>
+    <title><?php echo PliteTemplate::$TITLE; ?></title>
+    <!--
     <script src="js/lib/zepto.min.js"></script>
     <script src="js/vertwo.js"></script>
+    -->
 </head>
 <body>
+
+<h1>Hello to Plite</h1>
+
+<table>
+    <?php
+    
+    $map = PliteTemplate::getMap();
+    $html = "";
+    
+    foreach ( $map as $k => $v ) {
+        $line = "<td>$k<td></td><td>$v</td>";
+        $html .= "$html\n";
+    }
+    
+    printf("%s", $html);
+    ?>
+</table>
+
+<!--
 <form id="login_form">
     <div id="login_form_inner">
-        <?php echo PliteTemplate::$html_elem_LOGO; ?>
-        <h1>Sign in to <b><?php echo PliteTemplate::$string_APP_NAME; ?></b></h1>
+        <?php echo PliteTemplate::$LOGO; ?>
+        <h1>Sign in to <b><?php echo PliteTemplate::$APPNAME; ?></b></h1>
         <div>
             <label>
                 <img src="res/account.png" alt="log"/>
@@ -275,8 +296,11 @@ PliteTemplate::init();
 <div id="solid_footer">
     <?php printf("%s\n", PliteTemplate::getSolidFooterContents()); ?>
 </div>
+-->
+
 </body>
 <script>
+    /*
     $u = $('#username');
     $p = $('#password');
     $resp = $('#response');
@@ -334,5 +358,6 @@ PliteTemplate::init();
             );
         });
     });
+     */
 </script>
 </html>
