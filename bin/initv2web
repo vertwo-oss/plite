@@ -100,7 +100,21 @@ pushd $SITE_PATH
 		/bin/mv -fv ${file}__fix $file
 	done
 
-	mv -vf ROUTE.htaccess .htaccess
+	#
+	#
+	# This is the part that turns plite into a ROUTING framework.
+	#
+	#   By default, this behavior is off.  I'm turning it off here.
+	#   If you want the routing behavior *ON*, then after this
+	#   script creates the project, go into the newly created
+	#   project, and type:
+	#
+	# $ make routed
+	#
+	# which will "install" the .htaccess file (from ROUTE.htaccess).
+	#
+	#
+	#cp -vf ROUTE.htaccess .htaccess
 popd
 
 echo "Done."
