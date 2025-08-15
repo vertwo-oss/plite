@@ -1,6 +1,6 @@
 <?php
-/**
- * Copyright (c) 2012-2022 Troy Wu
+/*
+ * Copyright (c) 2012-2025 Troy Wu
  * Copyright (c) 2021-2022 Version2 OÜ
  * All rights reserved.
  *
@@ -36,48 +36,46 @@ class FileProviderFactory implements ProviderFactory
     const LOCAL_ROOT_PREFIX_KEY = "file_provider_local_root_prefix";
     const LOCAL_ROOT_SUFFIX_KEY = "file_provider_local_root_suffix";
     const LOCAL_ROOT_KEY        = "file_provider_local_root_dir";
-
-
-
+    
+    
+    
     /**
      * @return string
      */
     static function getProviderType () { return self::PROVIDER_TYPE; }
-
-
-
+    
+    
+    
     /**
      * @return mixed
      * @throws Exception
      */
     public static function getProvider ()
     {
-        Config::init();
-
         $providerSource = Config::getProviderSource(self::getProviderType());
-
+        
         switch ( $providerSource )
         {
             case NouseFactory::PROVIDER_CLOUD:
                 $params   = self::getParamsAWS();
                 $fileProv = new FileProviderAWS($params);
                 break;
-
+            
             case NouseFactory::PROVIDER_LOCAL:
                 $params   = self::getParamsLocal();
                 $fileProv = new FileProviderLocal($params);
                 break;
-
+            
             case NouseFactory::PROVIDER_PROXY:
             default:
                 throw new Exception(self::getProviderType() . "Provider source $providerSource not supported.");
         }
-
+        
         return $fileProv;
     }
-
-
-
+    
+    
+    
     /**
      * @param Config $config
      *
@@ -87,7 +85,7 @@ class FileProviderFactory implements ProviderFactory
     private static function getParamsLocal ()
     {
         $hasRoot = Config::has(self::LOCAL_ROOT_KEY);
-
+        
         if ( $hasRoot )
         {
             $localRoot = Config::get(self::LOCAL_ROOT_KEY);
@@ -96,7 +94,7 @@ class FileProviderFactory implements ProviderFactory
         {
             $hasPrefix = Config::has(self::LOCAL_ROOT_PREFIX_KEY);
             $hasSuffix = Config::has(self::LOCAL_ROOT_SUFFIX_KEY);
-
+            
             if ( $hasPrefix || $hasSuffix )
             {
                 if ( $hasPrefix && $hasSuffix )
@@ -104,9 +102,9 @@ class FileProviderFactory implements ProviderFactory
                     $prefix = Config::get("file_provider_local_root_prefix");
                     $suffix = Config::get("file_provider_local_root_suffix");
                     $app    = Config::getAppName();
-
+                    
                     $localRoot = $prefix . $app . $suffix;
-
+                    
                     clog("Local root", $localRoot);
                 }
                 else
@@ -119,16 +117,16 @@ class FileProviderFactory implements ProviderFactory
                 throw new Exception("Missing file_provider_local_root_dir or (_prefix and _suffix); check <app>-config.js.");
             }
         }
-
+        
         $params = [
-            FileProvider::LOCAL_ROOT_KEY => $localRoot,
+          FileProvider::LOCAL_ROOT_KEY => $localRoot,
         ];
-
+        
         return $params;
     }
-
-
-
+    
+    
+    
     /**
      * @param Config $config
      *
