@@ -227,6 +227,17 @@ PliteTemplate::init();
                 margin-top: 10% !important;
             }
         }
+
+
+        table {
+            border-collapse: collapse;
+            border: 1px solid #FF0000;
+        }
+
+        table td {
+            border: 1px solid #FF0000;
+        }
+
     </style>
     <title><?php echo PliteTemplate::$TITLE; ?></title>
     <!--
@@ -240,10 +251,11 @@ PliteTemplate::init();
 
 <table>
     <?php
-    $map = PliteTemplate::getMap();
+    $map  = PliteTemplate::getMap();
     $html = "";
     
-    foreach ( $map as $k => $v ) {
+    foreach ( $map as $k => $v )
+    {
         $line = "<tr>  <td>$k</td> <td>$v</td>  </tr>";
         $html .= "$line\n";
     }
