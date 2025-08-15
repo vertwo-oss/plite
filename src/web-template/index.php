@@ -244,7 +244,7 @@ PliteTemplate::init();
     $html = "";
     
     foreach ( $map as $k => $v ) {
-        $line = "<tr><td>$k<td></td><td>$v</td></tr>";
+        $line = "<tr>  <td>$k</td> <td>$v</td>  </tr>";
         $html .= "$line\n";
     }
     
@@ -258,64 +258,5 @@ PliteTemplate::init();
 
 </body>
 <script>
-    /*
-    $u = $('#username');
-    $p = $('#password');
-    $resp = $('#response');
-    isRespVisible = true;
-
-    $(document).ready(function () {
-        console.log("Starting!");
-
-        $u.on('keyup', function (ev) {
-            if (isRespVisible) {
-                $resp.addClass('hidden');
-                isRespVisible = false;
-                $resp.html("Please enter your login/password.");
-            }
-        });
-
-        $('#login_form').submit(function (ev) {
-            $p.blur();
-            ev.preventDefault();
-            console.log("logging in...");
-
-            var method = "auth";
-            var data = {
-                'user': $u.val(),
-                'pass': $p.val()
-            };
-
-            api(method, data,
-                function (resp) {
-                    $p.val("");
-                    $u.val("");
-                    $resp.removeClass('hidden');
-                    $resp.removeClass('fail-text');
-                    $resp.addClass('win-text');
-                    $resp.html("Successful login...");
-                    isRespVisible = true;
-
-                    clog("Successfully logged in!");
-                    clog(resp);
-
-                    let url = "dashboard";
-                    clog("Logging into: " + url);
-
-                    setTimeout(function () { window.location.href = url; }, 250);
-                },
-                function (resp) {
-                    $resp.removeClass('hidden');
-                    $resp.removeClass('win-text');
-                    $resp.addClass('fail-text');
-                    isRespVisible = true;
-                    $resp.html("Login / password incorrect; please try again.");
-                    $p.val("");
-                    $u.val("").focus();
-                }
-            );
-        });
-    });
-     */
 </script>
 </html>
