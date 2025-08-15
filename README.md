@@ -2,6 +2,10 @@
 
 PHP Lite Framework
 
+This little project started out as a simple pretty-printer for arrays and 
+maps.  Really simple.  It grew into this mini meta-project where I collected 
+a bunch of PHP I've built over the years.
+
 Adds some basic libraries for working with console-viewed logging, PHP as a CLI
 tool, handling basic server-side web API requests, a very small Postgres
 abstraction, as well as a small framework for abstracting a few AWS services (
@@ -10,13 +14,14 @@ help with ETL.
 
 ## TL;DR
 
-At its core, `plite` has 2 parts:
+At its core, `plite` has a few parts:
 
-1. A CLI framework to make command-line PHP easier.
-2. A Web framework to make it easy to have both a dev and prod (especially a
+1. Some convenience functions, including a pretty-printer for arrays and maps.
+2. A CLI framework to make command-line PHP easier.
+3. A Web framework to make it easy to have both a dev and prod (especially a
    system like AWS ElasticBeanstalk) simpler, and to allow both local- and
    cloud-based dev.
-3. An abstraction framework for AWS S3, SecretsManager, SES, etc, to build
+4. An abstraction framework for AWS S3, SecretsManager, SES, etc, to build
    command-line tools.
 
 It does this by providing local analogues to S3 and SecretsManager and SES which
