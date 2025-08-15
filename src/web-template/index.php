@@ -231,11 +231,20 @@ PliteTemplate::init();
 
         table {
             border-collapse: collapse;
-            border: 1px solid #FF0000;
+            border: 1px solid #00ffff;
         }
 
         table td {
-            border: 1px solid #FF0000;
+            border: 1px solid #00ffff;
+        }
+
+        th, td {
+            padding: 15px;
+        }
+
+        #plite-dump-table td img {
+            width: 64px;
+            height: 64px;
         }
 
     </style>
@@ -249,7 +258,7 @@ PliteTemplate::init();
 
 <h1>Hello to Plite</h1>
 
-<table>
+<table id="plite-dump-table">
     <?php
     $map  = PliteTemplate::getMap();
     $html = "";
