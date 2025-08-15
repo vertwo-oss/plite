@@ -61,7 +61,7 @@ Just extend the `CLI` class (or `BoringCLI`), and implement two methods:
 * `main()`
 * `getShortOpts()`
 
-and add a third method, if you want to work with long options (.e.g.,
+and add a third method, if you want to work with long options (e.g.,
 `--verbose`):
 
 * `getLongOpts()`
