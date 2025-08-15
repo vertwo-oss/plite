@@ -71,7 +71,7 @@ class PliteTemplate
             self::$LOGO                   = "<img src=\"res/question.png\" alt=\"unknown app\"/>";
             self::$REG_EMAIL              = "interest@example.com";
             self::$TOP_PAD                = "0";
-            self::$BGCOLOR                = "#666";
+            self::$BGCOLOR                = "#333";
             self::$COPYRIGHT              = "Copyleft";
             self::$IS_USING_POWERED_BY_V2 = false;
         }
