@@ -292,11 +292,11 @@ PliteTemplate::init();
         </div>
     </div>
 </form>
+-->
 
 <div id="solid_footer">
     <?php printf("%s\n", PliteTemplate::getSolidFooterContents()); ?>
 </div>
--->
 
 </body>
 <script>

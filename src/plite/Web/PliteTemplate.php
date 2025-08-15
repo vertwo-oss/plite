@@ -64,7 +64,7 @@ class PliteTemplate
         catch ( Exception $e )
         {
             clog($e);
-            clog(yel("Could not instantiate PliteFactory; using DEFAULT values."));
+            clog(yel("Could not instantiate PliteTemplate; using DEFAULT values."));
             
             self::$TITLE                  = "Unknown App";
             self::$APPNAME                = "Unknown App";
@@ -76,18 +76,7 @@ class PliteTemplate
             self::$IS_USING_POWERED_BY_V2 = false;
         }
         
-        if ( self::DEBUG_INIT ) clog(
-          [
-            "white-label title"            => self::$TITLE,
-            "white-label name"             => self::$APPNAME,
-            "white-label logo"             => self::$LOGO,
-            "white-label padding-from-top" => self::$TOP_PAD,
-            "white-label bg"               => self::$BGCOLOR,
-            "white-label reg-email"        => self::$REG_EMAIL,
-            "white-label copyright"        => self::$COPYRIGHT,
-            "white-label use_pbv2"         => self::$IS_USING_POWERED_BY_V2,
-          ]
-        );
+        if ( self::DEBUG_INIT ) clog(self::getMap());
     }
     
     
@@ -95,14 +84,14 @@ class PliteTemplate
     public static function getMap ()
     {
         return [
-          "title"            => self::$TITLE,
-          "name"             => self::$APPNAME,
-          "logo"             => self::$LOGO,
-          "padding-from-top" => self::$TOP_PAD,
-          "bg"               => self::$BGCOLOR,
-          "reg-email"        => self::$REG_EMAIL,
-          "copyright"        => self::$COPYRIGHT,
-          "use_pbv2"         => self::$IS_USING_POWERED_BY_V2,
+          "title"     => self::$TITLE,
+          "name"      => self::$APPNAME,
+          "logo"      => self::$LOGO,
+          "top-pad"   => self::$TOP_PAD,
+          "bg"        => self::$BGCOLOR,
+          "reg-email" => self::$REG_EMAIL,
+          "copyright" => self::$COPYRIGHT,
+          "use_pbv2"  => self::$IS_USING_POWERED_BY_V2,
         ];
     }
     
