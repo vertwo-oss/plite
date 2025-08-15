@@ -240,13 +240,12 @@ PliteTemplate::init();
 
 <table>
     <?php
-    
     $map = PliteTemplate::getMap();
     $html = "";
     
     foreach ( $map as $k => $v ) {
         $line = "<td>$k<td></td><td>$v</td>";
-        $html .= "$html\n";
+        $html .= "$line\n";
     }
     
     printf("%s", $html);
