@@ -244,7 +244,7 @@ PliteTemplate::init();
     $html = "";
     
     foreach ( $map as $k => $v ) {
-        $line = "<td>$k<td></td><td>$v</td>";
+        $line = "<tr><td>$k<td></td><td>$v</td></tr>";
         $html .= "$line\n";
     }
     
