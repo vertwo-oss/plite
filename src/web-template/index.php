@@ -264,6 +264,8 @@ catch ( Exception $e )
 
 <h1>Hello to Plite</h1>
 
+<h2>Routing is disabled. Do a <code>$ make routed</code> to enable.</h2>
+
 <table id="plite-dump-table">
     <?php
     $map  = PliteWebConfig::getMap();
