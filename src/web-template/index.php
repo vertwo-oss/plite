@@ -36,10 +36,14 @@ require_once(__DIR__ . "/vendor/autoload.php"); // FIXME
 
 try
 {
+    $configWarning = "";
     PliteWebConfig::init();
 }
 catch ( Exception $e )
 {
+    $configWarning = <<<EOF
+<h2 style="color='red'">OH NO!</h2>
+EOF;
 }
 
 
@@ -277,6 +281,8 @@ inside the project root dir to enable.
 <p>
     If you're not going to enable routing, then get rid of this page!!
 </p>
+
+<?php printf($configWarning); ?>
 
 <table id="plite-dump-table">
     <?php
