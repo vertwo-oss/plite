@@ -42,7 +42,7 @@ try
 catch ( Exception $e )
 {
     $configWarning = <<<EOF
-<h2 style="color='red'">OH NO!</h2>
+<h2 class="config_warning">OH NO!</h2>
 EOF;
 }
 
@@ -255,6 +255,10 @@ EOF;
         #plite-dump-table td img {
             width: 64px;
             height: 64px;
+        }
+
+        .config_warning {
+            color: red;
         }
 
     </style>
