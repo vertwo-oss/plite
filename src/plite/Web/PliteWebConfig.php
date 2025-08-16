@@ -35,7 +35,7 @@ class PliteWebConfig
     
     private static $map = [
       "title"     => null,
-      "name"      => null,
+      "appname"   => null,
       "logo"      => null,
       "top_pad"   => null,
       "bg"        => null,
