@@ -26,7 +26,7 @@
 
 
 
-use vertwo\plite\Web\PliteTemplate;
+use vertwo\plite\Web\PliteWebConfig;
 
 
 
@@ -34,7 +34,13 @@ require_once(__DIR__ . "/vendor/autoload.php"); // FIXME
 
 
 
-PliteTemplate::init();
+try
+{
+    PliteWebConfig::init();
+}
+catch ( Exception $e )
+{
+}
 
 
 
@@ -43,7 +49,7 @@ PliteTemplate::init();
 <head>
     <style>
         html {
-            background: <?php echo PliteTemplate::$BGCOLOR; ?> no-repeat center center;
+            background: <?php echo PliteWebConfig::get("bg"); ?> no-repeat center center;
             background-size: cover;
             height: 100%;
         }
@@ -79,7 +85,7 @@ PliteTemplate::init();
             margin: 0 auto;
             border-radius: 8px;
             background-color: rgba(128, 128, 128, 0);
-            padding: <?php echo PliteTemplate::$TOP_PAD; ?> 32px 32px 32px;
+            padding: <?php echo PliteWebConfig::get("top_pad"); ?> 32px 32px 32px;
         }
 
         #login_form > div:first-child > img:first-child {
@@ -248,7 +254,7 @@ PliteTemplate::init();
         }
 
     </style>
-    <title><?php echo PliteTemplate::$TITLE; ?></title>
+    <title><?php echo PliteWebConfig::get("title"); ?></title>
     <!--
     <script src="js/lib/zepto.min.js"></script>
     <script src="js/vertwo.js"></script>
@@ -260,7 +266,7 @@ PliteTemplate::init();
 
 <table id="plite-dump-table">
     <?php
-    $map  = PliteTemplate::getMap();
+    $map  = PliteWebConfig::getMap();
     $html = "";
     
     foreach ( $map as $k => $v )
@@ -274,7 +280,7 @@ PliteTemplate::init();
 </table>
 
 <div id="solid_footer">
-    <?php printf("%s\n", PliteTemplate::getSolidFooterContents()); ?>
+    <?php printf("%s\n", PliteWebConfig::getSolidFooterContents()); ?>
 </div>
 
 </body>

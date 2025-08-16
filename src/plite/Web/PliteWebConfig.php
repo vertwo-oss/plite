@@ -25,25 +25,29 @@ namespace vertwo\plite\Web;
 
 use Exception;
 use vertwo\plite\Config;
+use vertwo\plite\FJ;
 
 
 
-class PliteTemplate
+class PliteWebConfig
 {
     const DEBUG_INIT = true;
     
+    private static $map = [
+      "title"     => null,
+      "name"      => null,
+      "logo"      => null,
+      "top_pad"   => null,
+      "bg"        => null,
+      "reg_email" => null,
+      "copyright" => null,
+      "use_pbv2"  => null,
+    ];
     
     
-    static $TITLE;
-    static $APPNAME;
-    static $LOGO;
-    static $REG_EMAIL;
-    static $TOP_PAD;
-    static $BGCOLOR;
-    static $COPYRIGHT;
-    
-    static $IS_USING_POWERED_BY_V2;
-    
+    public static function has ( $key ) { return null !== self::$map[$key]; }
+    public static function get ( $key ) { return self::$map[$key]; }
+    public static function set ( $key, $val ) { self::$map[$key] = $val; }
     
     
     /**
@@ -56,28 +60,30 @@ class PliteTemplate
         {
             Config::init(); // This isn't strictly necessary, but is hygienic.
             
-            self::$TITLE                  = Config::get("wl_title");
-            self::$APPNAME                = Config::get("wl_name");
-            self::$LOGO                   = Config::get("wl_logo");
-            self::$REG_EMAIL              = Config::get("wl_reg_email");
-            self::$TOP_PAD                = Config::get("wl_logo_padding_top");
-            self::$BGCOLOR                = Config::get("wl_bg");
-            self::$COPYRIGHT              = Config::get("wl_copyright_notice");
-            self::$IS_USING_POWERED_BY_V2 = Config::get("wl_using_powered_by_v2");
+            foreach ( array_keys(self::$map) as $key )
+            {
+                $val = Config::get("wl_" . $key);
+                self::set($key, $val);
+            }
         }
         catch ( Exception $e )
         {
             clog($e);
             clog(yel("Could not instantiate PliteTemplate; using DEFAULT values."));
             
-            self::$TITLE                  = "Unknown App";
-            self::$APPNAME                = "Unknown App";
-            self::$LOGO                   = "<img src=\"res/question.png\" alt=\"unknown app\"/>";
-            self::$REG_EMAIL              = "interest@example.com";
-            self::$TOP_PAD                = "0";
-            self::$BGCOLOR                = "#333";
-            self::$COPYRIGHT              = "Copyleft";
-            self::$IS_USING_POWERED_BY_V2 = false;
+            $defaultConfigs = [
+              "title"     => "Unknown App",
+              "appname"   => "Unknown App",
+              "logo"      => "<img src=>\"res/question.png\" alt=>\"unknown app\"/>",
+              "reg_email" => "interest@example.com",
+              "top_pad"   => "0",
+              "bg"        => "#333",
+              "copyright" => "Copyleft",
+              "use_pbv2"  => false,
+            ];
+            
+            foreach ( $defaultConfigs as $key => $val )
+                self::set($key, $val);
             
             throw $e;
         }
@@ -89,25 +95,13 @@ class PliteTemplate
     
     
     
-    public static function getMap ()
-    {
-        return [
-          "title"     => self::$TITLE,
-          "name"      => self::$APPNAME,
-          "logo"      => self::$LOGO,
-          "top-pad"   => self::$TOP_PAD,
-          "bg"        => self::$BGCOLOR,
-          "reg-email" => self::$REG_EMAIL,
-          "copyright" => self::$COPYRIGHT,
-          "use_pbv2"  => self::$IS_USING_POWERED_BY_V2,
-        ];
-    }
+    public static function getMap () { return FJ::deepCopy(self::$map); }
     
     
     public static function getSolidFooterContents ()
     {
-        $copyright = self::$COPYRIGHT;
-        $pby       = self::$IS_USING_POWERED_BY_V2
+        $copyright = self::get("copyright");
+        $pby       = self::get("use_pbv2")
           ? '<p>Powered by <span class="v2">Version2</span></p>'
           : "";
         

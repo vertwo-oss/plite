@@ -19,14 +19,17 @@
  *
  * Artwork attributions:
  *
- * <a href="https://www.flaticon.com/free-icons/user" title="user icons">User icons created by Phoenix Group - Flaticon</a>
- * <a href="https://www.flaticon.com/free-icons/lock" title="lock icons">Lock icons created by Those Icons - Flaticon</a>
- * <a href="https://www.flaticon.com/free-icons/question-mark" title="question mark icons">Question mark icons created by exomoon design studio - Flaticon</a>
+ * <a href="https://www.flaticon.com/free-icons/user" title="user icons">User icons created by Phoenix Group -
+ * Flaticon</a>
+ * <a href="https://www.flaticon.com/free-icons/lock" title="lock icons">Lock icons created by Those Icons -
+ * Flaticon</a>
+ * <a href="https://www.flaticon.com/free-icons/question-mark" title="question mark icons">Question mark icons created
+ * by exomoon design studio - Flaticon</a>
  */
 
 
 
-use vertwo\plite\Web\PliteTemplate;
+use vertwo\plite\Web\PliteWebConfig;
 
 
 
@@ -34,7 +37,13 @@ require_once(__DIR__ . "/../../vendor/autoload.php"); // FIXME
 
 
 
-PliteTemplate::init();
+try
+{
+    PliteWebConfig::init();
+}
+catch ( Exception $e )
+{
+}
 
 
 
@@ -43,7 +52,7 @@ PliteTemplate::init();
 <head>
     <style>
         html {
-            background: <?php echo PliteTemplate::$css_value_BACKGROUND; ?> no-repeat center center;
+            background: <?php echo PliteWebConfig::get("bg"); ?> no-repeat center center;
             background-size: cover;
             height: 100%;
         }
@@ -79,7 +88,7 @@ PliteTemplate::init();
             margin: 0 auto;
             border-radius: 8px;
             background-color: rgba(128, 128, 128, 0);
-            padding: <?php echo PliteTemplate::$css_value_PADDING_TOP_LOGO; ?> 32px 32px 32px;
+            padding: <?php echo PliteWebConfig::get("top_pad"); ?> 32px 32px 32px;
         }
 
         #login_form > div:first-child > img:first-child {
@@ -228,15 +237,15 @@ PliteTemplate::init();
             }
         }
     </style>
-    <title><?php echo PliteTemplate::$string_html_TITLE; ?></title>
+    <title><?php echo PliteWebConfig::get("title"); ?></title>
     <script src="js/lib/zepto.min.js"></script>
     <script src="js/vertwo.js"></script>
 </head>
 <body>
 <form id="login_form">
     <div id="login_form_inner">
-        <?php echo PliteTemplate::$html_elem_LOGO; ?>
-        <h1>Sign in to <b><?php echo PliteTemplate::$string_APP_NAME; ?></b></h1>
+        <?php echo PliteWebConfig::get("logo"); ?>
+        <h1>Sign in to <b><?php echo PliteWebConfig::get("appname"); ?></b></h1>
         <div>
             <label>
                 <img src="res/account.png" alt="log"/>
@@ -273,7 +282,7 @@ PliteTemplate::init();
 </form>
 
 <div id="solid_footer">
-    <?php printf("%s\n", PliteTemplate::getSolidFooterContents()); ?>
+    <?php printf("%s\n", PliteWebConfig::getSolidFooterContents()); ?>
 </div>
 </body>
 <script>
@@ -320,7 +329,9 @@ PliteTemplate::init();
                     let url = "dashboard";
                     clog("Logging into: " + url);
 
-                    setTimeout(function () { window.location.href = url; }, 250);
+                    setTimeout(function () {
+                        window.location.href = url;
+                    }, 250);
                 },
                 function (resp) {
                     $resp.removeClass('hidden');

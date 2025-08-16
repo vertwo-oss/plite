@@ -19,14 +19,17 @@
  *
  * Artwork attributions:
  *
- * <a href="https://www.flaticon.com/free-icons/user" title="user icons">User icons created by Phoenix Group - Flaticon</a>
- * <a href="https://www.flaticon.com/free-icons/lock" title="lock icons">Lock icons created by Those Icons - Flaticon</a>
- * <a href="https://www.flaticon.com/free-icons/question-mark" title="question mark icons">Question mark icons created by exomoon design studio - Flaticon</a>
+ * <a href="https://www.flaticon.com/free-icons/user" title="user icons">User icons created by Phoenix Group -
+ * Flaticon</a>
+ * <a href="https://www.flaticon.com/free-icons/lock" title="lock icons">Lock icons created by Those Icons -
+ * Flaticon</a>
+ * <a href="https://www.flaticon.com/free-icons/question-mark" title="question mark icons">Question mark icons created
+ * by exomoon design studio - Flaticon</a>
  */
 
 
 
-use vertwo\plite\Web\PliteTemplate;
+use vertwo\plite\Web\PliteWebConfig;
 
 
 
@@ -34,18 +37,24 @@ require_once(__DIR__ . "/../../vendor/autoload.php"); // FIXME
 
 
 
-PliteTemplate::init();
+try
+{
+    PliteWebConfig::init();
+}
+catch ( Exception $e )
+{
+}
 
 
 
 ?>
 <html lang="en">
 <head>
-    <title><?php echo PliteTemplate::$TITLE; ?></title>
+    <title><?php echo PliteWebConfig::get("title"); ?></title>
     <link href="res/vertwo-plite-dz.css" rel="stylesheet"/>
     <style>
         html {
-            background: <?php echo PliteTemplate::$BGCOLOR; ?> no-repeat center center;
+            background: <?php echo PliteWebConfig::get("bg"); ?> no-repeat center center;
             background-size: cover;
             height: 100%;
         }
@@ -79,7 +88,7 @@ PliteTemplate::init();
             width: calc(100% - 32px);
             border-radius: 8px;
             background-color: rgba(128, 128, 128, 0);
-            padding: <?php echo PliteTemplate::$TOP_PAD; ?> 32px 32px 32px;
+            padding: <?php echo PliteWebConfig::get("top_pad"); ?> 32px 32px 32px;
         }
 
         #dnd-box > img:first-child {
@@ -239,7 +248,7 @@ PliteTemplate::init();
 </head>
 <body>
 <div id="dnd-box">
-    <?php echo PliteTemplate::$LOGO; ?>
+    <?php echo PliteWebConfig::get("logo"); ?>
     <h1>Drag-and-Drop</h1>
 
     <div id="dnd">
@@ -247,7 +256,7 @@ PliteTemplate::init();
 </div>
 
 <div id="solid_footer">
-    <?php printf("%s\n", PliteTemplate::getSolidFooterContents()); ?>
+    <?php printf("%s\n", PliteWebConfig::getSolidFooterContents()); ?>
 </div>
 </body>
 <!-- Zepto -->
@@ -257,7 +266,6 @@ PliteTemplate::init();
 <!-- Version2 -->
 <script src="js/vertwo.js"></script>
 <script>
-
 
 
     $(document).ready(function () {
@@ -294,7 +302,6 @@ PliteTemplate::init();
         };
 
 
-
         function formDataHandler(fd) {
             clog("Uploading files...");
 
@@ -311,17 +318,15 @@ PliteTemplate::init();
         }
 
 
-
         var params = {
-            "$dz"            : $dz,
-            "$ui"            : $dzui,
+            "$dz": $dz,
+            "$ui": $dzui,
             "formDataHandler": formDataHandler,
-            "dndText"        : "Drop Here!"
+            "dndText": "Drop Here!"
         };
 
         createDropZone(params);
         // createDropZone($dz, $dzInfo, formDataHandler); // MEAT <==
-
 
 
     });
