@@ -271,7 +271,7 @@ Routing is disabled. Do a:
     $ make routed
 </pre>
 
-to enable.
+inside the project root dir to enable.
 </p>
 
 <table id="plite-dump-table">
