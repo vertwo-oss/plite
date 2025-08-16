@@ -42,7 +42,14 @@ try
 catch ( Exception $e )
 {
     $configWarning = <<<EOF
-<h2 class="config_warning">OH NO!</h2>
+<h2 class="config_warning">OH NO!  No configuration found!</h2>
+
+<p>
+In the plite config files, create config settings with a prefix of <code>wl_</code>
+for each of the settings below.  For example, create a setting of <code>wl_title</code>
+to set the HTML title of the page!
+</p>
+
 EOF;
 }
 
