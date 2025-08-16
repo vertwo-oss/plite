@@ -74,7 +74,7 @@ class PliteWebConfig
             $defaultConfigs = [
               "title"     => "Unknown App",
               "appname"   => "Unknown App",
-              "logo"      => "<img src=>\"res/question.png\" alt=>\"unknown app\"/>",
+              "logo"      => "<img src=\"res/question.png\" alt=\"unknown app\"/>",
               "reg_email" => "interest@example.com",
               "top_pad"   => "0",
               "bg"        => "#333",
