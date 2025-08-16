@@ -45,9 +45,10 @@ catch ( Exception $e )
 <h2 class="config_warning">OH NO!  No configuration found!</h2>
 
 <p>
-In the plite config files, create config settings with a prefix of <code>wl_</code>
-for each of the settings below.  For example, create a setting of <code>wl_title</code>
-to set the HTML title of the page!
+In the plite config files, either in the subclass config or a local
+filesystem config, create config settings with a prefix of <code>wl_</code>
+for each of the settings in in the below.  For example, create a
+setting of <code>wl_title</code> to set the HTML title of the page!
 </p>
 
 EOF;
