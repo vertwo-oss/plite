@@ -264,6 +264,7 @@ catch ( Exception $e )
 
 <h1>Hello to Plite</h1>
 
+<p>
 Routing is disabled. Do a:
 
 <pre>
@@ -271,6 +272,7 @@ Routing is disabled. Do a:
 </pre>
 
 to enable.
+</p>
 
 <table id="plite-dump-table">
     <?php
