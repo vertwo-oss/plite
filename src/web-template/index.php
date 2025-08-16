@@ -265,13 +265,17 @@ catch ( Exception $e )
 <h1>Hello to Plite</h1>
 
 <p>
-Routing is disabled. Do a:
+    Routing is disabled. Do a:
 
 <pre>
     $ make routed
 </pre>
 
 inside the project root dir to enable.
+</p>
+
+<p>
+    If you're not going to enable routing, then get rid of this page!!
 </p>
 
 <table id="plite-dump-table">
