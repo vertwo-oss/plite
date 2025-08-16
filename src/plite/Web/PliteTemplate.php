@@ -46,6 +46,10 @@ class PliteTemplate
     
     
     
+    /**
+     * @return void
+     * @throws Exception
+     */
     public static function init ()
     {
         try
@@ -74,9 +78,13 @@ class PliteTemplate
             self::$BGCOLOR                = "#333";
             self::$COPYRIGHT              = "Copyleft";
             self::$IS_USING_POWERED_BY_V2 = false;
+            
+            throw $e;
         }
-        
-        if ( self::DEBUG_INIT ) clog(self::getMap());
+        finally
+        {
+            if ( self::DEBUG_INIT ) clog(self::getMap());
+        }
     }
     
     

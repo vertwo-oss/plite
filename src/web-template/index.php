@@ -231,11 +231,11 @@ PliteTemplate::init();
 
         table {
             border-collapse: collapse;
-            border: 1px solid #00ffff;
+            border: 1px solid #666;
         }
 
         table td {
-            border: 1px solid #00ffff;
+            border: 1px solid #666;
         }
 
         th, td {
