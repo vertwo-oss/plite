@@ -45,9 +45,9 @@ class PliteWebConfig
     ];
     
     
-    public static function has ( $key ) { return null !== self::$map[$key]; }
-    public static function get ( $key ) { return self::$map[$key]; }
-    public static function set ( $key, $val ) { self::$map[$key] = $val; }
+    public static function has ( $key ) { return null !== self::$map["wl_" . $key]; }
+    public static function get ( $key ) { return self::$map["wl_" . $key]; }
+    public static function set ( $key, $val ) { self::$map["wl_" . $key] = $val; }
     
     
     /**
@@ -77,7 +77,7 @@ class PliteWebConfig
               "logo"      => "<img src=\"res/question.png\" alt=\"unknown app\"/>",
               "reg_email" => "interest@example.com",
               "top_pad"   => "0",
-              "bg"        => "#333",
+              "bg"        => "#444",
               "copyright" => "Copyleft",
               "use_pbv2"  => false,
             ];
