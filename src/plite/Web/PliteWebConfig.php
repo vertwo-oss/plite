@@ -45,9 +45,9 @@ class PliteWebConfig
     ];
     
     
-    public static function has ( $key ) { return null !== self::$map["wl_" . $key]; }
-    public static function get ( $key ) { return self::$map["wl_" . $key]; }
-    public static function set ( $key, $val ) { self::$map["wl_" . $key] = $val; }
+    public static function has ( $key ) { return null !== self::$map[$key]; }
+    public static function get ( $key ) { return self::$map[$key]; }
+    public static function set ( $key, $val ) { self::$map[$key] = $val; }
     
     
     /**
