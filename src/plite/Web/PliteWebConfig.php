@@ -34,14 +34,15 @@ class PliteWebConfig
     const DEBUG_INIT = true;
     
     private static $map = [
-      "title"     => null,
-      "appname"   => null,
-      "logo"      => null,
-      "top_pad"   => null,
-      "bg"        => null,
-      "reg_email" => null,
-      "copyright" => null,
-      "use_pbv2"  => null,
+      "title"      => null,
+      "appname"    => null,
+      "logo"       => null,
+      "logo_width" => null,
+      "top_pad"    => null,
+      "bg"         => null,
+      "reg_email"  => null,
+      "copyright"  => null,
+      "use_pbv2"   => null,
     ];
     
     
@@ -72,14 +73,15 @@ class PliteWebConfig
             clog(yel("Could not instantiate PliteTemplate; using DEFAULT values."));
             
             $defaultConfigs = [
-              "title"     => "Unknown App",
-              "appname"   => "Unknown App",
-              "logo"      => "<img src=\"res/question.png\" alt=\"unknown app\"/>",
-              "reg_email" => "interest@example.com",
-              "top_pad"   => "0",
-              "bg"        => "#444",
-              "copyright" => "Copyleft",
-              "use_pbv2"  => false,
+              "title"      => "Unknown App",
+              "appname"    => "Unknown App",
+              "logo"       => "<img src=\"res/question.png\" alt=\"unknown app\"/>",
+              "logo_width" => "70%",
+              "reg_email"  => "interest@example.com",
+              "top_pad"    => "0",
+              "bg"         => "#444",
+              "copyright"  => "Copyleft",
+              "use_pbv2"   => false,
             ];
             
             foreach ( $defaultConfigs as $key => $val )
