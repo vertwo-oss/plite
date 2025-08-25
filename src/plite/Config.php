@@ -541,9 +541,6 @@ abstract class Config
         $auth   = self::loadConfigFile($authPath);
         $params = array_merge($conf, $auth);
         
-        if ( !array_key_exists(self::ENV_PLITE_CONFIG_KEY, $params) )
-            throw new Exception("Cannot load local config: missing '" . self::ENV_PLITE_CONFIG_KEY . "' in config file.");
-        
         return $params;
     }
     
