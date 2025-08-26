@@ -1,7 +1,6 @@
 <?php
 /**
- * Copyright (c) 2012-2022 Troy Wu
- * Copyright (c) 2021-2022 Version2 OÜ
+ * Copyright (c) 2025 Troy Wu
  * All rights reserved.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
@@ -71,7 +70,7 @@ catch ( Exception $e )
             fill: #ccc;
         }
 
-        #login_form {
+        #signup_form {
             padding: 16px;
             width: 60%;
             max-width: 600px;
@@ -83,7 +82,7 @@ catch ( Exception $e )
             alignment: center;
         }
 
-        #login_form div:first-child {
+        #signup_form div:first-child {
             width: 70%;
             margin: 0 auto;
             border-radius: 8px;
@@ -91,7 +90,9 @@ catch ( Exception $e )
             padding: <?php echo PliteWebConfig::get("top_pad"); ?> 32px 32px 32px;
         }
 
-        #login_form > div:first-child > img:first-child {
+        #signup_form > div:first-child > img:first-child {
+        <?php
+        if ( PliteWebConfig::has("logo_width") ) {
             $w =  PliteWebConfig::get("logo_width");
             echo <<<EOF
             width: $w;
@@ -107,11 +108,19 @@ EOF;
             padding: 0;
         }
 
-        #login_form button {
-            visibility: hidden;
+        #signup_form button {
+            /*visibility: hidden;*/
+            width: 50%;
+            height: 2em;
+            font-size: 16px;
+            border-radius: 16px;
+            background-color: cyan;
+            border: 0;
+            margin-top: 1em;
+            margin-bottom: 3em;
         }
 
-        #login_form h1 {
+        #signup_form h1 {
             font-size: 24px;
             color: #aaa;
             font-weight: 300;
@@ -123,7 +132,7 @@ EOF;
             color: #777;
         }
 
-        #login_form label img {
+        #signup_form label img {
             position: absolute;
             height: 24px;
             padding-top: 8px;
@@ -132,7 +141,7 @@ EOF;
             opacity: 0.25;
         }
 
-        #login_form input {
+        #signup_form input {
             height: 40px;
             border: 0;
             padding: 8px 32px 8px 48px;
@@ -241,7 +250,7 @@ EOF;
             }
 
 
-            #login_form {
+            #signup_form {
                 margin-top: 10% !important;
             }
         }
@@ -253,23 +262,29 @@ EOF;
 
 
 <body>
-<form id="login_form">
-    <div id="login_form_inner">
+<form id="signup_form">
+    <div id="signup_form_inner">
         <?php echo PliteWebConfig::get("logo"); ?>
-        <h1>Sign in to <b><?php echo PliteWebConfig::get("appname"); ?></b></h1>
+        <h1>Register for <b><?php echo PliteWebConfig::get("appname"); ?></b></h1>
         <div>
             <label>
                 <img src="res/account.png" alt="log"/>
-                <input id="username" type="text" placeholder="Username" required="" autofocus/>
+                <input id="username" type="text" placeholder="Choose Username" required="" autofocus/>
             </label>
         </div>
         <div>
             <label>
-                <img src="res/lock.png" alt="pw"/>
-                <input id="password" type="password" placeholder="Password" required=""/>
+                <img src="res/lock.png" alt="pw1"/>
+                <input id="password1" type="password" placeholder="Set Password" required=""/>
             </label>
         </div>
-        <button type="submit" class="btn btn-default submit">Log In</button>
+        <div>
+            <label>
+                <img src="res/lock.png" alt="pw2"/>
+                <input id="password2" type="password" placeholder="Confirm Password" required=""/>
+            </label>
+        </div>
+        <button type="submit" class="btn btn-default submit">Create</button>
 
 
         <div class="separator"></div>
@@ -280,8 +295,8 @@ EOF;
         <div class="clearfix"></div>
 
         <div class="separator">
-            <p class="change_link">New to site?
-                <a href="signup.php" class="to_register"> Create Account </a>
+            <p class="change_link">Already registered?
+                <a href="login.php" class="to_login">Login</a>
             </p>
 
             <div class="clearfix"></div>
@@ -313,7 +328,7 @@ EOF;
             }
         });
 
-        $('#login_form').submit(function (ev) {
+        $('#signup_form').submit(function (ev) {
             $p.blur();
             ev.preventDefault();
             console.log("logging in...");
