@@ -92,6 +92,8 @@ catch ( Exception $e )
         }
 
         #login_form > div:first-child > img:first-child {
+        <?php
+        if ( PliteWebConfig::has("logo_width") ) {
             $w =  PliteWebConfig::get("logo_width");
             echo <<<EOF
             width: $w;
