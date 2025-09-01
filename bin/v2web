@@ -1,0 +1,120 @@
+#! /bin/bash
+
+PROJ_DIR=$1
+VEND=$2
+PROJ=$3
+
+
+if [ -z $PROJ_DIR ] ; then
+    echo
+	echo "  Usage $0 proj_dir [vendor] [proj]"
+    echo
+    exit
+fi
+
+if [ -e $PROJ_DIR ] ; then
+    echo
+    echo "  Project dir [$PROJ_DIR] exists; aborting."
+    echo
+    exit 1
+fi
+
+if [ -z $VEND ] ; then
+	VEND=$(basename $PROJ_DIR)
+fi
+
+if [ -z $PROJ ] ; then
+	VEND_PROJ="$VEND\\\\\\\\"
+else
+	VEND_PROJ="$VEND\\\\\\\\$PROJ\\\\\\\\"
+fi
+
+echo "vendor_proj: [$VEND_PROJ]"
+
+TEMPLATE_DIR="template-web"
+
+rsync -av ../src/$TEMPLATE_DIR/ $PROJ_DIR
+
+if [ -d ~/Sites ] ; then
+    SITE=$(basename $PROJ_DIR)
+    SITE_PATH=~/Sites/$SITE
+
+    echo "[~/Sites] found; making symlink for project [$SITE]..."
+    echo "  * from [$PROJ_DIR] --> [$SITE_PATH]..."
+
+    if [ -L $SITE_PATH ] ; then
+
+        ln -sfv $PROJ_DIR $SITE_PATH
+        echo "  Link overwritten."
+
+    elif [ -d $SITE_PATH ] ; then
+
+        echo
+        echo "  symlink path exists as directory; aborting."
+        echo
+        exit 2
+
+    elif [ -f $SITE_PATH ] ; then
+
+        echo
+        echo "  symlink path exists as file; aborting."
+        echo
+        exit 3
+
+    elif [ -e $SITE_PATH ] ; then
+
+        echo
+        echo "  symlink path exists (not file or dir, though); aborting."
+        echo
+        exit 4
+
+    else
+
+        ln -sfv $PROJ_DIR $SITE_PATH
+        echo "  Link created."
+
+    fi
+fi
+
+#rsync -av ../vendor $PROJ_DIR
+
+pushd $SITE_PATH
+
+	#
+	# Fix composer.json file.
+	#
+	file="composer.json"
+	echo "Fixing composer.json file [$file]..."
+	sed -e "s,%%vendor_proj%%,$VEND_PROJ," $file > ${file}__fix
+	/bin/mv -fv ${file}__fix $file
+	
+
+	#	
+	# Initialize project (Makefile with "composer init" target).
+	#	
+	make
+
+	for file in *.php ; do
+		echo "Fixing PHP file [$file]..."
+		sed -e "s,require_once(.*__DIR__.*\..*\"/../../,require_once(__DIR__ . \"/," $file > ${file}__fix
+		/bin/mv -fv ${file}__fix $file
+	done
+
+	#
+	#
+	# This is the part that turns plite into a ROUTING framework.
+	#
+	#   By default, this behavior is off.  I'm turning it off here.
+	#   If you want the routing behavior *ON*, then after this
+	#   script creates the project, go into the newly created
+	#   project, and type:
+	#
+	# $ make routed
+	#
+	# which will "install" the .htaccess file (from ROUTE.htaccess).
+	#
+	#
+	#cp -vf ROUTE.htaccess .htaccess
+popd
+
+echo "Done."

@@ -239,7 +239,7 @@ abstract class Config
         else if ( $hasLocal && $hasApp )
         {
             //
-            // Local-CLI.
+            // Local-CLI, or Prod-Web-with-hosted-filesystem
             //
             $localRoot = self::loadEnv(self::ENV_PLITE_LOCAL_ROOT_KEY);
             $appName   = self::loadEnv(self::ENV_PLITE_APP_KEY);

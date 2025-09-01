@@ -31,7 +31,7 @@ fi
 
 echo "vendor_proj: [$VEND_PROJ]"
 
-TEMPLATE_DIR="web-template"
+TEMPLATE_DIR="template-cli"
 
 rsync -av ../src/$TEMPLATE_DIR/ $PROJ_DIR
 
@@ -94,27 +94,12 @@ pushd $SITE_PATH
 	#	
 	make
 
-	for file in *.php ; do
-		echo "Fixing PHP file [$file]..."
-		sed -e "s,require_once(.*__DIR__.*\..*\"/../../,require_once(__DIR__ . \"/," $file > ${file}__fix
-		/bin/mv -fv ${file}__fix $file
-	done
-
-	#
-	#
-	# This is the part that turns plite into a ROUTING framework.
-	#
-	#   By default, this behavior is off.  I'm turning it off here.
-	#   If you want the routing behavior *ON*, then after this
-	#   script creates the project, go into the newly created
-	#   project, and type:
-	#
-	# $ make routed
-	#
-	# which will "install" the .htaccess file (from ROUTE.htaccess).
-	#
-	#
-	#cp -vf ROUTE.htaccess .htaccess
+	#for file in driver ; do
+		#echo "Fixing PHP file [$file]..."
+		#sed -e "s,require_once(.*__DIR__.*\..*\"/../../,require_once(__DIR__ . \"/," $file > ${file}__fix
+		#/bin/mv -fv ${file}__fix $file
+		#/bin/chmod 0700 $file
+	#done
 popd
 
 echo "Done."

@@ -1,0 +1,27 @@
+{
+  "keywords": [
+    "php",
+    "plite",
+    "cli"
+  ],
+  "autoload": {
+    "psr-4": {
+      "%%vendor_proj%%": [ "src/" ]
+    },
+    "exclude-from-classmap": [
+      "**/NOUSE/",
+      "**/nouse/",
+      "**/NoUse/",
+      "**/Nouse/"
+    ],
+    "files": [
+    ]
+  },
+  "require": {
+    "vertwo/plite": "dev-master",
+    "ext-posix": "*",
+    "ext-sockets": "*",
+    "ext-curl": "*",
+    "ext-json": "*"
+  }
+}

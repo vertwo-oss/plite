@@ -1,0 +1,22 @@
+#! /opt/homebrew/bin/php
+<?php
+require_once(__DIR__ . "/../vendor/autoload.php"); // FIXME
+
+
+use vertwo\plite\CommandLine\CLI;
+
+
+class driver extends CLI
+{
+    protected function getShortOpts () { return ""; }
+    
+    
+    public function main ()
+    {
+	clog("Hello, world!");
+	return 0;
+    }
+}
+
+
+driver::run();

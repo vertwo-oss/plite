@@ -2,8 +2,8 @@
 
 PHP Lite Framework
 
-This little project started out as a simple pretty-printer for arrays and 
-maps.  Really simple.  It grew into this mini meta-project where I collected 
+This little project started out as a simple pretty-printer for arrays and
+maps. Really simple. It grew into this mini meta-project where I collected
 a bunch of PHP I've built over the years.
 
 Adds some basic libraries for working with console-viewed logging, PHP as a CLI
@@ -382,16 +382,26 @@ When using Plite as a web framework,
 It uses the web server environment variables to provide two mechanisms
 to bootstrap a configuration:
 
-1. **Prod** enviroment: config is loaded from **a PHP Class**, which
-   extends `Config`, implementing a method called
-   `getConfig()`. This method returns a hash (assoc array) which
-   contains all the relevant config for the app, including stuff which
-   Plite requires, as well as any arbitrary config.
-
-2. **Dev** environment: config is loaded from **a File in the local,
+1. **Prod** enviroment, hardcoded: config is loaded from **a PHP Class**, which
+   extends `Config`, implementing a method called   `getConfig()`. This method
+   returns a hash (assoc array) which contains all the relevant config for the
+   app, including stuff which Plite requires, as well as any arbitrary config.
+2. **Prod** enviroment, hosted/local: config is loaded from the local
+   filesystem, which contains the config (see **Dev** env, below), and also the
+   name of the application. This combo (fs_root + app_name) means that config is
+   loaded from **a File in the local, ops-controlled, filesystem**. That file
+   must reside under a directory which is in the developer's control or
+   access--given as   `SetEnv plite_local_root` (e.g., `/Users/srv` on macOS,
+   or `/srv` on Linux, or some other weird place depending on whichever ghetto
+   hosting platform you're on). And, the app's configuration must be a subdir of
+   that directory (e.g., `/Users/srv/<app>` on macOS or `/srv/<app>` on Linux).
+   Effectively, it allows the URL on the dev machine to function as a
+   "VirtualApp", analogous to a "VirtualHost", at least in terms of app
+   configuration.
+3. **Dev** environment: config is loaded from **a File in the local,
    developer-controlled, filesystem**. That file must reside under a
    directory which is in the developer's control or access--given as
-   `SetEnv vertwo_local_root` (e.g., `/Users/srv` on macOS, or `/srv` on
+   `SetEnv plite_local_root` (e.g., `/Users/srv` on macOS, or `/srv` on
    Linux). And, the app's configuration must be a subdir of that
    directory (e.g., `/Users/srv/<app>` on macOS or `/srv/<app>` on
    Linux). Because a dev can be working on multiple Plite-based
@@ -414,7 +424,7 @@ In detail:
    top-level config root (`plite_local_root`) and a regex for getting
    the app name (`plite_app`) from the localhost testing URL. App name
    (`vertwo_app`) must be a non-whitespace, non-punctuated (mostly)
-   string, extractable as `\1` from regex (`vertwo_url_app_regex`), for
+   string, extractable as `\1` from regex (`plite_url_app_regex`), for
    example, if `janedoe` is the username, and dev URL looks like
    `http://localhost/~janedoe/app`, then the capturing regex would look
    like: `,localhost/~janedoe/([[:alnum:]-_]*)/,`, where the leading and
