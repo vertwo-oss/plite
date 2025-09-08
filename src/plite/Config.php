@@ -24,6 +24,7 @@ namespace vertwo\plite;
 
 
 use Exception;
+use vertwo\plite\Util\Map;
 
 
 
@@ -136,7 +137,7 @@ use Exception;
  *
  * @package vertwo\plite\Provider
  */
-abstract class Config
+class Config
 {
     const DEBUG_ENV         = true;
     const DEBUG_CONFIG_INFO = true;
@@ -153,31 +154,26 @@ abstract class Config
      *          and not `plite_config`, which does not tell give
      *          us any idea of what this is for.
      */
-    const ENV_PLITE_APP_KEY               = "plite_app";               // NOTE - Prod + CLI
-    const ENV_PLITE_CONFIG_KEY            = "plite_config";            // NOTE - Prod + CLI
-    const ENV_PLITE_CONFIG_CLASS_NAME_KEY = "plite_config_class_name"; // NOTE - Prod + CLI
+    const ENV_PLITE_APP_KEY               = "_plite_app";               // NOTE - Prod + CLI
+    const ENV_PLITE_CONFIG_KEY            = "_plite_config";            // NOTE - Prod + CLI
+    const ENV_PLITE_CONFIG_CLASS_NAME_KEY = "_plite_config_class_name"; // NOTE - Prod + CLI
     
-    const ENV_PLITE_LOCAL_ROOT_KEY    = "plite_local_root";    // NOTE - Dev
-    const ENV_PLITE_URL_APP_REGEX_KEY = "plite_url_app_regex"; // NOTE - Dev
+    const ENV_PLITE_LOCAL_ROOT_KEY    = "_plite_local_root";    // NOTE - Dev
+    const ENV_PLITE_URL_APP_REGEX_KEY = "_plite_url_app_regex"; // NOTE - Dev
     
-    const AWS_REGION_ARRAY_KEY  = "aws_region";
-    const AWS_VERSION_ARRAY_KEY = "aws_version";
+    const AWS_REGION_ARRAY_KEY  = "_plite_aws_region";
+    const AWS_VERSION_ARRAY_KEY = "_plite_aws_version";
     
-    const AWS_ACCESS_ARRAY_KEY = "aws_access_key_id";
-    const AWS_SECRET_ARRAY_KEY = "aws_secret_access_key";
+    const AWS_ACCESS_ARRAY_KEY = "_plite_aws_access_key_id";
+    const AWS_SECRET_ARRAY_KEY = "_plite_aws_secret_access_key";
     
     const PROVIDER_LOCAL = "local";
     const PROVIDER_PROXY = "proxy";
     const PROVIDER_CLOUD = "cloud";
+    const PROVIDER_AWS   = "aws";
     
     
-    
-    /** @var array|bool $PARAMS */
-    private static $PARAMS = false;
-    
-    private static $APP    = false; // App name (Prod + CLI)
-    private static $CONFIG = false; // Fully-qualified ConfigInterface subclass name (Prod + CLI)
-    
+    private static $APP = false; // App name (Prod + CLI)
     
     
     /**
@@ -196,19 +192,11 @@ abstract class Config
     }
     
     
-    
     /**
+     * @return Map
      * @throws Exception
      */
-    public static function init () { if ( false === self::$PARAMS ) self::load(); }
-    
-    
-    
-    /**
-     * @return array|void
-     * @throws Exception
-     */
-    private static function load ()
+    public static function load ()
     {
         $hasLocal           = self::hasEnv(self::ENV_PLITE_LOCAL_ROOT_KEY);     // Local + CLI(local)
         $hasRegex           = self::hasEnv(self::ENV_PLITE_URL_APP_REGEX_KEY);  // Local
@@ -265,184 +253,10 @@ abstract class Config
             throw new Exception("Cannot load config; must be missing bootstrap elements; see Config::load().");
         }
         
-        self::$APP    = $appName;
-        self::$PARAMS = $params;
+        self::$APP = $appName;
+        
+        return new Map($params);
     }
-    
-    
-    
-    ///**
-    // * @throws Exception
-    // */
-    //private static function loadParams ()
-    //{
-    //    $info = self::loadBootstrapParams();
-    //
-    //    if ( false === $info["isValid"] )
-    //        throw new Exception("Invalid configuration; all fields missing--check Apache config (and SetEnv values).");
-    //
-    //    $type = $info['type'];
-    //
-    //    switch ( $type )
-    //    {
-    //        case "local":
-    //            list($app, $params) = self::getLocalConfig($info);
-    //            break;
-    //
-    //        case "cli":
-    //        case "cloud":
-    //            list($app, $params) = self::getCloudConfig($info);
-    //            break;
-    //
-    //        default:
-    //            throw new Exception ("Config type [ $type ]; unknown; check env var values.");
-    //    }
-    //
-    //    self::$APP    = $app;
-    //    self::$PARAMS = $params;
-    //
-    //    clog("   APP", self::$APP);
-    //}
-    //
-    //
-    //
-    ///**
-    // * @return array
-    // * @throws Exception
-    // */
-    //private static function loadBootstrapParams ()
-    //{
-    //    //
-    //    // NOTE - Dev (from filesystem + app-from-url)
-    //    //
-    //    $hasLocal = self::hasEnv(self::ENV_PLITE_LOCAL_ROOT_KEY);      // Local + CLI(local)
-    //    $hasRegex = self::hasEnv(self::ENV_PLITE_URL_APP_REGEX_KEY);   // Local
-    //    $hasApp   = self::hasEnv(self::ENV_PLITE_APP_KEY);             // Web (Local or Prod)
-    //    //
-    //    // NOTE - Prod (from class-which-implements-ConfigInterface) + CLI
-    //    //
-    //    $hasConfigClassName =                                               // Prod + CLI(embed)
-    //      self::hasEnv(self::ENV_PLITE_CONFIG_KEY)
-    //      ||
-    //      self::hasEnv(self::ENV_PLITE_CONFIG_CLASS_NAME_KEY);
-    //
-    //    clog([
-    //           "has local (root)"      => $hasLocal,
-    //           "has regex"             => $hasRegex,
-    //           "has app"               => $hasApp,
-    //           "has config class name" => $hasConfigClassName,
-    //         ]);
-    //
-    //    if ( $hasLocal && $hasRegex )
-    //    {
-    //        // Local-Web.
-    //        list($app, $config, $params) = self::getLocalConfig($info);
-    //
-    //    }
-    //    else if ( $hasLocal )
-    //    {
-    //        // Local-CLI.
-    //        list($app, $config, $params) = self::getCloudConfig($info);
-    //    }
-    //    else if ( $hasConfigClassName )
-    //    {
-    //        //
-    //        // Prod-Web / Embed-CLI.
-    //        //
-    //        $configClassName = self::loadEnv(self::ENV_PLITE_CONFIG_KEY);
-    //
-    //        clog("cloud - config", $configClassName);
-    //
-    //        self::$PARAMS = self::loadSubclassConfig($configClassName);
-    //
-    //        if ( !array_key_exists(self::ENV_PLITE_APP_KEY, self::$PARAMS) )
-    //            throw new Exception("Config (cloud) does not have [ " . self::ENV_PLITE_APP_KEY . " ] defined.");
-    //
-    //        self::$APP = self::$PARAMS[self::ENV_PLITE_APP_KEY];
-    //    }
-    //    else
-    //    {
-    //        Log::error("Can't load configuration (missing something).");
-    //        clog([
-    //               "has local (root)"      => $hasLocal,
-    //               "has regex"             => $hasRegex,
-    //               "has app"               => $hasApp,
-    //               "has config class name" => $hasConfigClassName,
-    //             ]);
-    //        throw new Exception("Cannot load config (must be missing env variables for this env).");
-    //    }
-    //
-    //
-    //    if ( $hasLocal )
-    //    {
-    //        $local = self::loadEnv(self::ENV_PLITE_LOCAL_ROOT_KEY);
-    //
-    //        if ( $hasRegex )
-    //        {
-    //            $regex = self::loadEnv(self::ENV_PLITE_URL_APP_REGEX_KEY);
-    //
-    //            clog("SOURCE", yel("----====> LOCAL + Web <====----"));
-    //
-    //            return [
-    //              "isValid" => true,
-    //              "type"    => "local",
-    //              "local"   => $local,
-    //              "regex"   => $regex,
-    //            ];
-    //        }
-    //        else
-    //        {
-    //            if ( $hasApp )
-    //            {
-    //                if ( !isCLI() )
-    //                {
-    //                    return [
-    //                      "isValid" => false,
-    //                      "isCLI"   => false,
-    //                    ];
-    //                }
-    //                else
-    //                {
-    //                    $app = self::loadEnv(self::ENV_PLITE_APP_KEY);
-    //
-    //                    // Suspect this is local+CLI.
-    //                    return [
-    //                      "isValid" => true,
-    //                      "type"    => "local",
-    //                      "local"   => $local,
-    //                      "app"     => $app,
-    //                    ];
-    //                }
-    //            }
-    //            else
-    //            {
-    //                return [
-    //                  "isValid" => false,
-    //                  "missing" => self::ENV_PLITE_URL_APP_REGEX_KEY,
-    //                ];
-    //            }
-    //        }
-    //    }
-    //    else if ( $hasConfigClassName )
-    //    {
-    //        $configClassName = self::loadEnv(self::ENV_PLITE_CONFIG_KEY);
-    //
-    //        clog("SOURCE", cyn("----====> cloud / CLI(embed) <====----"));
-    //
-    //        return [
-    //          "isValid" => true,
-    //          "type"    => "cloud",
-    //          "config"  => $configClassName,
-    //        ];
-    //    }
-    //    else
-    //    {
-    //        return [
-    //          "isValid" => false,
-    //        ];
-    //    }
-    //}
-    
     
     
     /**
@@ -453,7 +267,6 @@ abstract class Config
      * @return boolean - Does environment variable exist?
      */
     private static function hasEnv ( $key ) { return array_key_exists($key, $_SERVER); }
-    
     
     
     /**
@@ -476,45 +289,6 @@ abstract class Config
         
         return $val;
     }
-    
-    
-    
-    
-    ///**
-    // * @param array $info
-    // *
-    // * @return array
-    // * @throws Exception
-    // */
-    //private static function getLocalConfig ( $info )
-    //{
-    //    $isLocal   = true;
-    //    $localRoot = $info["local"];
-    //
-    //    // This is broken when we're running a CLI harness (e.g., for testing).
-    //    if ( array_key_exists("app", $info) )
-    //    {
-    //        $app = $info["app"];
-    //    }
-    //    else
-    //    {
-    //        $urlAppRegex = $info["regex"];
-    //        $app         = self::getAppFromUrlRegex($urlAppRegex);
-    //    }
-    //
-    //    clog("local -    app", $app);
-    //
-    //    $params = self::loadFileConfig($app, $localRoot);
-    //
-    //    if ( !array_key_exists(self::ENV_PLITE_CONFIG_KEY, $params) )
-    //        throw new Exception("Config (cloud) does not have [ " . self::ENV_PLITE_CONFIG_KEY . " ] defined.");
-    //
-    //    $config = $params[self::ENV_PLITE_CONFIG_KEY];
-    //    clog("local - config", $config);
-    //
-    //    return [$app, $config, $params];
-    //}
-    
     
     
     /**
@@ -545,7 +319,6 @@ abstract class Config
     }
     
     
-    
     /**
      * @throws Exception
      */
@@ -564,7 +337,6 @@ abstract class Config
         
         return $app;
     }
-    
     
     
     private static function loadConfigFile ( $file )
@@ -595,31 +367,6 @@ abstract class Config
     }
     
     
-    
-    ///**
-    // * @param array $info
-    // *
-    // * @return array
-    // * @throws Exception
-    // */
-    //private static function getCloudConfig ( $info )
-    //{
-    //    $configClassName = $info['config'];
-    //
-    //    $params = self::loadSubclassConfig($configClassName);
-    //
-    //    if ( !array_key_exists(self::ENV_PLITE_APP_KEY, $params) )
-    //        throw new Exception("Config (cloud) does not have [ " . self::ENV_PLITE_APP_KEY . " ] defined.");
-    //
-    //    $app = $params[self::ENV_PLITE_APP_KEY];
-    //    clog("cloud - config", $configClassName);
-    //    clog("cloud -    app", $app);
-    //
-    //    return [$app, $configClassName, $params];
-    //}
-    
-    
-    
     /**
      * @param string $configClassName
      *
@@ -630,25 +377,14 @@ abstract class Config
     {
         if ( self::DEBUG_ENV ) clog("Loading INLINE config", $configClassName);
         
-        /** @var ConfigInterface $config */
+        /** @var SubclassConfig $config */
         $config = self::loadClass($configClassName);
         
-        if ( !$config instanceof ConfigInterface )
+        if ( !$config instanceof SubclassConfig )
             throw new Exception("Specified class does not implement ConfigInterface.");
         
         return $config->getConfig();
     }
-    
-    
-    
-    ///**
-    // * @throws Exception
-    // */
-    //private static function throwNotInit ()
-    //{
-    //    throw new Exception("Config not initialized; try Config::init().");
-    //}
-    
     
     
     ////////////////////////////////////////////////////////////////
@@ -660,111 +396,65 @@ abstract class Config
     ////////////////////////////////////////////////////////////////
     
     
-    
     /**
      * @param bool $mesg
      *
      * @throws Exception
      */
-    public static function dump ( $mesg = false )
-    {
-        if ( false === self::$PARAMS ) Config::init();
-        if ( false === $mesg ) $mesg = "Config.dump()";
-        clog($mesg, self::$PARAMS);
-    }
-    /**
-     * @param $key
-     *
-     * @return bool
-     * @throws Exception
-     */
-    public static function has ( $key )
-    {
-        if ( false === self::$PARAMS ) Config::init();
-        return array_key_exists($key, self::$PARAMS);
-    }
-    /**
-     * @param $key
-     *
-     * @return bool
-     * @throws Exception
-     */
-    public static function no ( $key )
-    {
-        if ( false === self::$PARAMS ) Config::init();
-        return self::has($key);
-    }
-    /**
-     * @param $key
-     *
-     * @return mixed|null
-     * @throws Exception
-     */
-    public static function get ( $key )
-    {
-        if ( false === self::$PARAMS ) Config::init();
-        return array_key_exists($key, self::$PARAMS) ? self::$PARAMS[$key] : null;
-    }
-    /**
-     * @param $key
-     * @param $targetValue
-     *
-     * @return bool
-     * @throws Exception
-     */
-    public static function matches ( $key, $targetValue )
-    {
-        if ( false === self::$PARAMS ) Config::init();
-        return self::has($key) ? $targetValue === self::get($key) : false;
-    }
+    public static function dump ( $mesg = false ) { return self::load()->dump($mesg); }
+    public static function has ( $key ) { return self::load()->has($key); }
+    public static function no ( $key ) { return self::load()->no($key); }
+    public static function get ( $key ) { return self::load()->get($key); }
+    public static function getWithPrefix ( $prefix ) { return self::load()->getWithPrefix($prefix); }
+    public static function matches ( $key, $targetValue ) { return self::load()->matches($key, $targetValue); }
+    
+    
     /**
      * @return array|bool
      * @throws Exception
      */
-    final protected static function getMap ()
-    {
-        if ( false === self::$PARAMS ) Config::init();
-        return self::$PARAMS;
-    }
-    /**
-     * @return mixed|null
-     * @throws Exception
-     */
     public static function getAppName ()
     {
-        if ( false === self::$PARAMS ) Config::init();
+        self::load();
         return self::$APP;
     }
     
     
-    
     /**
-     * @param $providerType
+     * Crazy function with side-effect of throwing exception if
+     * the found-type (in config) doesn't match the expected type (in code).
      *
-     * @return mixed|null
+     * @param $name
+     * @param $expectedType
+     *
+     * @return string
      * @throws Exception
      */
-    public static function getProviderSource ( $providerType )
+    public static function verifyProviderAndGetSource ( $name, $expectedType )
     {
-        if ( false === self::$PARAMS ) Config::init();
+        $params = Config::load();
         
-        $provKey = $providerType . "_provider";
-        $source  = self::get($provKey);
+        if ( $params->no($name) )
+        {
+            throw new Exception("No provider entry [$name] exists; check config.");
+        }
         
-        return $source;
+        $type = $params->get($name);
+        $et   = strtolower($expectedType);
+        $t    = strtolower($type);
+        
+        $isok = $et == $t;
+        
+        if ( !$isok )
+        {
+            throw new Exception("Provider entry [$name] has [" . $t . "], not '" . $et . "'; check config.");
+        }
+        
+        $sourceKey = "{$name}_provider";
+        $map       = $params->get($sourceKey);
+        
+        return $map;
     }
-
-
-
-//    private function isUsingProviderSource ( $providerType, $source )
-//    {
-//        $key = $providerType . "_provider";
-//        return $this->matches($key, $source);
-//    }
-//    private function isUsingLocalProvider ( $provider ) { return $this->isUsingProviderSource($provider, self::PROVIDER_LOCAL); }
-//    private function isUsingCloudProvider ( $provider ) { return $this->isUsingProviderSource($provider, self::PROVIDER_CLOUD); }
-//    private function isUsingProxyProvider ( $provider ) { return $this->isUsingProviderSource($provider, self::PROVIDER_PROXY); }
-    
     
     
     /**
@@ -782,22 +472,22 @@ abstract class Config
      */
     final public static function getCredsAWS ()
     {
-        if ( false === self::$PARAMS ) Config::init();
+        $map = Config::load();
         
         $creds = [
-          'region'  => self::getAWSRegion(),
-          'version' => self::getAWSVersion(),
+          'region'  => self::getAWSRegion($map),
+          'version' => self::getAWSVersion($map),
         ];
         
-        $hasAccess = self::has(self::AWS_ACCESS_ARRAY_KEY);
-        $hasSecret = self::has(self::AWS_SECRET_ARRAY_KEY);
+        $hasAccess = $map->has(self::AWS_ACCESS_ARRAY_KEY);
+        $hasSecret = $map->has(self::AWS_SECRET_ARRAY_KEY);
         
         $hasAwsCreds = $hasAccess && $hasSecret;
         
         if ( $hasAwsCreds )
         {
-            $access = self::get(self::AWS_ACCESS_ARRAY_KEY);
-            $secret = self::get(self::AWS_SECRET_ARRAY_KEY);
+            $access = $map->get(self::AWS_ACCESS_ARRAY_KEY);
+            $secret = $map->get(self::AWS_SECRET_ARRAY_KEY);
             
             if ( self::DEBUG_AWS_CREDS ) clog(self::AWS_ACCESS_ARRAY_KEY, $access);
             
@@ -824,6 +514,10 @@ abstract class Config
                 ];
             }
         }
+        else
+        {
+            clog(red("Cannot get AWS creds; is config loading properly?"));
+        }
         
         if ( self::DEBUG_CREDS_DANGEROUS ) clog("getCredsAWS() - creds", $creds);
         
@@ -836,10 +530,10 @@ abstract class Config
      * @return mixed|null
      * @throws Exception
      */
-    private static function getAWSRegion () { return self::get(self::AWS_REGION_ARRAY_KEY); }
+    private static function getAWSRegion ( $map ) { return $map->get(self::AWS_REGION_ARRAY_KEY); }
     /**
      * @return mixed|null
      * @throws Exception
      */
-    private static function getAWSVersion () { return self::get(self::AWS_VERSION_ARRAY_KEY); }
+    private static function getAWSVersion ( $map ) { return $map->get(self::AWS_VERSION_ARRAY_KEY); }
 }

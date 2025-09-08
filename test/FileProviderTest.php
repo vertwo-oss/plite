@@ -1,6 +1,6 @@
 <?php
-/**
- * Copyright (c) 2012-2022 Troy Wu
+/*
+ * Copyright (c) 2012-2025 Troy Wu
  * Copyright (c) 2021-2022 Version2 OÜ
  * All rights reserved.
  *
@@ -20,25 +20,23 @@
 
 
 use PHPUnit\Framework\TestCase;
-use vertwo\plite\ConfigInterface;
+use vertwo\plite\Config;
+use vertwo\plite\Provider\FileProvider;
+use vertwo\plite\SubclassConfig;
 use vertwo\plite\Provider\FileProviderFactory;
 
 
 
-class TestConfig implements ConfigInterface
+class TestConfig implements SubclassConfig
 {
     function getConfig ()
     {
         return [
-          "plite_app" => "plite",
+          Config::ENV_PLITE_APP_KEY        => "plite",
+          Config::ENV_PLITE_LOCAL_ROOT_KEY => "/Users/srv",
           
-          //"aws_region"  => "us-east-2",
-          //"aws_version" => "latest",
-          
-          "file_provider_local_root_prefix" => "/Users/srv/",
-          "file_provider_local_root_suffix" => "/data",
-          
-          "file_provider" => "local",
+          "xyz"          => "file",
+          "xyz_provider" => "local",
         ];
     }
 }
@@ -53,11 +51,13 @@ class FileProviderTest extends TestCase
     {
         print_r($_SERVER);
         
-        $fileProv = FileProviderFactory::getProvider();
+        /** @var FileProvider $fp */
+        $fp = FileProviderFactory::getProvider("xyz");
         
-        $fileProv->init(["bucket" => "test-bucket"]);
-        $entries = $fileProv->ls();
-        $dirs    = $fileProv->lsDirs();
+        $fp->init(["bucket" => "test-bucket"]);
+        
+        $entries = $fp->ls();
+        $dirs    = $fp->lsDirs();
         
         print_r($entries);
         

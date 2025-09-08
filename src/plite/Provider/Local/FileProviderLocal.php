@@ -1,6 +1,6 @@
 <?php
-/**
- * Copyright (c) 2012-2022 Troy Wu
+/*
+ * Copyright (c) 2012-2025 Troy Wu
  * Copyright (c) 2021-2022 Version2 OÜ
  * All rights reserved.
  *
@@ -26,7 +26,6 @@ namespace vertwo\plite\Provider\Local;
 use Exception;
 use vertwo\plite\Log;
 use vertwo\plite\Provider\Base\FileProviderBase;
-use vertwo\plite\Provider\FileProvider;
 use vertwo\plite\Provider\FileProviderFactory;
 
 
@@ -34,14 +33,14 @@ use vertwo\plite\Provider\FileProviderFactory;
 class FileProviderLocal extends FileProviderBase
 {
     const DEBUG_INIT = true;
-
-
-
-    private $parent = false;
-    private $dir    = false;
-
-
-
+    
+    
+    
+    private $root = false;
+    private $dir  = false;
+    
+    
+    
     /**
      * FileProviderLocal constructor.
      *
@@ -53,17 +52,19 @@ class FileProviderLocal extends FileProviderBase
      */
     function __construct ( $params )
     {
-        if ( !array_key_exists(FileProvider::LOCAL_ROOT_KEY, $params) )
+        if ( !array_key_exists("root", $params) )
         {
-            throw new Exception("Does not have [ " . FileProvider::LOCAL_ROOT_KEY . " ] in config");
+            throw new Exception("Does not have [root]; check config");
         }
-
-        $this->parent = $params[FileProvider::LOCAL_ROOT_KEY];
+        
+        $this->root = $params["root"];
     }
-
-
-
+    
+    
+    
     /**
+     * Expects at least [ "bucket" => "bucket_name" ].
+     *
      * @param $params array|bool
      *
      * @throws Exception
@@ -71,49 +72,49 @@ class FileProviderLocal extends FileProviderBase
     public function init ( $params = false )
     {
         if ( self::DEBUG_INIT ) clog("FP.init() params", $params);
-
+        
         if ( false !== $params )
         {
             if ( array_key_exists("bucket", $params) )
             {
                 $bucket    = $params['bucket'];
-                $this->dir = $this->parent . DIRECTORY_SEPARATOR . $bucket;
+                $this->dir = $this->root . DIRECTORY_SEPARATOR . $bucket;
             }
         }
-
+        
         if ( false === $this->dir )
         {
             Log::error("No directory specified; aborting.");
             throw new Exception("No directory specified for local FileProvider.");
         }
-
+        
         if ( !file_exists($this->dir) )
         {
             Log::error("[ " . $this->dir . " ] does not exist; aborting.");
             throw new Exception("Specified path does not exist (local).");
         }
-
+        
         if ( !is_dir($this->dir) )
         {
             Log::error("[ " . $this->dir . " ] is not a directory; aborting.");
             throw new Exception("Specified path is not a directory (local).");
         }
-
+        
         if ( !is_readable($this->dir) )
         {
             clog(yel("[ " . $this->dir . " ] is NOT readable."));
         }
-
+        
         if ( !is_writeable($this->dir) )
         {
             clog(yel("[ " . $this->dir . " ] is NOT writeable."));
         }
-
+        
         if ( self::DEBUG_INIT ) clog("FP.init()", "FileProvider (local - {$this->dir}) successfully init'ed.");
     }
-
-
-
+    
+    
+    
     /**
      * @param bool|array $params
      *
@@ -122,34 +123,34 @@ class FileProviderLocal extends FileProviderBase
     public function ls ( $params = false )
     {
         $prefix = (false !== $params && array_key_exists('prefix', $params)) ? $params['prefix'] : "";
-
+        
         //
         // NOTE - ...otherwise, look locally.
         //
         $pattern = $this->getLocalPathFromKey($prefix . "*");
         $list    = glob($pattern);
-
+        
         if ( self::DEBUB_FILES_VERBOSE ) clog("pattern", $pattern);
         if ( self::DEBUB_FILES_VERBOSE ) clog("glob list", $list);
-
+        
         $files = [];
-
+        
         foreach ( $list as $entry )
         {
             $file = basename($entry);
-
+            
             // if ( $this->doesNameConform($file) ) $files[] = $file;
-
+            
             $files[] = $file;
         }
-
+        
         if ( self::DEBUG_FILES ) clog("files", $files);
-
+        
         return $files;
     }
-
-
-
+    
+    
+    
     /**
      * @param bool|array $params
      *
@@ -158,7 +159,7 @@ class FileProviderLocal extends FileProviderBase
     public function lsDirs ( $params = false )
     {
         $prefix = (false !== $params && array_key_exists('prefix', $params)) ? $params['prefix'] : "";
-
+        
         $dirs    = [];
         $entries = $this->ls($params);
         foreach ( $entries as $entry )
@@ -168,9 +169,9 @@ class FileProviderLocal extends FileProviderBase
         }
         return $dirs;
     }
-
-
-
+    
+    
+    
     /**
      * @param bool|array $params
      *
@@ -179,7 +180,7 @@ class FileProviderLocal extends FileProviderBase
     public function lsFiles ( $params = false )
     {
         $prefix = (false !== $params || array_key_exists('prefix', $params)) ? $params['prefix'] : "";
-
+        
         $files   = [];
         $entries = $this->ls($params);
         foreach ( $entries as $entry )
@@ -189,9 +190,9 @@ class FileProviderLocal extends FileProviderBase
         }
         return $files;
     }
-
-
-
+    
+    
+    
     /**
      * @param      $path
      * @param      $data
@@ -204,7 +205,7 @@ class FileProviderLocal extends FileProviderBase
     public function write ( $path, $data, $meta = false )
     {
         $wholePath = $this->getLocalPathFromKey($path);
-
+        
         $wholeDir = dirname($wholePath);
         if ( file_exists($wholeDir) )
         {
@@ -218,18 +219,18 @@ class FileProviderLocal extends FileProviderBase
             $umask = umask(0);
             $isok  = mkdir($wholeDir, 0770, true);
             umask($umask);
-
+            
             if ( false === $isok )
                 throw new Exception("Could not create path component ($wholeDir)");
         }
-
+        
         $isok = file_put_contents($wholePath, $data);
-
+        
         return $isok;
     }
-
-
-
+    
+    
+    
     /**
      * @param $path
      *
@@ -240,20 +241,20 @@ class FileProviderLocal extends FileProviderBase
     public function read ( $path )
     {
         $wholePath = $this->getLocalPathFromKey($path);
-
+        
         if ( self::DEBUG_FILES ) clog("FP.read()", $wholePath);
-
+        
         if ( !file_exists($wholePath) ) throw new Exception("File does not exist (path [$wholePath] ok?).");
-
+        
         $data = file_get_contents($wholePath);
-
+        
         if ( false === $data ) throw new Exception("Could not read file (perms?).");
-
+        
         return $data;
     }
-
-
-
+    
+    
+    
     private function getLocalPathFromKey ( $filename )
     {
         return $this->dir . DIRECTORY_SEPARATOR . $filename;

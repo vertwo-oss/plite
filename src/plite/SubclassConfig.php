@@ -23,7 +23,7 @@ namespace vertwo\plite;
 
 
 
-interface ConfigInterface
+interface SubclassConfig
 {
     /**
      * @return mixed - Assoc array of config (key => value) pairs.

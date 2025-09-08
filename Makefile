@@ -8,7 +8,7 @@ PU			:=	vendor/bin/phpunit
 #
 # Uncomment this to test a ==CLOUD web== or a ==CLI(test)== config.
 #
-PLITE_ENV		:=	plite_app=plite plite_config=TestConfig
+PLITE_ENV		:=	_plite_app=plite _plite_config=TestConfig
 
 #
 # Uncomment this to test a --LOCAL web-- config.

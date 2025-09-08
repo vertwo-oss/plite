@@ -1,6 +1,6 @@
 <?php
-/**
- * Copyright (c) 2012-2022 Troy Wu
+/*
+ * Copyright (c) 2012-2025 Troy Wu
  * Copyright (c) 2021-2022 Version2 OÜ
  * All rights reserved.
  *
@@ -26,14 +26,7 @@ namespace vertwo\plite\Provider;
 interface ProviderFactory
 {
     /**
-     * @return string
-     */
-    static function getProviderType ();
-
-
-
-    /**
      * @return mixed
      */
-    static function getProvider ();
+    static function getProvider ( $name );
 }
