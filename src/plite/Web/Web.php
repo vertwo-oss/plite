@@ -29,7 +29,7 @@ use vertwo\plite\Util\PrecTime;
 
 
 
-class Ajax
+class Web
 {
     const DEBUG_POST      = false;
     const DEBUG_GET       = false;
@@ -207,7 +207,7 @@ class Ajax
      *
      * @param $mesg - Message to output & deliver.
      *
-     * @return Ajax - For chaining.
+     * @return Web - For chaining.
      */
     public function fail ( $mesg )
     {
@@ -775,7 +775,7 @@ class Ajax
      *
      * @param string $mesg - Optional message
      *
-     * @return Ajax - For chaining.
+     * @return Web - For chaining.
      */
     public function win ( $mesg = null )
     {

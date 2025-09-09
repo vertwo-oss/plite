@@ -29,7 +29,7 @@
 
 
 
-use vertwo\plite\Web\PliteWebConfig;
+use vertwo\plite\Web\WebConfig;
 
 
 
@@ -39,7 +39,7 @@ require_once(__DIR__ . "/../../vendor/autoload.php"); // FIXME
 
 try
 {
-    PliteWebConfig::init();
+    WebConfig::init();
 }
 catch ( Exception $e )
 {
@@ -50,11 +50,11 @@ catch ( Exception $e )
 ?>
 <html lang="en">
 <head>
-    <title><?php echo PliteWebConfig::get("title"); ?></title>
+    <title><?php echo WebConfig::get("title"); ?></title>
     <link href="res/vertwo-plite-dz.css" rel="stylesheet"/>
     <style>
         html {
-            background: <?php echo PliteWebConfig::get("bg"); ?> no-repeat center center;
+            background: <?php echo WebConfig::get("bg"); ?> no-repeat center center;
             background-size: cover;
             height: 100%;
         }
@@ -88,7 +88,7 @@ catch ( Exception $e )
             width: calc(100% - 32px);
             border-radius: 8px;
             background-color: rgba(128, 128, 128, 0);
-            padding: <?php echo PliteWebConfig::get("top_pad"); ?> 32px 32px 32px;
+            padding: <?php echo WebConfig::get("top_pad"); ?> 32px 32px 32px;
         }
 
         #dnd-box > img:first-child {
@@ -248,7 +248,7 @@ catch ( Exception $e )
 </head>
 <body>
 <div id="dnd-box">
-    <?php echo PliteWebConfig::get("logo"); ?>
+    <?php echo WebConfig::get("logo"); ?>
     <h1>Drag-and-Drop</h1>
 
     <div id="dnd">
@@ -256,7 +256,7 @@ catch ( Exception $e )
 </div>
 
 <div id="solid_footer">
-    <?php printf("%s\n", PliteWebConfig::getSolidFooterContents()); ?>
+    <?php printf("%s\n", WebConfig::getSolidFooterContents()); ?>
 </div>
 </body>
 <!-- Zepto -->

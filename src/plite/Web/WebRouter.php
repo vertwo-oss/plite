@@ -45,7 +45,7 @@ use vertwo\plite\Log;
  *
  * @package vertwo\plite\Web
  */
-abstract class PliteRouter extends Ajax
+abstract class WebRouter extends Web
 {
     const DEBUG = false;
 
@@ -68,7 +68,7 @@ abstract class PliteRouter extends Ajax
      * Then, uses that value to instantiate the relevant
      * Router subclass.
      *
-     * @return Ajax
+     * @return Web
      * @throws Exception
      */
     public static function newInstance ()
@@ -76,7 +76,7 @@ abstract class PliteRouter extends Ajax
         $routerClass = Config::get("plite_router");
         $router      = Config::loadClass($routerClass);
 
-        if ( !$router instanceof PliteRouter )
+        if ( !$router instanceof WebRouter )
             throw new Exception("Specified class [ " . $routerClass . " ] does not implement PliteRouter.");
 
         return $router;

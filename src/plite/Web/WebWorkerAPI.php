@@ -29,7 +29,7 @@ use function vertwo\plite\redlog;
 
 
 
-abstract class AjaxWorkerAPI extends AjaxAPI
+abstract class WebWorkerAPI extends WebAPI
 {
     /**
      * Gets the valid endpoints.

@@ -377,10 +377,10 @@ class Config
     {
         if ( self::DEBUG_ENV ) clog("Loading INLINE config", $configClassName);
         
-        /** @var SubclassConfig $config */
+        /** @var ConfigClass $config */
         $config = self::loadClass($configClassName);
         
-        if ( !$config instanceof SubclassConfig )
+        if ( !$config instanceof ConfigClass )
             throw new Exception("Specified class does not implement ConfigInterface.");
         
         return $config->getConfig();

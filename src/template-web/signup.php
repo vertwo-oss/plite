@@ -28,7 +28,7 @@
 
 
 
-use vertwo\plite\Web\PliteWebConfig;
+use vertwo\plite\Web\WebConfig;
 
 
 
@@ -38,7 +38,7 @@ require_once(__DIR__ . "/../../vendor/autoload.php"); // FIXME
 
 try
 {
-    PliteWebConfig::init();
+    WebConfig::init();
 }
 catch ( Exception $e )
 {
@@ -51,7 +51,7 @@ catch ( Exception $e )
 <head>
     <style>
         html {
-            background: <?php echo PliteWebConfig::get("bg"); ?> no-repeat center center;
+            background: <?php echo WebConfig::get("bg"); ?> no-repeat center center;
             background-size: cover;
             height: 100%;
         }
@@ -87,13 +87,13 @@ catch ( Exception $e )
             margin: 0 auto;
             border-radius: 8px;
             background-color: rgba(128, 128, 128, 0);
-            padding: <?php echo PliteWebConfig::get("top_pad"); ?> 32px 32px 32px;
+            padding: <?php echo WebConfig::get("top_pad"); ?> 32px 32px 32px;
         }
 
         #signup_form > div:first-child > img:first-child {
         <?php
-        if ( PliteWebConfig::has("logo_width") ) {
-            $w =  PliteWebConfig::get("logo_width");
+        if ( WebConfig::has("logo_width") ) {
+            $w =  WebConfig::get("logo_width");
             echo <<<EOF
             width: $w;
 EOF;
@@ -255,7 +255,7 @@ EOF;
             }
         }
     </style>
-    <title><?php echo PliteWebConfig::get("title"); ?></title>
+    <title><?php echo WebConfig::get("title"); ?></title>
     <script src="js/lib/zepto.min.js"></script>
     <script src="js/vertwo.js"></script>
 </head>
@@ -264,8 +264,8 @@ EOF;
 <body>
 <form id="signup_form">
     <div id="signup_form_inner">
-        <?php echo PliteWebConfig::get("logo"); ?>
-        <h1>Register for <b><?php echo PliteWebConfig::get("appname"); ?></b></h1>
+        <?php echo WebConfig::get("logo"); ?>
+        <h1>Register for <b><?php echo WebConfig::get("appname"); ?></b></h1>
         <div>
             <label>
                 <img src="res/account.png" alt="log"/>
@@ -308,7 +308,7 @@ EOF;
 </form>
 
 <div id="solid_footer">
-    <?php printf("%s\n", PliteWebConfig::getSolidFooterContents()); ?>
+    <?php printf("%s\n", WebConfig::getSolidFooterContents()); ?>
 </div>
 </body>
 <script>

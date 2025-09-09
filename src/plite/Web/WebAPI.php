@@ -32,7 +32,7 @@ use function vertwo\plite\grnlog;
 
 
 
-abstract class AjaxAPI extends Ajax
+abstract class WebAPI extends Web
 {
     const DEBUG_METHOD = false;
     const DEBUG_API    = true;
@@ -186,7 +186,7 @@ abstract class AjaxAPI extends Ajax
 
 
     /**
-     * @return Ajax
+     * @return Web
      */
     private function callEndpointMethod ( $actualMethod )
     {

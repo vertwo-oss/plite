@@ -22,12 +22,12 @@
 use PHPUnit\Framework\TestCase;
 use vertwo\plite\Config;
 use vertwo\plite\Provider\FileProvider;
-use vertwo\plite\SubclassConfig;
+use vertwo\plite\ConfigClass;
 use vertwo\plite\Provider\FileProviderFactory;
 
 
 
-class TestConfig implements SubclassConfig
+class TestConfigClass implements ConfigClass
 {
     function getConfig ()
     {

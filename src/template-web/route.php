@@ -20,7 +20,7 @@
 
 
 use vertwo\plite\Config;
-use vertwo\plite\Web\PliteRouter;
+use vertwo\plite\Web\WebRouter;
 use vertwo\plite\Web\WebLog;
 
 
@@ -45,7 +45,7 @@ if ( DEBUG_ROUTE_START ) clog(cyn("--------========[ ROUTING starting ]========-
 try
 {
     Config::init();
-    $router = PliteRouter::newInstance();
+    $router = WebRouter::newInstance();
 }
 catch ( Exception $e )
 {

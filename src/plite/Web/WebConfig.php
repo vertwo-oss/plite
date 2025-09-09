@@ -29,7 +29,7 @@ use vertwo\plite\FJ;
 
 
 
-class PliteWebConfig
+class WebConfig
 {
     const DEBUG_INIT = true;
     
@@ -55,11 +55,11 @@ class PliteWebConfig
      * @return void
      * @throws Exception
      */
-    public static function init ()
+    public static function load ()
     {
         try
         {
-            Config::init(); // This isn't strictly necessary, but is hygienic.
+            Config::load(); // This isn't strictly necessary, but is hygienic.
             
             foreach ( array_keys(self::$map) as $key )
             {

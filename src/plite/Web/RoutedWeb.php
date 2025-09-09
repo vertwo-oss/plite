@@ -29,7 +29,7 @@ use function vertwo\plite\clog;
 
 
 
-abstract class RoutedAjax extends Ajax
+abstract class RoutedWeb extends Web
 {
     private $whole;
     private $page;
