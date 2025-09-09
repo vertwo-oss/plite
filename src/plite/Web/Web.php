@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2012-2021 Troy Wu
+ * Copyright (c) 2012-2025 Troy Wu
  * Copyright (c) 2021      Version2 OÜ
  * All rights reserved.
  *
@@ -74,14 +74,7 @@ class Web
         
         if ( self::DEBUG_NUKE ) clog("nukeSession - POST - COOKIES", $_COOKIE);
     }
-    
-    
-    
-    function nuke ()
-    {
-        self::nukeSession();
-    }
-    
+    function nuke () { self::nukeSession(); }
     
     
     public static function isElasticBeanstalkWorkerEnv ()
@@ -104,7 +97,6 @@ class Web
     }
     
     
-    
     protected $hasFiles  = false;
     protected $post      = [];
     protected $get       = [];
@@ -122,31 +114,43 @@ class Web
     protected $isElasticBeanstalkWorkerEnv = false;
     
     
-    
     /**
      * ################################################################
      * ################################################################
      *
-     * Create a Ajax object!
+     * NOTE - This is the --==> ENTRY POINT <==-- for the web stuff.
+     *
+     * Analogous to how CLI is the entry point for command-line stuff,
+     * while also providing utility functions and capturing some very
+     * basic state (like the command line arguments).
+     *
+     * Except here we have an object
      *
      * ################################################################
      * ################################################################
+     *
+     *
+     * @param $apiName
+     * @param $jsonInput
+     *
+     * @throws \Exception
      */
     public function __construct ( $apiName = null, $jsonInput = null )
     {
+        WebConfig::load();
+        
         $this->now = $_SERVER['REQUEST_TIME'];
         $this->at  = new PrecTime();
         
-        if ( self::DEBUG_TIMESTAMP )
-        {
-            clog("Ajax.ctor() -                       at", $this->at);
-            clog("Ajax.ctor() -        at.getWholeMicros", $this->at->getWholeMicros());
-            clog("Ajax.ctor() -        at.getWholeMillis", $this->at->getWholeMillis());
-            clog("Ajax.ctor() -   at.getFractionalMillis", $this->at->getFractionalMillis());
-            clog("Ajax.ctor() -       at.getWholeSeconds", $this->at->getWholeSeconds());
-            clog("Ajax.ctor() - now: server-request-time", $this->now);
-            clog("Ajax.ctor() -  at.getFractionalSeconds", $this->at->getFractionalSeconds());
-        }
+        if ( self::DEBUG_TIMESTAMP ) clog("Web.ctor()", [
+          "at"                       => $this->at,
+          "at.getWholeMicros"        => $this->at->getWholeMicros(),
+          "at.getWholeMillis"        => $this->at->getWholeMillis(),
+          "at.getFractionalMillis"   => $this->at->getFractionalMillis(),
+          "at.getWholeSeconds"       => $this->at->getWholeSeconds(),
+          "at.getFractionalSeconds"  => $this->at->getFractionalSeconds(),
+          "now: server-request-time" => $this->now,
+        ]);
         
         $this->hasFiles = isset($_FILES) && (0 < count($_FILES));
         
@@ -160,8 +164,8 @@ class Web
             }
         
         
-        if ( self::DEBUG_POST ) clog("Ajax.ctor/_POST", $_POST);
-        if ( self::DEBUG_GET ) clog("Ajax.ctor/_GET", $_GET);
+        if ( self::DEBUG_POST ) clog("Web.ctor/_POST", $_POST);
+        if ( self::DEBUG_GET ) clog("Web.ctor/_GET", $_GET);
         
         if ( isset($_POST) )
             $this->post = FJ::deepCopy($_POST);
@@ -180,8 +184,8 @@ class Web
     {
         $mesg = false === $mesg ? "" : "$mesg ";
         
-        clog($mesg . "[Ajax/POST]", $_POST);
-        clog($mesg . "[Ajax/GET ]", $_GET);
+        clog($mesg . "[Web/POST]", $_POST);
+        clog($mesg . "[Web/GET ]", $_GET);
     }
     
     
@@ -494,7 +498,7 @@ class Web
         
         $json = FJ::jsEncode($resp);
         
-        if ( DEBUG_AJAX_RESPONSE ) clog("Ajax.json/output", $json);
+        if ( DEBUG_AJAX_RESPONSE ) clog("Web.json/output", $json);
         
         return $json;
     }
@@ -637,7 +641,7 @@ class Web
         $val = $this->testGet($key);
         if ( false === $val )
         {
-            clog("AJAX/{$this->apiName} - GET key [ $key ] unspecified; exiting");
+            clog("Web/{$this->apiName} - GET key [ $key ] unspecified; exiting");
             $this->fail("GET key [ $key ] unspecified");
             $this->respond();
         }
@@ -664,7 +668,7 @@ class Web
             
             if ( false === $val )
             {
-                clog("AJAX/{$this->apiName} - POST/GET key [ $key ] unspecified; exiting");
+                clog("Web/{$this->apiName} - POST/GET key [ $key ] unspecified; exiting");
                 $this->fail("POST/GET key [ $key ] unspecified");
                 $this->respond();
             }
@@ -689,7 +693,7 @@ class Web
         $val = $this->testPost($key);
         if ( false === $val )
         {
-            clog("AJAX/{$this->apiName} - POST key [ $key ] unspecified; exiting");
+            clog("Web/{$this->apiName} - POST key [ $key ] unspecified; exiting");
             $this->fail("POST key [ $key ] unspecified");
             $this->respond();
         }
@@ -712,7 +716,7 @@ class Web
         $val = $this->testSession($key);
         if ( false === $val )
         {
-            clog("AJAX/{$this->apiName} - SESSION key [ $key ] unspecified; exiting");
+            clog("Web/{$this->apiName} - SESSION key [ $key ] unspecified; exiting");
             $this->fail("SESSION key [ $key ] unspecified");
             $this->respond();
         }
