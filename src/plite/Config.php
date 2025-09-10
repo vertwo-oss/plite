@@ -307,12 +307,14 @@ class Config
         $configPath = $rootDir . "/config/" . $app . "-config.js";
         $authPath   = $rootDir . "/auth/" . $app . "-auth.js";
         
-        clog("root    dir", $rootDir);
-        clog("config path", $configPath);
-        clog("auth   path", $authPath);
+        clog([
+               "root dir"    => $rootDir,
+               "config path" => $configPath,
+               "auth path"   => $authPath,
+             ]);
         
         $conf   = self::loadConfigFile($configPath);
-        $auth   = self::loadConfigFile($authPath);
+        $auth   = self::loadConfigFile($authPath, false);
         $params = array_merge($conf, $auth);
         
         return $params;
@@ -339,11 +341,18 @@ class Config
     }
     
     
-    private static function loadConfigFile ( $file )
+    private static function loadConfigFile ( $file, $isRequired = true )
     {
         if ( !file_exists($file) || !is_readable($file) )
         {
-            clog(red("Could not read config file: $file"));
+            if ( $isRequired )
+            {
+                clog(red("Could not read config file: $file"));
+            }
+            else
+            {
+                clog(yel("Could not read config file: $file"));
+            }
             return [];
         }
         

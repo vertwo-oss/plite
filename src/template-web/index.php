@@ -30,7 +30,7 @@ use vertwo\plite\Web\WebConfig;
 
 
 
-require_once(__DIR__ . "/vendor/autoload.php"); // FIXME
+require_once(__DIR__ . "/../../vendor/autoload.php"); // FIXME
 
 
 
@@ -60,121 +60,116 @@ EOF;
 <html lang="en">
 <head>
     <style>
+        @media (prefers-color-scheme: light) {
+            html {
+                /*background: rgba(205, 205, 205, 1); #cdcdcd, original Netscape background */
+                background: #f7f7f7;
+                color: black;
+            }
+
+            header a {
+                color: #aaa;
+            }
+
+            .change_link {
+                color: rgba(0, 0, 0, 0.3);
+            }
+
+            .v2 {
+                color: rgba(255, 0, 0, 0.5);
+            }
+
+            .key_tile {
+                color: darkcyan;
+            }
+
+            .value_tile {
+                color: purple;
+            }
+
+            #solid_footer {
+                background: #f7f7f7;
+                color: rgba(0, 0, 0, .25);
+            }
+
+            table tr td {
+                background: #fff;
+            }
+        }
+
+        @media (prefers-color-scheme: dark) {
+            html {
+                background: #333;
+                color: #777;
+            }
+
+            header a {
+                color: #666;
+            }
+
+            .change_link {
+                color: rgba(255, 255, 255, 0.3);
+            }
+
+            .v2 {
+                color: rgba(255, 64, 64, 0.3);
+            }
+
+            .key_tile {
+                color: cyan;
+            }
+
+            .value_tile {
+                color: yellow;
+            }
+
+
+            #solid_footer {
+                background: #333;
+                color: rgba(255, 255, 255, 0.15);
+            }
+
+            table tr td {
+                background: #444;
+            }
+        }
+
         html {
-            background: <?php echo WebConfig::get("bg"); ?> no-repeat center center;
-            background-size: cover;
-            height: 100%;
+            font-family: "Poppins", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+            font-weight: 300;
+        }
+
+        header {
+            font-family: "Poppins", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+            margin: 1em;
+            font-size: 1.25em;
+        }
+
+        header a {
+            text-decoration: none;
+        }
+
+        #header > .logo span {
+            font-weight: 400;
+            font-size: .8em;
         }
 
         body {
-            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-            font-weight: normal;
-            font-size: 16px;
-            color: #aaa;
+            width: 100%;
         }
 
-        svg {
-            width: 128px;
-            height: 128px;
-            color: white;
-            fill: #ccc;
-        }
-
-        #login_form {
-            padding: 16px;
-            width: 60%;
-            max-width: 600px;
-            position: relative;
-            top: 15%;
-            margin: 0 auto;
-            align-content: center;
-            text-align: center;
-            alignment: center;
-        }
-
-        #login_form div:first-child {
-            width: 70%;
-            margin: 0 auto;
-            border-radius: 8px;
-            background-color: rgba(128, 128, 128, 0);
-            padding: <?php echo WebConfig::get("top_pad"); ?> 32px 32px 32px;
-        }
-
-        #login_form > div:first-child > img:first-child {
-            width: 70%;
-            max-width: 128px;
-            margin: 0 auto;
-            padding: 0;
-        }
-
-        #login_form button {
-            visibility: hidden;
-        }
-
-        #login_form h1 {
-            font-size: 24px;
-            color: #aaa;
-            font-weight: 300;
-            padding: 0 32px;
-        }
-
-        form label img {
-            display: inline;
-            color: #777;
-        }
-
-        #login_form label img {
-            position: absolute;
-            height: 24px;
-            padding-top: 8px;
-            padding-left: 16px;
-            alignment: center;
-            opacity: 0.25;
-        }
-
-        #login_form input {
-            height: 40px;
-            border: 0;
-            padding: 8px 32px 8px 48px;
-            font-size: 24px;
-            font-weight: normal;
-            margin-bottom: 0.5em;
-            color: #aaa;
-            background-color: rgba(255, 255, 255, 0.05);
-            border-radius: 4px;
-            width: 90% !important;
+        body section {
+            width: 90%;
+            margin: 0 auto 3em auto;
+            padding: 1em 0 2em 0;
         }
 
         .separator {
             margin-top: 2em;
         }
 
-        ::placeholder {
-            color: #555;
-            font-size: 24px;
-            font-weight: 300;
-        }
-
-        a:link {
-            color: cyan;
-            background: #333;
-            padding: 8px;
-            border-radius: 4px;
-            text-decoration: none;
-            opacity: 0.25;
-        }
-
-        a:visited {
-            color: royalblue;
-        }
-
-        a:hover {
-            text-decoration: underline;
-            opacity: 0.5;
-        }
-
-        a:active {
-            color: royalblue;
+        .clearfix {
+            clear: both;
         }
 
         #solid_footer {
@@ -183,10 +178,8 @@ EOF;
             height: 48px;
             bottom: 0;
             left: 0;
-            margin: 0;
+            margin: 2em 0 0 0;
             padding: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            color: #aaa;
         }
 
         #solid_footer div:first-child {
@@ -197,7 +190,7 @@ EOF;
             padding: 0 0 0 8px;
             margin: 0 16px;
             text-align: left;
-            opacity: 0.5;
+            /*opacity: 0.5;*/
         }
 
         #solid_footer div:last-child {
@@ -208,65 +201,33 @@ EOF;
             padding: 0 4px 0 0;
             margin: 0 16px;
             text-align: right;
-            opacity: 0.5;
+            /*opacity: 0.5;*/
         }
 
-        .v2 {
-            color: #f77;
+        #plite-dump h2 {
         }
 
-        .hidden {
-            visibility: hidden;
+        #plite-dump-table {
         }
 
-        #response {
-            font-size: 18px;
-            font-style: italic;
-            font-weight: 300;
+        .kv_tile {
+            font-family: "Fira Code", "Monaco", monospace;
         }
 
-        .win-text {
-            color: #4f4;
+        .key_tile {
+            text-align: right;
         }
 
-        .fail-text {
-            color: #f44;
+        .value_tile {
         }
 
-        @-moz-document url-prefix() {
-            /* firefox-only css goes here */
-
-            html {
-                height: 100%;
-            }
-
-
-            #login_form {
-                margin-top: 10% !important;
-            }
+        .value_tile img {
+            max-height: 128px;
         }
 
-
-        table {
-            border-collapse: collapse;
-            border: 1px solid #666;
-        }
-
-        table td {
-            border: 1px solid #666;
-        }
-
-        th, td {
-            padding: 15px;
-        }
-
-        #plite-dump-table td img {
-            width: 64px;
-            height: 64px;
-        }
-
-        .config_warning {
-            color: red;
+        table tr td {
+            padding: 1em 2em;
+            border-radius: 12px;
         }
 
     </style>
@@ -277,39 +238,61 @@ EOF;
     -->
 </head>
 <body>
+<!-- Header -->
+<header id="header" class="alt">
+    <div class="logo"><a href="."><?php echo WebConfig::get("title"); ?></a>
+    </div>
+</header>
 
-<h1>Hello to Plite</h1>
+<section>
+    <h1>Hello to Plite</h1>
 
-<p>
-    Routing is disabled. Do a:
+    <p>
+        Routing is disabled. Do a:
+    </p>
 
-<pre>
+    <pre>
     $ make routed
 </pre>
 
-inside the project root dir to enable.
-</p>
+    <p>
+        inside the project root dir to enable.
+    </p>
 
-<p>
-    If you're not going to enable routing, then get rid of this page!!
-</p>
-
-<?php printf($configWarning); ?>
-
-<table id="plite-dump-table">
-    <?php
-    $map  = WebConfig::getMap();
-    $html = "";
+    <p>
+        If you're not going to enable routing, then get rid of this page!!
+    </p>
     
-    foreach ( $map as $k => $v )
-    {
-        $line = "<tr>  <td>$k</td> <td>$v</td>  </tr>";
-        $html .= "$line\n";
-    }
-    
-    printf("%s", $html);
-    ?>
-</table>
+    <?php echo $configWarning; ?>
+
+    <div id="plite-dump">
+        <h2>Plite Configuration Parameters</h2>
+        <table id="plite-dump-table">
+            <?php
+            $map  = WebConfig::getMap();
+            $html = "";
+            
+            foreach ( $map as $k => $v )
+            {
+                $row  = <<<EOF
+<tr>
+    <td><div class="kv_tile key_tile">$k</div></td>
+    <td><div class="kv_tile value_tile">$v</div></td>
+</tr>
+
+EOF;
+                $html .= "$row\n";
+            }
+            
+            printf("%s", $html);
+            ?>
+        </table>
+    </div>
+</section>
+
+<div class="separator"></div>
+<div class="clearfix"></div>
+
 
 <div id="solid_footer">
     <?php printf("%s\n", WebConfig::getSolidFooterContents()); ?>

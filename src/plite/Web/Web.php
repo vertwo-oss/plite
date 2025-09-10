@@ -34,6 +34,7 @@ class Web
 {
     const DEBUG_POST      = false;
     const DEBUG_GET       = false;
+    const DEBUG_FILES     = true;
     const DEBUG_TIMESTAMP = false;
     
     const DEBUG_NUKE                  = true;
@@ -167,6 +168,7 @@ class Web
         
         if ( self::DEBUG_POST ) clog("Web.ctor/_POST", $_POST);
         if ( self::DEBUG_GET ) clog("Web.ctor/_GET", $_GET);
+        if ( self::DEBUG_FILES ) clog("Web.ctor/_FILES", $_FILES);
         
         if ( isset($_POST) )
             $this->post = FJ::deepCopy($_POST);

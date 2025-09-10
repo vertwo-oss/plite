@@ -29,7 +29,9 @@
 
 
 
+use vertwo\plite\Web\Web;
 use vertwo\plite\Web\WebConfig;
+use function vertwo\plite\clog;
 
 
 
@@ -37,24 +39,137 @@ require_once(__DIR__ . "/../../vendor/autoload.php"); // FIXME
 
 
 
-try
-{
-    WebConfig::load();
-}
-catch ( Exception $e )
-{
-}
+$web = new Web();
 
+//
+// API Call
+//
+if ( $web->hasFiles() )
+{
+    clog(["WTF", "Hello", "World", "Foo", "Bar"]);
+    $web->dump();
+    $files = $web->files();
+    clog("files", $files);
+    exit(0);
+}
+//
+// Just load the regular page.
+//
+else
+{
+    try
+    {
+        WebConfig::load();
+    }
+    catch ( Exception $e )
+    {
+    }
+}
 
 
 ?>
 <html lang="en">
 <head>
     <title><?php echo WebConfig::get("title"); ?></title>
+    <meta name="color-scheme" content="light dark">
     <link href="res/vertwo-plite-dz.css" rel="stylesheet"/>
     <style>
+        @media (prefers-color-scheme: light) {
+            html {
+                /*background: rgba(205, 205, 205, 1); #cdcdcd, original Netscape background */
+                background: #f7f7f7;
+                color: black;
+            }
+
+            header a {
+                color: #aaa;
+            }
+
+            #solid_footer {
+                color: rgba(96, 96, 96, 0.25);
+            }
+
+            .v2 {
+                color: rgba(255, 64, 64, 0.5);
+            }
+
+            #dnd-box > div:first-child {
+                background-color: rgba(128, 128, 128, .5);
+            }
+
+            button,
+            a:link.dnd {
+                color: cyan;
+                background: #fff;
+                border-radius: 4px;
+                text-decoration: none;
+            }
+
+            a:visited.dnd {
+                color: cyan;
+            }
+
+            button:hover,
+            a:hover.dnd {
+                color: cyan;
+                background-color: #111;
+                border: 1px solid cyan;
+                cursor: pointer;
+            }
+
+            a:active {
+                color: darkcyan;
+            }
+        }
+
+        @media (prefers-color-scheme: dark) {
+            html {
+                background: #333;
+                color: #777;
+            }
+
+            header a {
+                color: #666;
+            }
+
+            #solid_footer {
+                color: rgba(96, 96, 96, 0.8);
+            }
+
+            .v2 {
+                color: rgba(255, 64, 64, 0.4);
+            }
+
+            #dnd-box > div:first-child {
+                background-color: rgba(128, 128, 128, 0);
+            }
+
+            button,
+            a:link.dnd {
+                color: darkcyan;
+                background: #333;
+                border-radius: 4px;
+                text-decoration: none;
+            }
+
+            a:visited.dnd {
+                color: darkcyan;
+            }
+
+            button:hover,
+            a:hover.dnd {
+                color: cyan;
+                background-color: #111;
+                border: 1px solid darkcyan;
+                cursor: pointer;
+            }
+
+            a:active {
+                color: darkcyan;
+            }
+        }
+
         html {
-            background: <?php echo WebConfig::get("bg"); ?> no-repeat center center;
             background-size: cover;
             height: 100%;
         }
@@ -63,7 +178,21 @@ catch ( Exception $e )
             font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
             font-weight: normal;
             font-size: 16px;
-            color: #aaa;
+        }
+
+        header {
+            font-family: "Poppins", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+            margin: 1em;
+            font-size: 1.25em;
+        }
+
+        header a {
+            text-decoration: none;
+        }
+
+        #header > .logo span {
+            font-weight: 400;
+            font-size: .8em;
         }
 
         svg {
@@ -87,7 +216,6 @@ catch ( Exception $e )
         #dnd-box > div:first-child {
             width: calc(100% - 32px);
             border-radius: 8px;
-            background-color: rgba(128, 128, 128, 0);
             padding: <?php echo WebConfig::get("top_pad"); ?> 32px 32px 32px;
         }
 
@@ -142,26 +270,26 @@ catch ( Exception $e )
             font-weight: 300;
         }
 
-        button, a {
+        button, a.dnd {
             font-size: 14px;
             padding: 8px 24px;
             border: 1px solid darkcyan;
         }
 
         button,
-        a:link {
+        a:link.dnd {
             color: darkcyan;
             background: #333;
             border-radius: 4px;
             text-decoration: none;
         }
 
-        a:visited {
+        a:visited.dnd {
             color: darkcyan;
         }
 
         button:hover,
-        a:hover {
+        a:hover.dnd {
             color: cyan;
             background-color: #111;
             border: 1px solid darkcyan;
@@ -180,8 +308,6 @@ catch ( Exception $e )
             left: 0;
             margin: 0;
             padding: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            color: #aaa;
         }
 
         #solid_footer div:first-child {
@@ -192,7 +318,6 @@ catch ( Exception $e )
             padding: 0 0 0 8px;
             margin: 0 16px;
             text-align: left;
-            opacity: 0.5;
         }
 
         #solid_footer div:last-child {
@@ -203,11 +328,9 @@ catch ( Exception $e )
             padding: 0 4px 0 0;
             margin: 0 16px;
             text-align: right;
-            opacity: 0.5;
         }
 
         .v2 {
-            color: #f77;
         }
 
         .hidden {
@@ -247,6 +370,12 @@ catch ( Exception $e )
     </style>
 </head>
 <body>
+<!-- Header -->
+<header id="header" class="alt">
+    <div class="logo"><a href="."><?php echo WebConfig::get("title"); ?></a>
+    </div>
+</header>
+
 <div id="dnd-box">
     <?php echo WebConfig::get("logo"); ?>
     <h1>Drag-and-Drop</h1>
@@ -259,16 +388,15 @@ catch ( Exception $e )
     <?php printf("%s\n", WebConfig::getSolidFooterContents()); ?>
 </div>
 </body>
-<!-- Zepto -->
-<script src="js/lib/zepto.min.js"></script>
-<!-- Mustache -->
-<script src="js/lib/mustache.js"></script>
-<!-- Version2 -->
-<script src="js/vertwo.js"></script>
+
+<script src="js/lib/zepto.min.js"></script> <!-- Zepto -->
+<script src="js/lib/mustache.js"></script> <!-- Mustache -->
+<script src="js/vertwo.js"></script> <!-- Version2 -->
 <script>
 
 
     $(document).ready(function () {
+
         console.log("DND Test Starting!");
 
         const $dz = $(document.body);
@@ -301,9 +429,9 @@ catch ( Exception $e )
             console.log(ev);
         };
 
-
         function formDataHandler(fd) {
             clog("Uploading files...");
+            clog(fd);
 
             var xhr = new XMLHttpRequest();
             xhr.upload.addEventListener("loadstart", loadStartHandler, false);
@@ -312,11 +440,10 @@ catch ( Exception $e )
             xhr.addEventListener("error", errorHandler, false);
             xhr.addEventListener("abort", abortHandler, false);
 
-            var url = "upload";
+            var url = "dnd.php";
             xhr.open("POST", url, true);
             xhr.send(fd);
         }
-
 
         var params = {
             "$dz": $dz,
@@ -325,9 +452,13 @@ catch ( Exception $e )
             "dndText": "Drop Here!"
         };
 
+        clog("----");
+        clog("-> drop zone params <-");
+        clog(params);
+        clog("----");
+
         createDropZone(params);
         // createDropZone($dz, $dzInfo, formDataHandler); // MEAT <==
-
 
     });
 
