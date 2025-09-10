@@ -7,8 +7,8 @@ maps. Really simple. It grew into this mini meta-project where I collected
 a bunch of PHP I've built over the years.
 
 Adds some basic libraries for working with console-viewed logging, PHP as a CLI
-tool, handling basic server-side web API requests, a very small Postgres
-abstraction, as well as a small framework for abstracting a few AWS services (
+tool, handling basic backend stuff, a very small Postgres abstraction, as
+well as a small framework for abstracting a few AWS services (
 S3, SecretsManager) and Twilio/Sinch/Plivo. Also comes with tools to
 help with ETL.
 
@@ -239,27 +239,28 @@ usage.
 ### Use Case: Vanilla PHP + some convenience.
 
 In the early days of `plite`, there used to be the case that there was a
-simple class called `Ajax` in `plite` that would help you generate pages by
-just providing some convenience functions in a class.
+simple class called `Web` (which used to be called `Ajax`, pre-autumn 2025)
+in `plite` that would help you generate pages by just providing some
+convenience functions in a class.
 
 In other words, you would use "vanilla" PHP routing; URLs would simply point to
 PHP pages, and "paths" in the URL reflected the layout of files in the
 application directory. This would be affected by things like `DocumentRoot`
 and `VirtualHost`, at least in Apache HTTPD parlance.
 
-Then, you just the `Ajax` class to help you with stuff (like pulling files
+Then, you just use the `Web` class to help you with stuff (like pulling files
 out of POSTs, or seeing request times, etc).
 
 And, you can still use `plite` this way.
 
 ### Use Case: Programmatic Routing.
 
-Sure.  `plite` supports arbitrary, programmatic routing, too. To do that,  
+`plite` also supports arbitrary, programmatic routing, too. To do that,  
 you have to do a bunch of crap:
 
 1. Use something like a `.htaccess` file, to push routing to a custom page.
 2. Use the `route.php` in the `web-template` directory.
-3. Subclass the `PliteRouter` class...
+3. Subclass the `WebRouter` class...
 4. ...but for it to work, you have to control **Environment Variables** on
    the server.
 
@@ -270,11 +271,18 @@ use of Web Server env variables. But, it is what it is right now.)*
 The `.htaccess` file looks like this:
 
 ```apache
-SetEnv plite_local_root /Users/srv/
-SetEnv plite_url_app_regex ,/~dritchie/([[:alnum:]\-\_]*)/,
+SetEnv _plite_local_root /Users/srv/
+SetEnv _plite_url_app_regex ,/~yourlogin/([[:alnum:]\-\_]*)/,
 RewriteEngine on
 RewriteRule ^(.*)$ route.php?url=$1  [L,QSA]
 ```
+
+> NOTE - after Summer 2025, these environment variables have been renamed:
+> 
+> Used to be: `plite_local_root`.
+> Now: `_plite_local_root`.
+> 
+> Note the ***LEADING UNDERSCORE***.
 
 which means that you'll have to open the AllowOverride in your
 local `httpd.conf`.
@@ -284,14 +292,14 @@ And the `route.php` (in the root of the project directory) looks like this:
 ```php
 <?php
 use vertwo\plite\Config;
-use vertwo\plite\Web\PliteRouter;
+use vertwo\plite\Web\WebRouter;
 
 require_once(__DIR__ . "/vendor/autoload.php");
 
 try
 {
     Config::init();
-    $router = PliteRouter::newInstance();
+    $router = WebRouter::newInstance();
 }
 catch ( Exception $e )
 {
@@ -302,7 +310,7 @@ $router->abortIfNotRouted("logout");
 $router->main();
 ```
 
-And the final piece is the monstrosity of subclassing `PliteRouter`.  
+And the final piece is the monstrosity of subclassing `WebRouter`.  
 There's only one main method to implement, which is `handleRequest()`, and
 there is an "identifier" method called `getCustomLoggingPrefix()`, which
 is...just too long a method for: "Put this 'prefix' string in front of the
@@ -316,7 +324,7 @@ self-document, but is so long that it obscures how simple it is.]*
 But, the subclass could be as simple as this (removing comments, etc):
 
 ```php
-class MyAppRouter extends PliteRouter
+class MyAppRouter extends WebRouter
 {
     public function getCustomLoggingPrefix () { return "MyApp"; }
 
@@ -325,7 +333,7 @@ class MyAppRouter extends PliteRouter
         switch ( $page )
         {
             case "logout":
-                $this->nuke();               // Provided by PliteRouter
+                $this->nuke();               // Provided by WebRouter
                 $this->goPage("login");
                 break;
             case "login":
@@ -391,7 +399,7 @@ to bootstrap a configuration:
    name of the application. This combo (fs_root + app_name) means that config is
    loaded from **a File in the local, ops-controlled, filesystem**. That file
    must reside under a directory which is in the developer's control or
-   access--given as   `SetEnv plite_local_root` (e.g., `/Users/srv` on macOS,
+   access--given as   `SetEnv _plite_local_root` (e.g., `/Users/srv` on macOS,
    or `/srv` on Linux, or some other weird place depending on whichever ghetto
    hosting platform you're on). And, the app's configuration must be a subdir of
    that directory (e.g., `/Users/srv/<app>` on macOS or `/srv/<app>` on Linux).
@@ -401,7 +409,7 @@ to bootstrap a configuration:
 3. **Dev** environment: config is loaded from **a File in the local,
    developer-controlled, filesystem**. That file must reside under a
    directory which is in the developer's control or access--given as
-   `SetEnv plite_local_root` (e.g., `/Users/srv` on macOS, or `/srv` on
+   `SetEnv _plite_local_root` (e.g., `/Users/srv` on macOS, or `/srv` on
    Linux). And, the app's configuration must be a subdir of that
    directory (e.g., `/Users/srv/<app>` on macOS or `/srv/<app>` on
    Linux). Because a dev can be working on multiple Plite-based
@@ -413,18 +421,18 @@ to bootstrap a configuration:
 In detail:
 
 1. **Prod** environment. **Web Server env vars** must contain the app
-   name (`SetEnv plite_app`) as well as a carefully-constructed,
+   name (`SetEnv _plite_app`) as well as a carefully-constructed,
    fully-qualifed PHP class name prefix of the config class (`SetEnv
-   plite_fq_class_prefix`); i.e., including namespace, as well as
+   _plite_fq_class_prefix`); i.e., including namespace, as well as
    keeping in mind any escaping rules that might apply (e.g., in Apache,
    SetEnv cannot have a bare `\`, so PHP namespace separators must look
    like `\\` (e.g., `org\\project\\Abc`, which is expanded to
    `org\project\AbcPliteFactory`.
 2. **DEV** environment. **Web server env var** must contain the
-   top-level config root (`plite_local_root`) and a regex for getting
-   the app name (`plite_app`) from the localhost testing URL. App name
-   (`vertwo_app`) must be a non-whitespace, non-punctuated (mostly)
-   string, extractable as `\1` from regex (`plite_url_app_regex`), for
+   top-level config root (`_plite_local_root`) and a regex for getting
+   the app name (`_plite_app`) from the localhost testing URL. App name
+   (`_plite_app`) must be a non-whitespace, non-punctuated (mostly)
+   string, extractable as `\1` from regex (`_plite_url_app_regex`), for
    example, if `janedoe` is the username, and dev URL looks like
    `http://localhost/~janedoe/app`, then the capturing regex would look
    like: `,localhost/~janedoe/([[:alnum:]-_]*)/,`, where the leading and
