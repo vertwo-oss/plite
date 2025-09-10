@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright (c) 2012-2025 Troy Wu
  * Copyright (c) 2021-2022 Version2 OÜ
  * All rights reserved.
@@ -27,13 +27,18 @@ use Exception;
 use vertwo\plite\Config;
 use vertwo\plite\FJ;
 use vertwo\plite\Log;
+use function vertwo\plite\clog;
+use function vertwo\plite\cyn;
+use function vertwo\plite\grn;
+use function vertwo\plite\red;
+use function vertwo\plite\yel;
 
 
 
 /**
- * Routing class, extending RoutedAjax.  Basically, all requests show up here.
+ * Routing class, extending RoutedWeb.  Basically, all requests show up here.
  *
- * Expects a .htaccess file like this:
+ * Expects .htaccess file like this:
  *
  * #----
  * RewriteEngine on
@@ -48,19 +53,19 @@ use vertwo\plite\Log;
 abstract class WebRouter extends Web
 {
     const DEBUG = false;
-
+    
     const CONFIG_KEY_ROUTING_ROOT = "routing_root";
     const DEFAULT_INPUT_MAXLEN    = 256;
-
+    
     protected $whole;
     protected $page;
     protected $path;
     protected $query;
-
+    
     private $routingRoot;
-
-
-
+    
+    
+    
     /**
      * Expects web server to have 'vertwo_class_prefix' as an
      * environment variable available to PHP via $_SERVER.
@@ -75,15 +80,15 @@ abstract class WebRouter extends Web
     {
         $routerClass = Config::get("plite_router");
         $router      = Config::loadClass($routerClass);
-
+        
         if ( !$router instanceof WebRouter )
             throw new Exception("Specified class [ " . $routerClass . " ] does not implement PliteRouter.");
-
+        
         return $router;
     }
-
-
-
+    
+    
+    
     /**
      * Subclass returns string to represent app (or other context).
      *
@@ -92,9 +97,9 @@ abstract class WebRouter extends Web
      * @return string
      */
     public abstract function getCustomLoggingPrefix ();
-
-
-
+    
+    
+    
     /**
      * Subclass implements to handle HTTP request.
      *
@@ -104,20 +109,20 @@ abstract class WebRouter extends Web
      * @return mixed
      */
     public abstract function handleRequest ( $whole, $page );
-
-
-
+    
+    
+    
     static function cleanInput ( $method, $size = self::DEFAULT_INPUT_MAXLEN )
     {
         $m = FJ::stripNon7BitCleanASCII(FJ::stripSpaces(trim($method)));
         $m = substr(trim($m), 0, $size);
         $m = strtolower($m);
-
+        
         return $m;
     }
-
-
-
+    
+    
+    
     /**
      * RoutedAjax constructor.
      *
@@ -128,27 +133,27 @@ abstract class WebRouter extends Web
         
         
         parent::__construct();
-
+        
         $this->routingRoot = Config::has(self::CONFIG_KEY_ROUTING_ROOT)
-            ? Config::get(self::CONFIG_KEY_ROUTING_ROOT)
-            : "";
-
+          ? Config::get(self::CONFIG_KEY_ROUTING_ROOT)
+          : "";
+        
         $isWorkerEnv = $this->isAWSWorkerEnv();
         $env         = $isWorkerEnv ? "SQS" : "Web";
-
+        
         Log::setCustomPrefix("[$env] " . $this->getCustomLoggingPrefix());
-
+        
         $this->whole = $_SERVER['REQUEST_URI'];
-
+        
         $requri      = explode('?', $this->whole, 2);
         $uri         = $requri[0];
         $this->query = 2 == count($requri) ? $requri[1] : "";
-
+        
         //
         // NOTE - Test if this is being routed by the PROPER .htaccess rewrite...
         //
         $url = $this->testGet("url");
-
+        
         if ( false !== $url )
         {
             $rewrittenTokens = explode("/", $url, 2);
@@ -159,27 +164,27 @@ abstract class WebRouter extends Web
         {
             $requri = explode('?', $this->whole, 2);
             $uri    = $this->getRequestWithoutPrefix($this->routingRoot);
-
+            
             if ( self::DEBUG ) clog("routing root", $this->routingRoot);
             if ( self::DEBUG ) clog("actual request", $uri);
-
+            
             $pathTokens = explode("/", $uri, 3);
-
+            
             if ( self::DEBUG ) clog("path tokens", $pathTokens);
-
+            
             $this->page = 2 == count($pathTokens) ? $pathTokens[1] : "";
             $this->path = 3 == count($pathTokens) ? $pathTokens[2] : "";
         }
-
+        
         $this->page = self::cleanInput($this->page);
-
+        
         if ( self::DEBUG ) clog("whole", $this->whole);
         if ( self::DEBUG ) clog("page", $this->page);
         if ( self::DEBUG ) clog("path", $this->path);
     }
-
-
-
+    
+    
+    
     /**
      * Called as the "first" thing to happen, before headers & 'main' processing.
      */
@@ -195,9 +200,9 @@ abstract class WebRouter extends Web
             if ( self::DEBUG ) clog(yel("----====[ Session resuming ]====----"));
         }
     }
-
-
-
+    
+    
+    
     /**
      * Called after the session init, but before 'main' processing.
      *
@@ -207,19 +212,19 @@ abstract class WebRouter extends Web
     {
         if ( self::DEBUG ) clog(cyn("----====[ Disabling Cache ]====----"));
         header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Date in the past
-        header("Expires: 0"); // Date in the past
+        header("Expires: 0");                             // Date in the past
         header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
         header("Cache-Control: no-store, no-cache, must-revalidate, no-transform, max-age=0"); //HTTP 1.1
-        header("Cache-Control: post-check=0, pre-check=0"); //HTTP 1.1
-        header("Pragma: no-cache"); //HTTP 1.0
+        header("Cache-Control: post-check=0, pre-check=0");                                    //HTTP 1.1
+        header("Pragma: no-cache");                                                            //HTTP 1.0
     }
-
-
-
+    
+    
+    
     function getRequestWithoutPrefix ( $prefix )
     {
         if ( false === $prefix || null === $prefix ) return "";
-
+        
         if ( FJ::startsWith($prefix, $this->whole) )
         {
             return substr($this->whole, strlen($prefix));
@@ -229,9 +234,9 @@ abstract class WebRouter extends Web
             return "";
         }
     }
-
-
-
+    
+    
+    
     function abortIfNotRouted ( $abortPage )
     {
         if ( FJ::endsWith(".php", $this->page) || FJ::endsWith(".html", $this->page) )
@@ -241,9 +246,9 @@ abstract class WebRouter extends Web
             exit(1);
         }
     }
-
-
-
+    
+    
+    
     /**
      *
      * MAIN entry point!

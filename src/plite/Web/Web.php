@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright (c) 2012-2025 Troy Wu
  * Copyright (c) 2021      Version2 OÜ
  * All rights reserved.
@@ -26,6 +26,7 @@ namespace vertwo\plite\Web;
 use vertwo\plite\FJ;
 use vertwo\plite\Log;
 use vertwo\plite\Util\PrecTime;
+use function vertwo\plite\clog;
 
 
 

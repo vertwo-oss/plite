@@ -25,7 +25,7 @@ namespace vertwo\plite\Web;
 
 use Exception;
 use function vertwo\plite\clog;
-use function vertwo\plite\redlog;
+use function vertwo\plite\red;
 
 
 
@@ -38,19 +38,19 @@ abstract class WebWorkerAPI extends WebAPI
      *
      * @return array - List of valid methods.
      */
-    function getValidEndpoints () { return [ 'processSQSMessages', ]; }
-
-
-
+    function getValidEndpoints () { return ['processSQSMessages',]; }
+    
+    
+    
     /**
      * A prefix to append to log messages, if any.
      *
      * @return mixed
      */
     function getLogPrefix () { return "SQS"; }
-
-
-
+    
+    
+    
     /**
      * How to deal with the exception percolated to here.
      *
@@ -59,13 +59,13 @@ abstract class WebWorkerAPI extends WebAPI
     function handleAPIPercolatedException ( $e )
     {
         clog($e);
-        redlog("Could not handle UPLOAD: " . $e->getMessage());
+        clog(red("Could not handle UPLOAD: " . $e->getMessage()));
         $this->http(self::HTTP_ERROR_GENERIC, "Could not handle UPLOAD; aborting.");
         exit(99);
     }
-
-
-
+    
+    
+    
     /**
      * Checks if caller is authorized; if not, this method should handle,
      * including calling header() for raw HTTP response, and exiting as
@@ -82,9 +82,9 @@ abstract class WebWorkerAPI extends WebAPI
      * @return boolean - Is caller authorized?
      */
     function authorizeCaller ( $actualMethod ) { return true; }
-
-
-
+    
+    
+    
     /**
      * This is the main entry point for SQS messages.
      *

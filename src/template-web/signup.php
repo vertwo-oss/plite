@@ -1,6 +1,6 @@
 <?php
-/**
- * Copyright (c) 2025 Troy Wu
+/*
+ * Copyright (c) 2025      Troy Wu
  * All rights reserved.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
@@ -38,7 +38,7 @@ require_once(__DIR__ . "/../../vendor/autoload.php"); // FIXME
 
 try
 {
-    WebConfig::init();
+    WebConfig::load();
 }
 catch ( Exception $e )
 {

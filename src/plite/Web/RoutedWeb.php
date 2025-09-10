@@ -1,6 +1,6 @@
 <?php
-/**
- * Copyright (c) 2012-2022 Troy Wu
+/*
+ * Copyright (c) 2012-2025 Troy Wu
  * Copyright (c) 2021-2022 Version2 OÜ
  * All rights reserved.
  *
@@ -34,9 +34,9 @@ abstract class RoutedWeb extends Web
     private $whole;
     private $page;
     private $path;
-
-
-
+    
+    
+    
     /**
      * Subclass returns string to represent app (or other context).
      *
@@ -45,18 +45,18 @@ abstract class RoutedWeb extends Web
      * @return string
      */
     public abstract function getCustomLoggingPrefix ();
-
-
-
+    
+    
+    
     /**
      * Subclass implements to handle HTTP request.
      *
      * @return mixed
      */
     public abstract function handleRequest ();
-
-
-
+    
+    
+    
     function getRequestWithoutPrefix ( $prefix )
     {
         if ( FJ::startsWith($prefix, $this->whole) )
@@ -68,14 +68,14 @@ abstract class RoutedWeb extends Web
             return "";
         }
     }
-
-
-
+    
+    
+    
     function page () { return $this->page; }
     function path () { return $this->path; }
-
-
-
+    
+    
+    
     /**
      *
      * MAIN entry point!
@@ -85,18 +85,18 @@ abstract class RoutedWeb extends Web
     {
         $isWorkerEnv = $this->isAWSWorkerEnv();
         $env         = $isWorkerEnv ? "SQS" : "Web";
-
+        
         Log::setCustomPrefix("[$env] " . $this->getCustomLoggingPrefix());
-
+        
         $this->whole = $_SERVER['REQUEST_URI'];
-
+        
         clog("whole", $this->whole);
-
+        
         // Grabs the URI and breaks it apart in case we have querystring stuff
         $requri     = explode('?', $_SERVER['REQUEST_URI'], 2);
         $this->page = $requri[0];
         $this->path = 2 == count($requri) ? $requri[1] : "";
-
+        
         $this->handleRequest();
     }
 }

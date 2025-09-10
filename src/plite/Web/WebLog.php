@@ -1,7 +1,6 @@
 <?php
-/**
- * Copyright (c) 2012-2022 Troy Wu
- * Copyright (c) 2021-2022 Version2 OÜ
+/*
+ * Copyright (c) 2025      Troy Wu
  * All rights reserved.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"

@@ -1,9 +1,11 @@
 #! /opt/homebrew/bin/php
 <?php
-require_once(__DIR__ . "/../vendor/autoload.php"); // FIXME
+require_once(__DIR__ . "/../vendor/autoload.php"); // FIXME (see v2cli script)
 
 
 use vertwo\plite\CommandLine\CLI;
+use function vertwo\plite\clog;
+
 
 
 class driver extends CLI
@@ -13,8 +15,8 @@ class driver extends CLI
     
     public function main ()
     {
-	clog("Hello, world!");
-	return 0;
+        clog("Hello, world!");
+        return 0;
     }
 }
 

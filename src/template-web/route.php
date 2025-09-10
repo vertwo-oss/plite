@@ -21,7 +21,9 @@
 
 use vertwo\plite\Config;
 use vertwo\plite\Web\WebRouter;
-use vertwo\plite\Web\WebLog;
+use function vertwo\plite\clog;
+use function vertwo\plite\cyn;
+use function vertwo\plite\red;
 
 
 
@@ -44,7 +46,7 @@ if ( DEBUG_ROUTE_START ) clog(cyn("--------========[ ROUTING starting ]========-
 
 try
 {
-    Config::init();
+    Config::load();
     $router = WebRouter::newInstance();
 }
 catch ( Exception $e )

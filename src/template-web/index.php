@@ -37,7 +37,7 @@ require_once(__DIR__ . "/vendor/autoload.php"); // FIXME
 try
 {
     $configWarning = "";
-    WebConfig::init();
+    WebConfig::load();
 }
 catch ( Exception $e )
 {
