@@ -36,25 +36,25 @@ class PG
     const DEBUG_SCALAR = false;
     const DEBUG_LIST   = false;
     const DEBUG_MAP    = false;
-
+    
     const NULL = "NULL";
     const T    = "true";
     const F    = "false";
-
-
-
+    
+    
+    
     protected $db      = false;
     protected $isDebug = self::DEBUG_SQL;
-
+    
     /**
      * This variable is a map of maps: [ tableName => [ $col => $type ] ]
      *
      * @var array $typeMap
      */
     protected $typeMap = [];
-
-
-
+    
+    
+    
     /**
      * PG constructor.
      *
@@ -70,9 +70,9 @@ class PG
             throw new PGException("Cannot open Postgres database; check server and connection string.");
         }
     }
-
-
-
+    
+    
+    
     /**
      * @throws PGException
      */
@@ -95,9 +95,9 @@ order by table_schema,
          table_name,
          ordinal_position;
 EOF;
-
+        
         $outerMap = $this->queryMap($sql);
-
+        
         foreach ( $outerMap as $map )
         {
             $table = $map['table_name'];
@@ -110,18 +110,18 @@ EOF;
 //                "type" => $type,
 //                "isN"  => $nullable,
 //            ];
-
+            
             if ( !array_key_exists($table, $this->typeMap) )
                 $this->typeMap[$table] = [];
-
+            
             $this->typeMap[$table][$col] = $type;
         }
-
+        
         if ( self::DEBUG_ESCAPE ) clog("type map", $this->typeMap);
     }
-
-
-
+    
+    
+    
     function __destruct ()
     {
         if ( false !== $this->db && !$this->db )
@@ -131,14 +131,14 @@ EOF;
             $this->db = false;
         }
     }
-
-
-
+    
+    
+    
     function setDebugging ( $is ) { $this->isDebug = $is; }
     function isDebug () { return $this->isDebug; }
-
-
-
+    
+    
+    
     /**
      * Creates type-specific escaping.
      *
@@ -175,9 +175,9 @@ EOF;
                 return (false === $v) ? '(NULL)' : pg_escape_literal($v);
         }
     }
-
-
-
+    
+    
+    
     /**
      * @param $result
      *
@@ -191,9 +191,9 @@ EOF;
             throw new PGException(pg_last_error($this->db));
         }
     }
-
-
-
+    
+    
+    
     protected function getColumnNames ( $result )
     {
         $columns = [];
@@ -202,18 +202,18 @@ EOF;
         {
             $columns[$i] = pg_field_name($result, $i);
         }
-
+        
         return $columns;
     }
-
-
-
+    
+    
+    
     /**
      * Executes a query, and returns the raw result from pg_query().
      *
      * @param $sql
      *
-     * @return array
+     * @return bool|array
      *
      * @throws PGException
      *
@@ -222,16 +222,16 @@ EOF;
     public function query ( $sql )
     {
         if ( $this->isDebug() ) clog("sql", $sql);
-
+        
         $result = pg_query($this->db, $sql);
-
+        
         $this->checkResult($result, $sql);
-
+        
         return $result;
     }
-
-
-
+    
+    
+    
     /**
      * Executes a query, and returns the zeroth element of the zeroth row as a scalar.
      *
@@ -246,27 +246,27 @@ EOF;
     public function queryScalar ( $sql )
     {
         if ( $this->isDebug() ) clog("sql", $sql);
-
+        
         $result = pg_query($this->db, $sql);
-
+        
         $this->checkResult($result, $sql);
-
+        
         if ( $row = pg_fetch_row($result) )
         {
             if ( self::DEBUG_SCALAR ) clog("DB row", $row);
-
+            
             $val = $row[0];
-
+            
             if ( self::DEBUG_SCALAR ) clog("val", $val);
-
+            
             return $val;
         }
-
+        
         return false;
     }
-
-
-
+    
+    
+    
     /**
      * Executes a query, and returns the zeroth element of each row as an array.
      *
@@ -281,29 +281,29 @@ EOF;
     public function queryList ( $sql )
     {
         if ( $this->isDebug() ) clog("sql", $sql);
-
+        
         $result = pg_query($this->db, $sql);
-
+        
         $this->checkResult($result, $sql);
-
+        
         $list = [];
         while ( $row = pg_fetch_row($result) )
         {
             if ( self::DEBUG_LIST ) clog("DB row", $row);
-
+            
             $val = $row[0];
-
+            
             $list[] = $val;
         }
-
+        
         if ( self::DEBUG_LIST ) clog("list", $list);
         if ( self::DEBUG_LIST ) clog("count", count($list));
-
+        
         return $list;
     }
-
-
-
+    
+    
+    
     /**
      * Executes a query, and returns a map with each row as an entry: [ row[0] => row[1] ].
      *
@@ -318,30 +318,30 @@ EOF;
     public function querySimpleMap ( $sql )
     {
         if ( $this->isDebug() ) clog("sql", $sql);
-
+        
         $result = pg_query($this->db, $sql);
-
+        
         $this->checkResult($result, $sql);
-
+        
         $map = [];
         while ( $row = pg_fetch_row($result) )
         {
             if ( self::DEBUG_MAP ) clog("DB row", $row);
-
+            
             $key = $row[0];
             $val = $row[1];
-
+            
             $map[$key] = $val;
         }
-
+        
         if ( self::DEBUG_MAP ) clog("map", $map);
         if ( self::DEBUG_MAP ) clog("count", count($map));
-
+        
         return $map;
     }
-
-
-
+    
+    
+    
     /**
      * Executes a query, and returns a map with each row as an entry: [ colName[i] => [ row[0], ..., row[n] ] ]
      *
@@ -354,14 +354,14 @@ EOF;
     public function queryMap ( $sql )
     {
         if ( $this->isDebug() ) clog("sql", $sql);
-
+        
         $result = pg_query($this->db, $sql);
-
+        
         $this->checkResult($result, $sql);
-
+        
         $colNames = $this->getColumnNames($result);
         $map      = [];
-
+        
         while ( $row = pg_fetch_row($result) )
         {
             $rowmap = array_combine($colNames, $row);
@@ -369,27 +369,27 @@ EOF;
         }
         return $map;
     }
-
-
-
+    
+    
+    
     private function createCondClause ( $table, $map )
     {
         $where = "";
         $and   = "";
-
+        
         $evs = $this->escape($table, $map);
-
+        
         foreach ( $evs as $col => $ev )
         {
             $where .= $and . "($col = $ev)";
             $and   = " AND ";
         }
-
+        
         return $where;
     }
-
-
-
+    
+    
+    
     /**
      * @param $table
      * @param $condMap
@@ -401,18 +401,18 @@ EOF;
     public function exists ( $table, $condMap )
     {
         $cond = $this->createCondClause($table, $condMap);
-
+        
         $sql = "SELECT count(1) FROM $table WHERE $cond;";
-
+        
         $result = $this->queryScalar($sql);
-
+        
         $this->checkResult($result, $sql);
-
+        
         return 0 < $result;
     }
-
-
-
+    
+    
+    
     /**
      * DANGER - Obviously, this is non-atomic.
      *
@@ -436,26 +436,28 @@ EOF;
             $this->insert($table, $array);
         }
     }
-
-
-
+    
+    
+    
     /**
      * @param string     $table            - Name of table to update.
-     * @param array      $array            - Map of [ key => $value ] -- '$value's will be escaped here (if 'areValuesEscaped' is false).
+     * @param array      $array            - Map of [ key => $value ] -- '$value's will be escaped here (if
+     *                                     'areValuesEscaped' is false).
      * @param boolean    $areValuesEscaped - If true, then values are already escaped, and should be used directly.
-     * @param array|bool $conditions       - Map of [ value => $value ] -- '$value's will be escaped here (if 'areValuesEscaped' is false).
+     * @param array|bool $conditions       - Map of [ value => $value ] -- '$value's will be escaped here (if
+     *                                     'areValuesEscaped' is false).
      *
      * @throws PGException
      */
     public function insert ( $table, $array ) // $areValuesEscaped = false )
     {
         //$needsEscaping = !$areValuesEscaped;
-
+        
         $keys = array_keys($array);
         $cols = implode(", ", $keys);
-
+        
         $evs = $this->escape($table, $array);
-
+        
         $values = [];
         foreach ( $keys as $col )
             $values[] = $evs[$col];
@@ -469,33 +471,35 @@ EOF;
 //            $values = $escs;
 //        }
         $vals = implode(", ", $values);
-
+        
         //
         // Building SQL.
         //
         $sql = "INSERT INTO $table ( $cols ) VALUES ( $vals );";
-
+        
         if ( $this->isDebug() ) clog("SQL", $sql);
-
+        
         //
         // Run query.
         //
         $this->query($sql);
     }
-
-
-
+    
+    
+    
     /**
      * @param string     $table   - Name of table to update.
-     * @param array      $array   - Map of [ key => $value ] -- '$value's will be escaped here (if 'areValuesEscaped' is false).
-     * @param array|bool $condMap - Map of [ value => $value ] -- '$value's will be escaped here (if 'areValuesEscaped' is false).
+     * @param array      $array   - Map of [ key => $value ] -- '$value's will be escaped here (if 'areValuesEscaped'
+     *                            is false).
+     * @param array|bool $condMap - Map of [ value => $value ] -- '$value's will be escaped here (if 'areValuesEscaped'
+     *                            is false).
      *
      * @throws PGException
      */
     public function update ( $table, $array, $condMap )
     {
         $evs = $this->escape($table, $array);
-
+        
         //
         // Building SET changes.
         //
@@ -507,27 +511,27 @@ EOF;
             $kvs[] = $kv;
         }
         $sets = implode(", ", $kvs);
-
+        
         //
         // Get WHERE clause.
         //
         $cond = $this->createCondClause($table, $condMap);
-
+        
         //
         // Building SQL.
         //
         $sql = "UPDATE $table SET $sets WHERE $cond;";
-
+        
         if ( $this->isDebug() ) clog("SQL", $sql);
-
+        
         //
         // Run query.
         //
         $this->query($sql);
     }
-
-
-
+    
+    
+    
     /**
      * @param $table
      * @param $condMap
@@ -537,11 +541,11 @@ EOF;
     public function delete ( $table, $condMap )
     {
         $cond = $this->createCondClause($table, $condMap);
-
+        
         $sql = "DELETE FROM $table WHERE $cond;";
-
+        
         $result = $this->query($sql);
-
+        
         $this->checkResult($result, $sql);
     }
 }

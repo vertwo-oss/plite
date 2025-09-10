@@ -21,6 +21,7 @@
 
 use PHPUnit\Framework\TestCase;
 use vertwo\plite\CommandLine\CLI;
+use function vertwo\plite\clog;
 
 
 

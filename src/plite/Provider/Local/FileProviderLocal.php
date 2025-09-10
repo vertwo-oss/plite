@@ -27,6 +27,7 @@ use Exception;
 use vertwo\plite\Log;
 use vertwo\plite\Provider\Base\FileProviderBase;
 use vertwo\plite\Provider\FileProviderFactory;
+use function vertwo\plite\clog;
 
 
 
