@@ -27,7 +27,7 @@ use vertwo\plite\Provider\FileProviderFactory;
 
 
 
-class TestConfigClass implements ConfigClass
+class TestConfig implements ConfigClass
 {
     function getConfig ()
     {
