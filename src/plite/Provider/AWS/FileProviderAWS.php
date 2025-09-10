@@ -1,6 +1,6 @@
 <?php
-/**
- * Copyright (c) 2012-2022 Troy Wu
+/*
+ * Copyright (c) 2012-2025 Troy Wu
  * Copyright (c) 2021-2022 Version2 OÜ
  * All rights reserved.
  *
@@ -28,7 +28,8 @@ use Aws\S3\S3Client;
 use Exception;
 use vertwo\plite\FJ;
 use vertwo\plite\Provider\Base\FileProviderBase;
-use function clog;
+use function vertwo\plite\clog;
+use function vertwo\plite\red;
 
 
 
@@ -206,7 +207,7 @@ class FileProviderAWS extends FileProviderBase
         catch ( S3Exception $e )
         {
             //clog($e);
-            redlog("Could not PUT S3 object [$path] in bucket [" . $this->bucket . "]: " . $e->getMessage());
+            clog(red("Could not PUT S3 object [$path] in bucket [" . $this->bucket . "]: " . $e->getMessage()));
             return false;
         }
     }

@@ -1,6 +1,6 @@
 <?php
-/**
- * Copyright (c) 2012-2021 Troy Wu
+/*
+ * Copyright (c) 2012-2025 Troy Wu
  * Copyright (c) 2021      Version2 OÜ
  * All rights reserved.
  *
@@ -28,7 +28,7 @@ use Aws\S3\S3Client;
 use Exception;
 use vertwo\plite\Provider\Base\CSVProviderBase;
 use function vertwo\plite\clog;
-use function vertwo\plite\redlog;
+use function vertwo\plite\red;
 
 
 
@@ -40,9 +40,9 @@ class CSVProviderAWS extends CSVProviderBase
     private $s3     = false;
     private $bucket = false;
     private $key    = false;
-
-
-
+    
+    
+    
     /**
      * CRUDProviderAWS constructor.
      *
@@ -52,9 +52,9 @@ class CSVProviderAWS extends CSVProviderBase
     {
         $this->s3 = $params['s3'];
     }
-
-
-
+    
+    
+    
     /**
      * Do environment-specific initialization (test for readability, etc).
      *
@@ -65,55 +65,55 @@ class CSVProviderAWS extends CSVProviderBase
     function init ( $params = false )
     {
         clog("CSV.init() params", $params);
-
+        
         parent::init($params);
-
+        
         if ( false === $this->s3 )
         {
-            redlog("CSV.init(): Cannot establish AWS S3 connection.");
+            clog(red("CSV.init(): Cannot establish AWS S3 connection."));
             throw new Exception("Cannot get AWS S3 reference; aborting.");
         }
-
+        
         if ( array_key_exists("bucket", $params) ) $this->bucket = $params['bucket'];
         if ( array_key_exists("file", $params) ) $this->key = $params['file'];
         if ( array_key_exists("key", $params) ) $this->key = $params['key'];
-
+        
         if ( false === $this->bucket )
             throw new Exception("No bucket specified; aborting");
-
+        
         if ( false === $this->key )
             throw new Exception("No key specified; aborting");
-
+        
         clog("CSV.init(" . $this->bucket . ", " . $this->key . ")", "S3Client successfully init'ed.");
     }
-
-
-
+    
+    
+    
     function loadData ()
     {
         $data = $this->getFromS3();
-
+        
         return $data;
     }
-
-
-
+    
+    
+    
     function saveData ( $data )
     {
         $data = $this->mapToCSV($data);
-
+        
         $params = [
-            'Bucket' => $this->bucket,
-            'Key'    => $this->key,
-            'Body'   => $data,
-            //'ACL'    => 'public-read',
+          'Bucket' => $this->bucket,
+          'Key'    => $this->key,
+          'Body'   => $data,
+          //'ACL'    => 'public-read',
         ];
-
+        
         try
         {
             // Upload data.
             $result = $this->s3->putObject($params);
-
+            
             $url = $result['ObjectURL'];
             clog("CSV File URL (S3)", $url);
         }
@@ -122,27 +122,27 @@ class CSVProviderAWS extends CSVProviderBase
             clog($e);
         }
     }
-
-
-
+    
+    
+    
     private function getFileContentsFromS3 ( $params )
     {
         $result = $this->s3->getObject($params);
-
+        
         $body = $result['Body'];
-
+        
         return $body;
     }
-
-
-
+    
+    
+    
     private function getFromS3 ()
     {
         $params = [
-            'Bucket' => $this->bucket,
-            'Key'    => $this->key,
+          'Bucket' => $this->bucket,
+          'Key'    => $this->key,
         ];
-
+        
         return $this->getFileContentsFromS3($params);
     }
 }

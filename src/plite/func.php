@@ -19,7 +19,9 @@
 
 
 
-use vertwo\plite\Log;
+namespace vertwo\plite;
+
+
 use vertwo\plite\CommandLine\ConsoleLog;
 use vertwo\plite\Web\WebLog;
 
