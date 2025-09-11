@@ -158,8 +158,46 @@ else
 ?>
 <html lang="en">
 <head>
-    <title><?php echo WebConfig::get("title"); ?></title>
     <meta name="color-scheme" content="light dark">
+    <link rel="preload" href="assets/fonts/computer_modern/Serif/cmun-serif.css"
+          as="font"
+          onload="this.onload=null;this.rel='stylesheet'"/>
+    <link rel="stylesheet" href="assets/fonts/computer_modern/Bright/cmun-bright.css"
+          as="font"
+          onload="this.onload=null;this.rel='stylesheet'"/>
+    <link rel="stylesheet" href="assets/fonts/computer_modern/Concrete/cmun-concrete.css"
+          as="font"
+          onload="this.onload=null;this.rel='stylesheet'"/>
+    <link rel="stylesheet" href="assets/fonts/computer_modern/Typewriter Light/cmun-typewriter-light.css"
+          as="font"
+          onload="this.onload=null;this.rel='stylesheet'"/>
+    <link rel="stylesheet" href="assets/fonts/computer_modern/Bright Semibold/cmun-bright-semibold.css"
+          as="font"
+          onload="this.onload=null;this.rel='stylesheet'"/>
+    <link rel="stylesheet" href="assets/fonts/computer_modern/Sans/cmun-sans.css"
+          as="font"
+          onload="this.onload=null;this.rel='stylesheet'"/>
+    <link rel="stylesheet" href="assets/fonts/computer_modern/Sans Demi-Condensed/cmun-sans-demicondensed.css"
+          as="font"
+          onload="this.onload=null;this.rel='stylesheet'"/>
+    <link rel="stylesheet" href="assets/fonts/computer_modern/Classical Serif Italic/cmun-classical-serif-italic.css"
+          as="font"
+          onload="this.onload=null;this.rel='stylesheet'"/>
+    <link rel="stylesheet" href="assets/fonts/computer_modern/Typewriter Variable/cmun-typewriter-variable.css"
+          as="font"
+          onload="this.onload=null;this.rel='stylesheet'"/>
+    <link rel="stylesheet" href="assets/fonts/computer_modern/Serif Slanted/cmun-serif-slanted.css"
+          as="font"
+          onload="this.onload=null;this.rel='stylesheet'"/>
+    <link rel="stylesheet" href="assets/fonts/computer_modern/Upright Italic/cmun-upright-italic.css"
+          as="font"
+          onload="this.onload=null;this.rel='stylesheet'"/>
+    <link rel="stylesheet" href="assets/fonts/computer_modern/Typewriter/cmun-typewriter.css"
+          as="font"
+          onload="this.onload=null;this.rel='stylesheet'"/>
+    <link rel="preload" href="assets/css/font-awesome.min.css"
+          as="style"
+          onload="this.onload=null;this.rel='stylesheet'"/>
     <style>
         @media (prefers-color-scheme: light) {
             html {
@@ -212,6 +250,7 @@ else
             #solid_footer {
                 color: rgba(96, 96, 96, 0.25);
             }
+
 
             .v2 {
                 color: rgba(255, 0, 0, 0.5);
@@ -268,22 +307,19 @@ else
             }
 
             .v2 {
-                color: rgba(255, 0, 0, 0.4);
+                color: rgba(255, 64, 64, 0.3);
             }
         }
 
         html {
-            /*background: */
-        <?php //echo WebConfig::get("bg"); ?> /* no-repeat center center;*/
             background-size: cover;
             height: 100%;
         }
 
         body {
-            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-family: "Computer Modern Bright", "Helvetica Neue", Helvetica, Arial, sans-serif;
             font-weight: normal;
             font-size: 16px;
-            /*color: #aaa;*/
         }
 
         .almost-there {
@@ -291,7 +327,7 @@ else
         }
 
         header {
-            font-family: "Poppins", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+            font-family: "Computer Modern Bright", "Poppins", sans-serif;
             margin: 1em;
             font-size: 1.25em;
         }
@@ -328,7 +364,6 @@ else
             width: 70%;
             margin: 0 auto;
             border-radius: 8px;
-            /*background-color: rgba(128, 128, 128, 0);*/
             padding: <?php echo WebConfig::get("top_pad"); ?> 32px 32px 32px;
         }
 
@@ -356,27 +391,22 @@ EOF;
         }
 
         #auth_form button {
-            /*visibility: hidden;*/
             width: 50%;
             height: 2em;
             font-size: 16px;
             border-radius: 16px;
-            /*background-color: cyan;*/
-            /*border: 0;*/
             margin-top: 1em;
             margin-bottom: 3em;
         }
 
         #auth_form h1 {
             font-size: 24px;
-            /*color: #aaa;*/
             font-weight: 300;
             padding: 0 32px;
         }
 
         form label img {
             display: inline;
-            /*color: #777;*/
         }
 
         #auth_form label img {
@@ -395,8 +425,6 @@ EOF;
             font-size: 24px;
             font-weight: normal;
             margin-bottom: 0.5em;
-            /*color: #aaa;*/
-            /*background-color: rgba(255, 255, 255, 0.05);*/
             border-radius: 4px;
             width: 90% !important;
         }
@@ -406,31 +434,23 @@ EOF;
         }
 
         ::placeholder {
-            /*color: #555;*/
             font-size: 24px;
             font-weight: 300;
         }
 
         #auth_form a:link {
-            /*color: cyan;*/
-            /*background: #333;*/
             padding: 8px 16px;
-            /*border-radius: 4px;*/
             text-decoration: none;
-            /*opacity: 0.25;*/
         }
 
         #auth_form a:visited {
-            /*color: royalblue;*/
         }
 
         #auth_form a:hover {
             text-decoration: underline;
-            /*opacity: 0.5;*/
         }
 
         #auth_form a:active {
-            /*color: royalblue;*/
         }
 
         #solid_footer {
@@ -441,8 +461,6 @@ EOF;
             left: 0;
             margin: 0;
             padding: 0;
-            /*background-color: rgba(0, 0, 0, 0.5);*/
-            /*color: #aaa;*/
         }
 
         #solid_footer div:first-child {
@@ -453,7 +471,6 @@ EOF;
             padding: 0 0 0 8px;
             margin: 0 16px;
             text-align: left;
-            /*opacity: 0.5;*/
         }
 
         #solid_footer div:last-child {
@@ -464,11 +481,10 @@ EOF;
             padding: 0 4px 0 0;
             margin: 0 16px;
             text-align: right;
-            /*opacity: 0.5;*/
         }
 
         .v2 {
-            /*color: #f77;*/
+            font-family: "Computer Modern Bright", sans-serif;
         }
 
         .cmd_signup {
@@ -517,6 +533,7 @@ EOF;
             }
         }
     </style>
+    <title><?php echo WebConfig::get("title"); ?></title>
 </head>
 
 <body>
@@ -534,14 +551,14 @@ EOF;
         <div id="auth_form_input_box">
             <div>
                 <label>
-                    <img src="res/account.png" alt="login"/>
+                    <img src="assets/images/account.png" alt="login"/>
                     <input class="auth_input" name="login" id="login" type="text" placeholder="Login" required=""
                            autofocus/>
                 </label>
             </div>
             <div>
                 <label>
-                    <img src="res/lock.png" alt="pass1"/>
+                    <img src="assets/images/lock.png" alt="pass1"/>
                     <input class="auth_input" name="pass1" id="pass1" type="password" placeholder="Password"
                            required=""/>
                 </label>
@@ -583,6 +600,7 @@ EOF;
     <?php printf("%s\n", WebConfig::getSolidFooterContents()); ?>
 </div>
 </body>
+
 
 <script src="js/lib/zepto.min.js"></script>
 <script src="js/vertwo.js"></script>
@@ -671,7 +689,7 @@ EOF;
                 }
             ;
 
-            var method = "auth.php";
+            let method = "auth.php";
 
             api(method, data,
                 function (resp) {
