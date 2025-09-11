@@ -28,6 +28,7 @@ use vertwo\plite\Log;
 use vertwo\plite\Provider\Base\FileProviderBase;
 use vertwo\plite\Provider\FileProviderFactory;
 use function vertwo\plite\clog;
+use function vertwo\plite\yel;
 
 
 
@@ -91,13 +92,18 @@ class FileProviderLocal extends FileProviderBase
         
         if ( !file_exists($this->dir) )
         {
-            Log::error("[ " . $this->dir . " ] does not exist; aborting.");
-            throw new Exception("Specified path does not exist (local).");
+            clog(yel("[ " . $this->dir . " ] does not exist; creating...."));
+            
+            $isok = mkdir($this->dir, 0750, true);
+            
+            if ( !$isok )
+                throw new Exception("Could not create a directory (local).");
         }
         
         if ( !is_dir($this->dir) )
         {
             Log::error("[ " . $this->dir . " ] is not a directory; aborting.");
+            
             throw new Exception("Specified path is not a directory (local).");
         }
         
@@ -180,7 +186,10 @@ class FileProviderLocal extends FileProviderBase
      */
     public function lsFiles ( $params = false )
     {
-        $prefix = (false !== $params || array_key_exists('prefix', $params)) ? $params['prefix'] : "";
+        $prefix
+          = (false !== $params && array_key_exists('prefix', $params))
+          ? $params['prefix']
+          : "";
         
         $files   = [];
         $entries = $this->ls($params);
