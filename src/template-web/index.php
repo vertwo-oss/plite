@@ -205,20 +205,29 @@ catch ( Exception $e )
             font-size: 14pt;
         }
 
-        header {
+        #header {
             font-family: "Computer Modern Bright", sans-serif;
-            margin: 1em;
             font-size: 1.25em;
+            margin: 1em;
+            position: relative;
         }
 
-        header a {
+        #header li {
+            list-style-type: none;
+        }
+
+        #header a {
             text-decoration: none;
         }
 
-        #header > .logo span {
-            font-weight: 400;
-            font-size: .8em;
+        #header ul:last-child {
+            position: absolute;
+            margin: 0;
+            padding: 0;
+            top: 0;
+            right: 1.5em;
         }
+
 
         body {
             width: 100%;
@@ -226,7 +235,7 @@ catch ( Exception $e )
 
         body section {
             width: 90%;
-            margin: 0 auto 3em auto;
+            margin: 3em auto 3em auto;
             padding: 1em 0 2em 0;
         }
 
@@ -337,6 +346,9 @@ catch ( Exception $e )
 <header id="header" class="alt">
     <div class="logo"><a href="."><?php echo WebConfig::get("title"); ?></a>
     </div>
+    <ul>
+        <li><a href="auth.php">Login Test</a></li>
+    </ul>
 </header>
 
 <section>
@@ -353,7 +365,7 @@ catch ( Exception $e )
     <p> If you're not going to enable routing, then get rid of this page!! </p>
 
 
-    <div id="config-warning">
+    <div style="display:none;" id="config-warning">
         <h2>OH NO! No configuration found!</h2>
 
         <p>
@@ -365,7 +377,7 @@ catch ( Exception $e )
     </div>
 
 
-    <div id="config-table">
+    <div style="display: none;" id="config-table">
         <h2>Plite Configuration Parameters</h2>
         <table id="plite-dump-table">
             
@@ -418,11 +430,11 @@ EOF;
         clog("has config? " + hasConfig);
 
         if (hasConfig) {
-            $("#config-warning").removeClass("exists").addClass("no-exists");
-            $("#config-table").removeClass("no-exists").addClass("exists");
+            $("#config-warning").removeClass("exists").addClass("no-exists").hide();
+            $("#config-table").removeClass("no-exists").addClass("exists").show();
         } else {
-            $("#config-table").removeClass("exists").addClass("no-exists");
-            $("#config-warning").removeClass("no-exists").addClass("exists");
+            $("#config-table").removeClass("exists").addClass("no-exists").hide();
+            $("#config-warning").removeClass("no-exists").addClass("exists").show();
         }
 
     });
