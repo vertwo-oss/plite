@@ -1,0 +1,333 @@
+/*
+ * ****************************************************************
+ *
+ * DANGER - Structural CSS
+ *
+ * ****************************************************************
+ */
+
+.vertwo-plite-dz-target {
+    position: relative;
+    padding: 1em;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+
+    overflow: auto;
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+
+    text-align: center;
+}
+
+.vertwo-plite-dz-target::-webkit-scrollbar {
+    display: none;
+}
+
+.vertwo-plite-dz-target > div:first-child {
+    position: relative;
+    font-size: 18px;
+    padding: 1em;
+}
+
+
+.vertwo-plite-dz-list {
+    position: relative;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+    /*box-shadow: 0 1px 0 2px #111;*/
+    /*border: 3px solid #eee;*/
+    border-width: 3px;
+    border-style: solid;
+
+    overflow: auto;
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+}
+
+.vertwo-plite-dz-list > div:first-child {
+    /*
+     * NOTE - First child! - List Meta
+     */
+    text-align: left;
+    padding: 16px;
+    border-bottom: 0;
+}
+
+.vertwo-plite-dz-list > div:first-child > div:first-child {
+    float: left;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.vertwo-plite-dz-file-meta-header {
+    font-size: 20px;
+    font-weight: bold;
+    padding-bottom: 0;
+    margin-bottom: 6px;
+}
+
+.vertwo-plite-dz-file-meta {
+    font-weight: normal;
+    color: #888;
+    font-size: 18px;
+}
+
+.vertwo-plite-dz-list > div:nth-child(2) > table {
+    width: 100%;
+    border: none;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.vertwo-plite-dz-list > div:nth-child(2) > table > thead {
+    min-height: 200px;
+    padding: 4px;
+    text-align: left;
+    border-top-width: 1px;
+    border-top-style: solid;
+}
+
+.vertwo-plite-dz-list > div:nth-child(2) > table th {
+    padding: 8px 16px;
+    border-spacing: 8px 16px;
+}
+
+.vertwo-plite-dz-list > div:nth-child(2) > table th:first-child {
+    min-height: 200px;
+    padding: 8px 16px;
+    border-spacing: 8px 16px;
+    border-left: none;
+}
+
+.vertwo-plite-dz-list input {
+    padding: 0;
+    margin: 0;
+    max-height: 24px;
+}
+
+
+.vertwo-plite-dz-list > div:nth-child(2) > table th:first-child {
+    width: 5%;
+}
+
+.vertwo-plite-dz-list > div:nth-child(2) > table th:nth-child(2) {
+    width: 40%;
+}
+
+.vertwo-plite-dz-list > div:nth-child(2) > table th:nth-child(3) {
+    width: 35%;
+}
+
+.vertwo-plite-dz-list > div:nth-child(2) > table th:nth-child(4) {
+    width: 20%;
+}
+
+.vertwo-plite-dz-list > div:nth-child(2) > table td {
+    font-size: 15px;
+    padding: 8px 16px;
+    border-spacing: 8px 16px;
+}
+
+.vertwo-plite-dz-list > div:nth-child(2) > table td:last-child {
+    text-align: right;
+    font-family: monospace;
+    font-size: 13px;
+}
+
+.clear {
+    overflow: auto;
+    content: "";
+    clear: both;
+    display: table;
+}
+
+
+#vertwo-plite-dz-upload-button {
+    font-size: 14px;
+    padding: 8px 24px;
+    border-radius: 4px;
+    text-decoration: none;
+}
+
+#vertwo-plite-dz-upload-button:hover {
+    cursor: pointer;
+}
+
+/*
+ * ****************************************************************
+ *
+ * NOTE - Color CSS (ilght/dark schemes)
+ *
+ * ****************************************************************
+ */
+
+@media (prefers-color-scheme: light) {
+    /*
+     * Drop zone.
+     */
+    .vertwo-plite-dz-target {
+        border: 3px dashed rgba(0, 255, 255, .5);
+        background-color: rgba(0, 255, 255, 0.1);
+    }
+
+    .vertwo-plite-dz-list {
+        /*box-shadow: 0 1px 0 2px #eee;*/
+        border-color: #eee;
+    }
+
+    /*
+     * NOTE - "Files to upload" section.
+     */
+    .vertwo-plite-dz-list > div:first-child {
+        /*background-color: rgba(0, 255, 255, 0.1);*/
+        background-color: rgba(250, 235, 215, .6);
+        background-color: #f4f4f4;
+        background-color: white;
+    }
+
+    /*
+     * NOTE - Table headers...
+     */
+    .vertwo-plite-dz-list > div:nth-child(2) > table > thead {
+        background-color: #fff;
+        background-color: rgba(250, 235, 215, .75);
+        border-bottom: 1px solid #333;
+        border-top-color: #eee;
+        color: #777;
+    }
+
+    /*
+     * NOTE - The following two selectors are there to provider a separator
+     *        between the column headers.  Totally unnecessary.
+     */
+    /*.vertwo-plite-dz-list > div:nth-child(2) > table th {*/
+    /*    !*background-color: rgba(0, 255, 255, 0.5);*!*/
+    /*    !*background-color: rgba(0, 255, 255, 0.1);*!*/
+    /*    !*background-color: rgba(0, 255, 255, 0);*!*/
+    /*    !*border-left: 1px solid antiquewhite;*!*/
+    /*}*/
+    /*.vertwo-plite-dz-list > div:nth-child(2) > table th:first-child {*/
+    /*    !*background-color: rgba(0, 255, 255, 0.75);*!*/
+    /*}*/
+    /*
+     * NOTE - Second child! - List Data
+     */
+    /*.vertwo-plite-dz-list > div:nth-child(1) {*/
+    /*    !*background-color: rgba(0, 255, 255, 0.75);*!*/
+    /*    !*background-color: red;*!*/
+    /*    background-color: rgba(0, 255, 255, .1);*/
+    /*}*/
+    .vertwo-plite-dz-list > div:nth-child(2) > table td {
+        background-color: rgba(0, 255, 255, 0.1);
+    }
+
+    #vertwo-plite-dz-upload-button {
+        border: 1px solid black;
+        color: black;
+        background-color: rgba(250, 235, 215, .4);
+    }
+
+    #vertwo-plite-dz-upload-button:hover {
+        border: 1px solid black;
+        color: black;
+        background-color: rgba(0, 255, 255, 0.2);
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    /*
+     * Drop zone.
+     */
+    .vertwo-plite-dz-target {
+        border: 3px dashed rgba(0, 255, 255, .25);
+        background-color: rgba(0, 255, 255, 0.1);
+    }
+
+    .vertwo-plite-dz-list {
+        border-color: #222;
+    }
+
+    /*
+     * NOTE - "Files to upload" section.
+     */
+    .vertwo-plite-dz-list > div:first-child {
+        /*background-color: rgba(0, 255, 255, 0.1);*/
+        background-color: rgba(250, 235, 215, .6);
+        background-color: #f4f4f4;
+        background-color: #222;
+    }
+
+    /*
+     * NOTE - Table headers...
+     */
+    .vertwo-plite-dz-list > div:nth-child(2) > table > thead {
+        background-color: #fff;
+        background-color: rgba(250, 235, 215, .1);
+        border-bottom: 1px solid #333;
+        border-top-color: #555;
+        color: #777;
+    }
+
+    .vertwo-plite-dz-list > div:nth-child(2) > table td {
+        background-color: rgba(0, 255, 255, 0.1);
+    }
+
+    #vertwo-plite-dz-upload-button {
+        border: 1px solid black;
+        color: black;
+        background-color: rgba(250, 235, 215, .4);
+    }
+
+    #vertwo-plite-dz-upload-button:hover {
+        border: 1px solid black;
+        color: black;
+        background-color: rgba(0, 255, 255, 0.2);
+    }
+
+    /*
+    .vertwo-plite-dz-target {
+        border: 1px dashed rgba(0, 255, 255, 0.5);
+        background-color: rgba(0, 139, 139, 0.1);
+    }
+
+    .vertwo-plite-dz-list {
+    / / box-shadow: 0 1 px 0 2 px #111;
+        border-color: #222;
+    }
+
+    .vertwo-plite-dz-list > div:nth-child(2) > table > thead {
+        background-color: #222;
+        border-bottom: 1px solid #333;
+        border-top-color: #eee;
+        color: #777;
+    }
+
+    .vertwo-plite-dz-list > div:nth-child(2) > table th {
+        background-color: antiquewhite;
+        border-left: 1px solid #333;
+    }
+
+    .vertwo-plite-dz-list > div:nth-child(2) > table th:first-child {
+        background-color: antiquewhite;
+    }
+
+    /*
+     * NOTE - Second child! - List Data
+     *
+    .vertwo-plite-dz-list > div:nth-child(2) {
+        background-color: rgba(0, 139, 139, 0.05);
+    }
+
+    #vertwo-plite-dz-upload-button {
+        border: 1px solid darkcyan;
+        color: darkcyan;
+        background: #333;
+    }
+
+    #vertwo-plite-dz-upload-button:hover {
+        color: cyan;
+        background-color: #111;
+        border: 1px solid darkcyan;
+    }
+     */
+}

@@ -341,6 +341,13 @@ class Config
     }
     
     
+    /**
+     * @param $file
+     * @param $isRequired
+     *
+     * @return array
+     * @throws Exception
+     */
     private static function loadConfigFile ( $file, $isRequired = true )
     {
         if ( !file_exists($file) || !is_readable($file) )
@@ -348,6 +355,7 @@ class Config
             if ( $isRequired )
             {
                 clog(red("Could not read config file: $file"));
+                throw new Exception("Could not load config file: $file");
             }
             else
             {

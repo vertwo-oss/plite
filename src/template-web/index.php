@@ -27,6 +27,7 @@
 
 
 use vertwo\plite\Web\WebConfig;
+use function vertwo\plite\clog;
 
 
 
@@ -36,22 +37,14 @@ require_once(__DIR__ . "/../../vendor/autoload.php"); // FIXME
 
 try
 {
+    $HAS_CONFIG    = true;
     $configWarning = "";
     WebConfig::load();
 }
 catch ( Exception $e )
 {
-    $configWarning = <<<EOF
-<h2 class="config_warning">OH NO!  No configuration found!</h2>
-
-<p>
-In the plite config files, either in the subclass config or a local
-filesystem config, create config settings with a prefix of <code>wl_</code>
-for each of the settings in in the below.  For example, create a
-setting of <code>wl_title</code> to set the HTML title of the page!
-</p>
-
-EOF;
+    clog($e);
+    $HAS_CONFIG = false;
 }
 
 
@@ -59,6 +52,46 @@ EOF;
 ?>
 <html lang="en">
 <head>
+    <link rel="preload" href="res/fonts/computer_modern/Serif/cmun-serif.css"
+          as="font"
+          onload="this.onload=null;this.rel='stylesheet'"/>
+    <link rel="stylesheet" href="res/fonts/computer_modern/Bright/cmun-bright.css"
+          as="font"
+          onload="this.onload=null;this.rel='stylesheet'"/>
+    <link rel="stylesheet" href="res/fonts/computer_modern/Concrete/cmun-concrete.css"
+          as="font"
+          onload="this.onload=null;this.rel='stylesheet'"/>
+    <link rel="stylesheet" href="res/fonts/computer_modern/Typewriter Light/cmun-typewriter-light.css"
+          as="font"
+          onload="this.onload=null;this.rel='stylesheet'"/>
+    <link rel="stylesheet" href="res/fonts/computer_modern/Bright Semibold/cmun-bright-semibold.css"
+          as="font"
+          onload="this.onload=null;this.rel='stylesheet'"/>
+    <link rel="stylesheet" href="res/fonts/computer_modern/Sans/cmun-sans.css"
+          as="font"
+          onload="this.onload=null;this.rel='stylesheet'"/>
+    <link rel="stylesheet" href="res/fonts/computer_modern/Sans Demi-Condensed/cmun-sans-demicondensed.css"
+          as="font"
+          onload="this.onload=null;this.rel='stylesheet'"/>
+    <link rel="stylesheet" href="res/fonts/computer_modern/Classical Serif Italic/cmun-classical-serif-italic.css"
+          as="font"
+          onload="this.onload=null;this.rel='stylesheet'"/>
+    <link rel="stylesheet" href="res/fonts/computer_modern/Typewriter Variable/cmun-typewriter-variable.css"
+          as="font"
+          onload="this.onload=null;this.rel='stylesheet'"/>
+    <link rel="stylesheet" href="res/fonts/computer_modern/Serif Slanted/cmun-serif-slanted.css"
+          as="font"
+          onload="this.onload=null;this.rel='stylesheet'"/>
+    <link rel="stylesheet" href="res/fonts/computer_modern/Upright Italic/cmun-upright-italic.css"
+          as="font"
+          onload="this.onload=null;this.rel='stylesheet'"/>
+    <link rel="stylesheet" href="res/fonts/computer_modern/Typewriter/cmun-typewriter.css"
+          as="font"
+          onload="this.onload=null;this.rel='stylesheet'"/>
+    <link rel="preload" href="res/fonts/font-awesome.min.css"
+          as="style"
+          onload="this.onload=null;this.rel='stylesheet'"/>
+
     <style>
         @media (prefers-color-scheme: light) {
             html {
@@ -93,7 +126,23 @@ EOF;
             }
 
             table tr td {
-                background: #fff;
+                background: linen;
+            }
+
+            #config-warning {
+                background: red;
+                color: white;
+                border-color: yellow;
+            }
+
+            #config-warning h2 {
+                color: yellow;
+            }
+
+            #config-warning code,
+            #config-warning pre {
+                background: antiquewhite;
+                color: black;
             }
         }
 
@@ -132,15 +181,32 @@ EOF;
             table tr td {
                 background: #444;
             }
+
+            #config-warning {
+                background: darkred;
+                color: #bbb;
+                border-color: #777;
+            }
+
+            #config-warning h2 {
+                color: rgba(255, 255, 0, 0.75);
+            }
+
+            #config-warning code,
+            #config-warning pre {
+                background: #222;
+                color: red;
+            }
         }
 
         html {
-            font-family: "Poppins", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
-            font-weight: 300;
+            font-family: "Computer Modern Serif", serif;
+            font-weight: 100;
+            font-size: 14pt;
         }
 
         header {
-            font-family: "Poppins", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+            font-family: "Computer Modern Bright", sans-serif;
             margin: 1em;
             font-size: 1.25em;
         }
@@ -210,8 +276,18 @@ EOF;
         #plite-dump-table {
         }
 
+        code,
+        pre,
         .kv_tile {
-            font-family: "Fira Code", "Monaco", monospace;
+            font-family: "Computer Modern Typewriter Light", monospace;
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-weight: 100;
+        }
+
+        pre,
+        .kv_tile {
+            font-size: 16pt;
         }
 
         .key_tile {
@@ -230,12 +306,30 @@ EOF;
             border-radius: 12px;
         }
 
+        .v2 {
+            font-family: "Computer Modern Bright", sans-serif;
+        }
+
+        .exists {
+            display: block;
+        }
+
+        .no-exists {
+            display: none;
+        }
+
+        #config-warning {
+            width: 60%;
+            padding: 2em;
+            border-radius: 16px;
+            border-width: 1px;
+            border-style: solid;
+            margin: 2em auto;
+            font-weight: 900;
+        }
+
     </style>
     <title><?php echo WebConfig::get("title"); ?></title>
-    <!--
-    <script src="js/lib/zepto.min.js"></script>
-    <script src="js/vertwo.js"></script>
-    -->
 </head>
 <body>
 <!-- Header -->
@@ -247,27 +341,33 @@ EOF;
 <section>
     <h1>Hello to Plite</h1>
 
-    <p>
-        Routing is disabled. Do a:
-    </p>
+    <p> Routing is disabled. Do a: </p>
 
     <pre>
     $ make routed
 </pre>
 
-    <p>
-        inside the project root dir to enable.
-    </p>
+    <p> inside the project root dir to enable. </p>
 
-    <p>
-        If you're not going to enable routing, then get rid of this page!!
-    </p>
-    
-    <?php echo $configWarning; ?>
+    <p> If you're not going to enable routing, then get rid of this page!! </p>
 
-    <div id="plite-dump">
+
+    <div id="config-warning">
+        <h2>OH NO! No configuration found!</h2>
+
+        <p>
+            In the plite config files, either in the subclass config or a local
+            filesystem config, create config settings with a prefix of <code>wl_</code>
+            for each of the settings in in the below. For example, create a
+            setting of <code>wl_title</code> to set the HTML title of the page!
+        </p>
+    </div>
+
+
+    <div id="config-table">
         <h2>Plite Configuration Parameters</h2>
         <table id="plite-dump-table">
+            
             <?php
             $map  = WebConfig::getMap();
             $html = "";
@@ -275,10 +375,10 @@ EOF;
             foreach ( $map as $k => $v )
             {
                 $row  = <<<EOF
-<tr>
-    <td><div class="kv_tile key_tile">$k</div></td>
-    <td><div class="kv_tile value_tile">$v</div></td>
-</tr>
+            <tr>
+                <td><div class="kv_tile key_tile">$k</div></td>
+                <td><div class="kv_tile value_tile">$v</div></td>
+            </tr>
 
 EOF;
                 $html .= "$row\n";
@@ -286,8 +386,11 @@ EOF;
             
             printf("%s", $html);
             ?>
+
         </table>
     </div>
+
+
 </section>
 
 <div class="separator"></div>
@@ -299,6 +402,30 @@ EOF;
 </div>
 
 </body>
+
+
+<script src="js/lib/zepto.min.js"></script>
+<script src="js/vertwo.js"></script>
 <script>
+
+
+    $(document).ready(function () {
+
+        console.log("Main Test Starting!");
+        let hasConfig = <?php echo $HAS_CONFIG ? "true" : "false"; ?>;
+
+        clog("has config? " + hasConfig);
+
+        if (hasConfig) {
+            $("#config-warning").removeClass("exists").addClass("no-exists");
+            $("#config-table").removeClass("no-exists").addClass("exists");
+        } else {
+            $("#config-table").removeClass("exists").addClass("no-exists");
+            $("#config-warning").removeClass("no-exists").addClass("exists");
+        }
+
+    });
+
+
 </script>
 </html>

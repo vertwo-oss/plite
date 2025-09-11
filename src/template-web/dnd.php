@@ -72,7 +72,7 @@ else
 <head>
     <title><?php echo WebConfig::get("title"); ?></title>
     <meta name="color-scheme" content="light dark">
-    <link href="res/vertwo-plite-dz.css" rel="stylesheet"/>
+    <link href="css/vertwo-plite-dz.css" rel="stylesheet"/>
     <style>
         @media (prefers-color-scheme: light) {
             html {
