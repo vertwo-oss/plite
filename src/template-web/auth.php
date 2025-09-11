@@ -29,6 +29,8 @@
 
 
 
+use vertwo\plite\Modules\FlatFileAuthModule;
+use vertwo\plite\Util\PrecTime;
 use vertwo\plite\Web\Web;
 use vertwo\plite\Web\WebConfig;
 use function vertwo\plite\clog;
@@ -105,13 +107,19 @@ else
                 {
                     if ( 0 == strncmp($pass1, $pass2, $p1len) )
                     {
-                        //
-                        // TODO - Actually _CREATE_ a user!
-                        // FIXME
-                        // DANGER
-                        //
-                        
-                        $web->win("Passwords match.");
+                        try
+                        {
+                            $authmod = new FlatFileAuthModule("users");
+                            $authmod->c($login, $pass1);
+                            
+                            $web->win("Users created.");
+                        }
+                        catch ( Exception $e )
+                        {
+                            clog($e);
+                            
+                            $web->fail($e->getMessage());
+                        }
                     }
                     else
                     {
@@ -137,13 +145,19 @@ else
             }
             else
             {
-                //
-                // TODO - Actually _AUTHENTICATE_ a user!
-                // FIXME
-                // DANGER
-                //
-                
-                $web->win("Auth!");
+                try
+                {
+                    $authmod = new FlatFileAuthModule("users");
+                    $isAuth  = $authmod->authenticate($login, $pass1);
+                    
+                    $web->win("User logged in.");
+                }
+                catch ( Exception $e )
+                {
+                    clog($e);
+                    
+                    $web->fail($e->getMessage());
+                }
             }
         }
     }
@@ -570,7 +584,7 @@ EOF;
                 echo <<<EOF
             <div class="cmd_signup">
                 <label>
-                    <img src="res/lock.png" alt="pass2"/>
+                    <img src="assets/images/lock.png" alt="pass2"/>
                     <input class="auth_input" name="pass2" id="pass2" type="password" placeholder="Password, again"
                            required=""/>
                 </label>
@@ -717,7 +731,7 @@ EOF;
                     $resp.removeClass('win-text');
                     $resp.addClass('fail-text');
                     isRespVisible = true;
-                    $resp.html("Login / password incorrect; please try again.");
+                    $resp.html(resp.error);
                     $pass1.val("");
                     if (isSignup) $pass2.val("");
                     $login.val("").focus();
