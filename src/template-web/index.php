@@ -200,7 +200,7 @@ catch ( Exception $e )
         }
 
         html {
-            font-family: "Computer Modern Serif", serif;
+            font-family: "Computer Modern Sans", sans-serif;
             font-weight: 100;
             font-size: 14pt;
         }
@@ -239,6 +239,7 @@ catch ( Exception $e )
         }
 
         #solid_footer {
+            font-family: "Computer Modern Bright", sans-serif;
             position: fixed;
             width: 100%;
             height: 48px;
