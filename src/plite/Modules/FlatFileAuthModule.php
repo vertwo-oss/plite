@@ -27,20 +27,38 @@ use vertwo\plite\FJ;
 use vertwo\plite\Provider\FileProvider;
 use vertwo\plite\Provider\FileProviderFactory;
 use vertwo\plite\Util\PrecTime;
+use vertwo\plite\Web\Web;
+use vertwo\plite\Web\WebUser;
 use function vertwo\plite\clog;
 
 
 
 class FlatFileAuthModule
 {
+    const SESSION_KEY_PREFIX = "_plite_user_";
+    const SESSION_KEY_ID     = self::SESSION_KEY_PREFIX . "id";
+    
+    
     /** @var FileProvider */
     private $fp;
+    
+    
+    public static function isSessionValid ()
+    {
+        return array_key_exists(self::SESSION_KEY_ID, $_SESSION);
+    }
+    
+    
+    public static function getID ()
+    {
+        return $_SESSION[self::SESSION_KEY_ID];
+    }
     
     
     /**
      * Initializes bucket containing account info (JS files).
      *
-     * @param $moduleName
+     * @param     $moduleName
      *
      * @throws Exception
      */
@@ -88,16 +106,81 @@ class FlatFileAuthModule
      * @param $id
      * @param $password
      *
-     * @return bool
+     * @return WebUser
      * @throws Exception
      */
     public function authenticate ( $id, $password )
     {
-        $info     = $this->r($id);
-        $passhash = $info["passhash"];
+        $user     = $this->r($id);
+        $passhash = $user->get("passhash");
         
         if ( !password_verify($password, $passhash) )
             throw new Exception("Login/Password incorrect.");
+        
+        ////////////////////////////////////////////////////////////////
+        //
+        //
+        // DANGER
+        // WARN
+        // MEAT
+        // NOTE - At this point, the user is authenticated.
+        //        Do session-management here.
+        //
+        // MEAT --==> Session Management Entry Point <==--
+        //
+        //
+        ////////////////////////////////////////////////////////////////
+        
+        @Web::nukeSession();
+        session_start();
+        session_regenerate_id(true);
+        
+        $sessionData = $user->getWebSessionData();
+        foreach ( $sessionData as $k => $v )
+        {
+            $sessionKey            = self::SESSION_KEY_PREFIX . $k;
+            $_SESSION[$sessionKey] = $v;
+        }
+        
+        return $user;
+    }
+    
+    
+    public static function logout ()
+    {
+        $prelen = strlen(self::SESSION_KEY_PREFIX);
+        
+        $info = [];
+        
+        foreach ( $_SESSION as $k => $v )
+        {
+            if ( 0 == strncmp($k, self::SESSION_KEY_PREFIX, $prelen) )
+            {
+                $userKey        = substr($k, $prelen);
+                $info[$userKey] = $v;
+                
+                ////////////////////////////////////////////////////////////////
+                //
+                //
+                // DANGER
+                // WARN
+                // MEAT
+                // NOTE - At this point, destroy the session user data.
+                //        Do session-management here.
+                //
+                // MEAT --==> Session Management Entry Point <==--
+                //
+                //
+                ////////////////////////////////////////////////////////////////
+                ///
+                unset($_SESSION[$k]);
+            }
+        }
+        
+        Web::nukeSession();
+        
+        $user = new WebUser($info);
+        return $user;
     }
     
     
@@ -107,7 +190,7 @@ class FlatFileAuthModule
      * @param            $newUserID
      * @param            $password
      *
-     * @return void
+     * @return WebUser
      * @throws Exception
      */
     public function c ( $newUserID, $password )
@@ -124,6 +207,8 @@ class FlatFileAuthModule
           "ctime"    => $timestamp,
         ];
         
+        $user = new WebUser($newUserInfo);
+        
         $existing = $this->readAllUserFiles();
         
         if ( array_key_exists($newUserID, $existing) )
@@ -133,6 +218,8 @@ class FlatFileAuthModule
         
         $data = FJ::js($existing) . "\n";
         $this->fp->write($totime . ".js", $data);
+        
+        return $user;
     }
     
     
@@ -141,7 +228,7 @@ class FlatFileAuthModule
      *
      * @param $id
      *
-     * @return mixed
+     * @return WebUser
      * @throws Exception
      */
     public function r ( $id )
@@ -151,7 +238,7 @@ class FlatFileAuthModule
         if ( !array_key_exists($id, $existing) )
             throw new Exception("User [$id] doesn't exist.");
         
-        return $existing[$id];
+        return new WebUser($existing[$id]);
     }
     
     
@@ -161,7 +248,7 @@ class FlatFileAuthModule
      * @param $id
      * @param $info
      *
-     * @return mixed
+     * @return WebUser
      * @throws Exception
      */
     public function u ( $id, $info )
@@ -174,6 +261,7 @@ class FlatFileAuthModule
             if ( array_key_exists($id, $js) )
             {
                 $js[$id] = $info;
+                $user    = new WebUser($js);
                 
                 //
                 // TODO - See if a "password" is being updated!
@@ -184,7 +272,7 @@ class FlatFileAuthModule
                 $data = FJ::js($js) . "\n";
                 $this->fp->write($file, $data);
                 
-                return $id;
+                return $user;
             }
         }
         

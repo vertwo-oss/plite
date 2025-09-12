@@ -30,7 +30,6 @@
 
 
 use vertwo\plite\Modules\FlatFileAuthModule;
-use vertwo\plite\Util\PrecTime;
 use vertwo\plite\Web\Web;
 use vertwo\plite\Web\WebConfig;
 use function vertwo\plite\clog;
@@ -40,9 +39,15 @@ use function vertwo\plite\clog;
 require_once(__DIR__ . "/../../vendor/autoload.php"); // FIXME (see v2web)
 
 
-
-$web = new Web();
-$web->dump();
+try
+{
+    $web = new Web();
+    $web->dump();
+}
+catch ( Exception $e )
+{
+    clog($e);
+}
 
 $cmd   = $web->testBoth("cmd");
 $login = $web->testBoth("login");
@@ -52,8 +57,12 @@ $pass2 = $web->testBoth("pass2");
 if ( false === $cmd ) $cmd = "login";
 
 $IS_SIGNUP = "signup" === $cmd;
+$IS_LOGOUT = "logout" === $cmd;
 
-clog("Is signup", $IS_SIGNUP);
+clog([
+       "Is signup" => $IS_SIGNUP,
+       "Is logout" => $IS_LOGOUT,
+     ]);
 
 //
 // Not an API call
@@ -79,6 +88,15 @@ if ( false === $login && false === $pass1 && false === $pass2 )
 //
 else
 {
+    if ( $IS_LOGOUT )
+    {
+        WebConfig::load();
+        FlatFileAuthModule::logout();
+        header("Location: .");
+        exit(0);
+    }
+    
+    
     clog("user info", [
       "login" => $login,
       "pass1" => $pass1,
@@ -110,7 +128,7 @@ else
                         try
                         {
                             $authmod = new FlatFileAuthModule("users");
-                            $authmod->c($login, $pass1);
+                            $user    = $authmod->c($login, $pass1);
                             
                             $web->win("Users created.");
                         }
@@ -148,7 +166,9 @@ else
                 try
                 {
                     $authmod = new FlatFileAuthModule("users");
-                    $isAuth  = $authmod->authenticate($login, $pass1);
+                    $user    = $authmod->authenticate($login, $pass1);
+                    
+                    clog("Logged in user", $user);
                     
                     $web->win("User logged in.");
                 }
@@ -719,7 +739,7 @@ EOF;
                     clog("Successfully logged in!");
                     clog(resp);
 
-                    let url = "dashboard";
+                    let url = "dashboard.php";
                     clog("Logging into: " + url);
 
                     setTimeout(function () {

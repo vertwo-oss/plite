@@ -12,7 +12,7 @@ use vertwo\plite\FJ;
 
 class Map implements MapInterface
 {
-    private $ar = [];
+    protected $ar = [];
     
     
     public function __construct ( $ar )

@@ -468,9 +468,9 @@ class Config
         }
         
         $sourceKey = "{$name}_provider";
-        $map       = $params->get($sourceKey);
+        $source    = $params->get($sourceKey);
         
-        return $map;
+        return $source;
     }
     
     
