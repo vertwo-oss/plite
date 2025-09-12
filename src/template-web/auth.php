@@ -39,6 +39,9 @@ use function vertwo\plite\clog;
 require_once(__DIR__ . "/../../vendor/autoload.php"); // FIXME (see v2web)
 
 
+session_start();
+
+
 try
 {
     $web = new Web();
@@ -47,6 +50,7 @@ try
 catch ( Exception $e )
 {
     clog($e);
+    FlatFileAuthModule::logout();
 }
 
 $cmd   = $web->testBoth("cmd");
@@ -64,6 +68,13 @@ clog([
        "Is logout" => $IS_LOGOUT,
      ]);
 
+if ( $IS_LOGOUT )
+{
+    FlatFileAuthModule::logout();
+    header("Location: .");
+    exit(0);
+}
+
 //
 // Not an API call
 //
@@ -74,29 +85,12 @@ if ( false === $login && false === $pass1 && false === $pass2 )
     $SWITCH_VERB = "signup" === $cmd ? "Login" : "Sign-up";
     $SWITCH_CMD  = "signup" === $cmd ? "login" : "signup";
     $MAIN_CMD    = $cmd;
-    
-    try
-    {
-        WebConfig::load();
-    }
-    catch ( Exception $e )
-    {
-    }
 }
 //
 // Just an API call, so process it, and then exit().
 //
 else
 {
-    if ( $IS_LOGOUT )
-    {
-        WebConfig::load();
-        FlatFileAuthModule::logout();
-        header("Location: .");
-        exit(0);
-    }
-    
-    
     clog("user info", [
       "login" => $login,
       "pass1" => $pass1,
@@ -131,27 +125,55 @@ else
                             $user    = $authmod->c($login, $pass1);
                             
                             $web->win("Users created.");
+    
+                            //
+                            //
+                            //
+                            //
+                            //
+                            //
+                            //
+                            //
+                            //
+                            //
+                            // DANGER
+                            // FIXME
+                            // MEAT - Actually add logic to either auto-signin, or go to signin page.
+                            //
+                            //
+                            //
+                            //
+                            //
+                            //
+                            //
+                            //
+                            //
+                            //
                         }
                         catch ( Exception $e )
                         {
                             clog($e);
                             
                             $web->fail($e->getMessage());
+                            FlatFileAuthModule::logout();
                         }
                     }
                     else
                     {
                         $web->fail("Passwords don't match.");
+                        FlatFileAuthModule::logout();
                     }
                 }
                 else
                 {
                     $web->fail("password sizes don't match");
+                    FlatFileAuthModule::logout();
                 }
             }
             else
             {
                 $web->fail("one password is empty");
+                FlatFileAuthModule::logout();
             }
         }
         else
@@ -160,6 +182,7 @@ else
             if ( $loginlen <= 0 )
             {
                 $web->fail("login is empty");
+                FlatFileAuthModule::logout();
             }
             else
             {
