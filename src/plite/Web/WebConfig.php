@@ -72,9 +72,6 @@ class WebConfig
             foreach ( $params as $pk => $v )
             {
                 $k = substr($pk, 3);
-                
-                clog($pk, $k);
-                
                 self::set($k, $v);
             }
         }
