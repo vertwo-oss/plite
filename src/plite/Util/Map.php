@@ -90,7 +90,7 @@ class Map implements MapInterface, Iterator, Countable
     }
     public function rewind ()
     {
-        $cur = 0;
+        $this->cur = 0;
     }
     public function count ()
     {
