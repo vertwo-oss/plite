@@ -32,10 +32,11 @@ use function vertwo\plite\clog;
 
 class Web
 {
+    const DEBUG_TIMESTAMP = false;
     const DEBUG_POST      = false;
     const DEBUG_GET       = false;
     const DEBUG_FILES     = true;
-    const DEBUG_TIMESTAMP = false;
+    const DEBUG_COOKIES   = true;
     
     const DEBUG_NUKE                  = true;
     const DEBUG_AJAX_RESPONSE         = true;
@@ -58,7 +59,7 @@ class Web
     {
         if ( self::DEBUG_NUKE ) clog("nukeSession - ANTE - COOKIES", $_COOKIE);
         
-        $_SESSION = [];
+        session_unset();
         
         // If it's desired to kill the session, also delete the session cookie.
         // Note: This will destroy the session, and not just the session data!
@@ -153,6 +154,8 @@ class Web
           "at.getFractionalSeconds"  => $this->at->getFractionalSeconds(),
           "now: server-request-time" => $this->now,
         ]);
+        
+        if ( self::DEBUG_COOKIES ) clog("Cookies", $_COOKIE);
         
         $this->hasFiles = isset($_FILES) && (0 < count($_FILES));
         

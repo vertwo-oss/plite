@@ -82,6 +82,7 @@ class FlatFileAuthModule
         try
         {
             $files = $this->fp->lsFiles();
+            clog("user files", $files);
         }
         catch ( Exception $e )
         {
@@ -91,10 +92,17 @@ class FlatFileAuthModule
         
         foreach ( $files as $file )
         {
-            $data  = $this->fp->read($file);
-            $js    = FJ::js($data);
+            $data = $this->fp->read($file);
+            $js   = FJ::js($data);
+            
+            clog("users ANTE", $users);
+            
             $users = array_merge($users, $js);
+            
+            clog("users POST", $users);
         }
+        
+        clog("known users", $users);
         
         return $users;
     }
@@ -131,7 +139,8 @@ class FlatFileAuthModule
         //
         ////////////////////////////////////////////////////////////////
         
-        @Web::nukeSession();
+        @Web::nukeSession(); // NOTE - there might not be a session yet, so ignore warning.
+        
         session_start();
         session_regenerate_id(true);
         
@@ -152,30 +161,19 @@ class FlatFileAuthModule
         
         $info = [];
         
-        foreach ( $_SESSION as $k => $v )
-        {
-            if ( 0 == strncmp($k, self::SESSION_KEY_PREFIX, $prelen) )
-            {
-                $userKey        = substr($k, $prelen);
-                $info[$userKey] = $v;
-                
-                ////////////////////////////////////////////////////////////////
-                //
-                //
-                // DANGER
-                // WARN
-                // MEAT
-                // NOTE - At this point, destroy the session user data.
-                //        Do session-management here.
-                //
-                // MEAT --==> Session Management Entry Point <==--
-                //
-                //
-                ////////////////////////////////////////////////////////////////
-                ///
-                unset($_SESSION[$k]);
-            }
-        }
+        ////////////////////////////////////////////////////////////////
+        //
+        //
+        // DANGER
+        // WARN
+        // MEAT
+        // NOTE - At this point, destroy the session user data.
+        //        Do session-management here.
+        //
+        // MEAT --==> Session Management Entry Point <==--
+        //
+        //
+        ////////////////////////////////////////////////////////////////
         
         Web::nukeSession();
         
@@ -214,10 +212,14 @@ class FlatFileAuthModule
         if ( array_key_exists($newUserID, $existing) )
             throw new Exception("User [$newUserID] already exists.");
         
-        $existing[$newUserID] = $newUserInfo;
+        $newUserEntry = [
+          $newUserID => $newUserInfo,
+        ];
         
-        $data = FJ::js($existing) . "\n";
-        $this->fp->write($totime . ".js", $data);
+        $newdata = FJ::js($newUserEntry) . "\n";
+        $newfile = $totime . ".js";
+        
+        $this->fp->write($newfile, $newdata);
         
         return $user;
     }
