@@ -28,6 +28,7 @@
 
 use vertwo\plite\FJ;
 use vertwo\plite\Modules\FlatFileAuthModule;
+use vertwo\plite\Web\Web;
 use vertwo\plite\Web\WebConfig;
 use function vertwo\plite\clog;
 
@@ -39,7 +40,7 @@ require_once(__DIR__ . "/../../vendor/autoload.php"); // FIXME
 
 try
 {
-    WebConfig::load();
+    $web = new Web();
 }
 catch ( Exception $e )
 {
