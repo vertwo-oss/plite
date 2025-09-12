@@ -24,6 +24,8 @@ namespace vertwo\plite;
 
 
 use Exception;
+use Iterator;
+use vertwo\plite\Util\Map;
 use vertwo\plite\Util\PrecTime;
 use vertwo\plite\Util\Wired;
 
@@ -180,7 +182,7 @@ abstract class Log
             return;
         }
         
-        if ( is_array($val) )
+        if ( is_array($val) || ($val instanceof Iterator) )
         {
             $descString = (0 == strlen($key)) ? "[]" : "$key []";
             
@@ -240,13 +242,16 @@ abstract class Log
      *
      * Pretty-prints an array object.
      *
+     * NOTE - This is where everything happens.
+     * MEAT - This is where everything happens.
+     *
      * Handles recursively defined arrays.
      *
-     * @param string $prefix
-     * @param string $desc - Description to be printed above array
-     *                     contents.
-     * @param array  $item
-     * @param int    $depth
+     * @param string    $prefix
+     * @param string    $desc - Description to be printed above array
+     *                        contents.
+     * @param array|Map $item
+     * @param int       $depth
      *
      * ****************************************************************
      */
@@ -270,7 +275,8 @@ abstract class Log
             return;
         }
         
-        $arKeys = array_keys($item);
+        $arKeys = is_array($item) ? array_keys($item) : $item->keys();
+        
         if ( is_int($arKeys[0]) )
         {
             $padding   = ceil(log10($count));

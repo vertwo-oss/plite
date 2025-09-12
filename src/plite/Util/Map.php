@@ -6,11 +6,14 @@ namespace vertwo\plite\Util;
 
 
 
+use Countable;
+use Iterator;
 use vertwo\plite\FJ;
+use function vertwo\plite\clog;
 
 
 
-class Map implements MapInterface
+class Map implements MapInterface, Iterator, Countable
 {
     protected $ar = [];
     
@@ -21,10 +24,7 @@ class Map implements MapInterface
     }
     
     
-    public function dump ( $mesg = false )
-    {
-        clog($mesg, $this->ar);
-    }
+    public function array () { return FJ::deepCopy($this->ar); }
     
     
     public function has ( $key )
@@ -40,6 +40,9 @@ class Map implements MapInterface
     }
     
     
+    public function keys () { return array_keys($this->ar); }
+    
+    
     public function getWithPrefix ( $prefix )
     {
         $keys   = array_keys($this->ar);
@@ -50,7 +53,7 @@ class Map implements MapInterface
         {
             if ( 0 == strncasecmp($prefix, $key, $prelen) )
             {
-                $submap[$key] = self::$PARAMS[$key];
+                $submap[$key] = $this->ar[$key];
             }
         }
         
@@ -61,5 +64,36 @@ class Map implements MapInterface
     public function matches ( $key, $targetValue )
     {
         return $this->has($key) && $targetValue === $this->get($key);
+    }
+    
+    
+    
+    
+    private $cur = 0;
+    
+    public function current ()
+    {
+        return $this->ar[$this->key()];
+    }
+    public function next ()
+    {
+        ++$this->cur;
+    }
+    public function key ()
+    {
+        $keys = array_keys($this->ar);
+        return $keys[$this->cur];
+    }
+    public function valid ()
+    {
+        return $this->cur < $this->count();
+    }
+    public function rewind ()
+    {
+        $cur = 0;
+    }
+    public function count ()
+    {
+        return count($this->ar);
     }
 }
