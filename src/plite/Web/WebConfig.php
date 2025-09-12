@@ -65,10 +65,6 @@ class WebConfig
             
             clog("Web config params", $params);
             
-            //$params->dump("web config params");
-            
-            //$params = $params->array(); // FIXME - Convert to iterable (or something)
-            
             foreach ( $params as $pk => $v )
             {
                 $k = substr($pk, 3);
