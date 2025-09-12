@@ -61,12 +61,21 @@ class WebConfig
     {
         try
         {
-            Config::load(); // This isn't strictly necessary, but is hygienic.
+            $params = Config::getWithPrefix("wl_");
             
-            foreach ( array_keys(self::$map) as $key )
+            clog("Web config params", $params);
+            
+            //$params->dump("web config params");
+            
+            //$params = $params->array(); // FIXME - Convert to iterable (or something)
+            
+            foreach ( $params as $pk => $v )
             {
-                $val = Config::get("wl_" . $key);
-                self::set($key, $val);
+                $k = substr($pk, 3);
+                
+                clog($pk, $k);
+                
+                self::set($k, $v);
             }
         }
         catch ( Exception $e )
