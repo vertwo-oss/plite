@@ -125,7 +125,7 @@ else
                             $user    = $authmod->c($login, $pass1);
                             
                             $web->win("Users created.");
-    
+                            
                             //
                             //
                             //
@@ -219,40 +219,40 @@ else
     <link rel="preload" href="assets/fonts/computer_modern/Serif/cmun-serif.css"
           as="font"
           onload="this.onload=null;this.rel='stylesheet'"/>
-    <link rel="stylesheet" href="assets/fonts/computer_modern/Bright/cmun-bright.css"
+    <link rel="preload" href="assets/fonts/computer_modern/Bright/cmun-bright.css"
           as="font"
           onload="this.onload=null;this.rel='stylesheet'"/>
-    <link rel="stylesheet" href="assets/fonts/computer_modern/Concrete/cmun-concrete.css"
+    <link rel="preload" href="assets/fonts/computer_modern/Concrete/cmun-concrete.css"
           as="font"
           onload="this.onload=null;this.rel='stylesheet'"/>
-    <link rel="stylesheet" href="assets/fonts/computer_modern/Typewriter Light/cmun-typewriter-light.css"
+    <link rel="preload" href="assets/fonts/computer_modern/Typewriter Light/cmun-typewriter-light.css"
           as="font"
           onload="this.onload=null;this.rel='stylesheet'"/>
-    <link rel="stylesheet" href="assets/fonts/computer_modern/Bright Semibold/cmun-bright-semibold.css"
+    <link rel="preload" href="assets/fonts/computer_modern/Bright Semibold/cmun-bright-semibold.css"
           as="font"
           onload="this.onload=null;this.rel='stylesheet'"/>
-    <link rel="stylesheet" href="assets/fonts/computer_modern/Sans/cmun-sans.css"
+    <link rel="preload" href="assets/fonts/computer_modern/Sans/cmun-sans.css"
           as="font"
           onload="this.onload=null;this.rel='stylesheet'"/>
-    <link rel="stylesheet" href="assets/fonts/computer_modern/Sans Demi-Condensed/cmun-sans-demicondensed.css"
+    <link rel="preload" href="assets/fonts/computer_modern/Sans Demi-Condensed/cmun-sans-demicondensed.css"
           as="font"
           onload="this.onload=null;this.rel='stylesheet'"/>
-    <link rel="stylesheet" href="assets/fonts/computer_modern/Classical Serif Italic/cmun-classical-serif-italic.css"
+    <link rel="preload" href="assets/fonts/computer_modern/Classical Serif Italic/cmun-classical-serif-italic.css"
           as="font"
           onload="this.onload=null;this.rel='stylesheet'"/>
-    <link rel="stylesheet" href="assets/fonts/computer_modern/Typewriter Variable/cmun-typewriter-variable.css"
+    <link rel="preload" href="assets/fonts/computer_modern/Typewriter Variable/cmun-typewriter-variable.css"
           as="font"
           onload="this.onload=null;this.rel='stylesheet'"/>
-    <link rel="stylesheet" href="assets/fonts/computer_modern/Serif Slanted/cmun-serif-slanted.css"
+    <link rel="preload" href="assets/fonts/computer_modern/Serif Slanted/cmun-serif-slanted.css"
           as="font"
           onload="this.onload=null;this.rel='stylesheet'"/>
-    <link rel="stylesheet" href="assets/fonts/computer_modern/Upright Italic/cmun-upright-italic.css"
+    <link rel="preload" href="assets/fonts/computer_modern/Upright Italic/cmun-upright-italic.css"
           as="font"
           onload="this.onload=null;this.rel='stylesheet'"/>
-    <link rel="stylesheet" href="assets/fonts/computer_modern/Typewriter/cmun-typewriter.css"
+    <link rel="preload" href="assets/fonts/computer_modern/Typewriter/cmun-typewriter.css"
           as="font"
           onload="this.onload=null;this.rel='stylesheet'"/>
-    <link rel="preload" href="assets/css/font-awesome.min.css"
+    <link rel="preload" href="assets/lib/font-awesome/css/font-awesome.min.css"
           as="style"
           onload="this.onload=null;this.rel='stylesheet'"/>
     <style>
@@ -762,7 +762,7 @@ EOF;
                     clog("Successfully logged in!");
                     clog(resp);
 
-                    let url = "dashboard.php";
+                    let url = "profile.php";
                     clog("Logging into: " + url);
 
                     setTimeout(function () {
