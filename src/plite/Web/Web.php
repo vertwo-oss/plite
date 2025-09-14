@@ -140,6 +140,12 @@ class Web
      */
     public function __construct ( $apiName = null, $jsonInput = null )
     {
+        // Enable secure session handling
+        ini_set('session.cookie_secure', 1);
+        ini_set('session.cookie_httponly', 1);
+        
+        session_start();
+        
         WebConfig::load();
         
         $this->now = $_SERVER['REQUEST_TIME'];
