@@ -318,7 +318,7 @@ abstract class Log
             $pre = sprintf($preFormat, $key);
             $pre = self::color($keyColor, $pre);
             
-            if ( is_array($val) )
+            if ( is_array($val) || ($val instanceof Iterator) )
             {
                 $post = self::cyan("[]");
                 $str  = $pre . $post;
