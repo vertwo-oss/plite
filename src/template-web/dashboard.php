@@ -48,7 +48,6 @@ catch ( Exception $e )
 }
 
 
-session_start();
 if ( FlatFileAuthModule::isSessionValid() )
 {
     $IS_AUTH = true;
