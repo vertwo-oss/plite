@@ -141,7 +141,10 @@ class Web
     public function __construct ( $apiName = null, $jsonInput = null )
     {
         // Enable secure session handling
-        ini_set('session.cookie_secure', 1);
+        //
+        // NOTE - Safari broken: https://stackoverflow.com/questions/58525719/safari-not-sending-cookie-even-after-setting-samesite-none-secure
+        //
+        //ini_set('session.cookie_secure', 1); // NOTE - Does not work on Safari.  Figure out localhost workaround.
         ini_set('session.cookie_httponly', 1);
         
         session_start();
