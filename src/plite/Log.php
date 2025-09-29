@@ -85,15 +85,6 @@ abstract class Log
     const TEXT_COLOR_SUFFIX = "\033[0m"; // NOTE -- This closes the ANSI escape sequence!
     
     
-    const CLOG_ALT_FILE_DIRS = [
-      "/Users/srv/www/logs",  // macOS root filesystem is read-only now...so moving to /Users
-      "/srv/www/logs",        // Orig dev
-      "/var/log/apache2",     // New apache
-      "/var/log/apache",      // Old apache
-      "/var/log/httpd",       // Alt apache
-    ];
-    
-    
     
     abstract protected static function _outputLog ( $mesg );
     
