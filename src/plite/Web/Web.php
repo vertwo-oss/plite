@@ -27,6 +27,7 @@ use vertwo\plite\FJ;
 use vertwo\plite\Log;
 use vertwo\plite\Util\PrecTime;
 use function vertwo\plite\clog;
+use function vertwo\plite\yel;
 
 
 
@@ -48,6 +49,10 @@ class Web
     
     
     
+    public static function cookie () { return session_get_cookie_params(); }
+    
+    
+    
     /**
      * ************************************************************
      *
@@ -57,7 +62,7 @@ class Web
      */
     public static function nukeSession ()
     {
-        if ( self::DEBUG_NUKE ) clog("nukeSession - ANTE - COOKIES", $_COOKIE);
+        if ( self::DEBUG_NUKE ) clog("nukeSession - ANTE - COOKIES", self::cookie());
         
         session_unset();
         
@@ -75,7 +80,7 @@ class Web
         
         session_destroy();
         
-        if ( self::DEBUG_NUKE ) clog("nukeSession - POST - COOKIES", $_COOKIE);
+        if ( self::DEBUG_NUKE ) clog("nukeSession - POST - COOKIES", self::cookie());
     }
     function nuke () { self::nukeSession(); }
     
@@ -105,11 +110,12 @@ class Web
     protected $get       = [];
     protected $jsonInput = [];
     
-    protected $now     = null;
-    protected $at      = null;
-    protected $success = false;
-    protected $mesg    = null;
-    protected $data    = [];
+    protected $now         = null;
+    protected $at          = null;
+    protected $success     = false;
+    protected $mesg        = null;
+    protected $data        = [];
+    protected $isLocalhost = false;
     
     protected $apiName      = "?";
     protected $hasResponded = false;
@@ -140,14 +146,102 @@ class Web
      */
     public function __construct ( $apiName = null, $jsonInput = null )
     {
+        $server            = strtolower($_SERVER["HTTP_HOST"]);
+        $this->isLocalhost = "localhost" === $server || "127.0.0.1" === $server;
+        $isProd            = !$this->isLocalhost;
+        
+        //
         // Enable secure session handling
         //
-        // NOTE - Safari broken: https://stackoverflow.com/questions/58525719/safari-not-sending-cookie-even-after-setting-samesite-none-secure
+        // NOTE - Safari broken (see below for excerpt):
         //
-        //ini_set('session.cookie_secure', 1); // NOTE - Does not work on Safari.  Figure out localhost workaround.
+        // * https://stackoverflow.com/questions/58525719/safari-not-sending-cookie-even-after-setting-samesite-none-secure
+        //
+        ini_set('session.cookie_secure', 1); // NOTE - Does not work on Safari.  Figure out localhost workaround.
         ini_set('session.cookie_httponly', 1);
         
+        /*
+         * The issue is not about Safari sending or not the cookie,
+         * it's about Safari not storing the cookie.
+         *
+         * This is related to a specific combination of cookie config,
+         * it's working with this setup for localhost:
+         *
+         * Set-Cookie: your=cookie;
+         *             Domain=localhost;
+         *             Path=/;
+         *             Expires=Mon, 26 Dec 2022 12:53:02 GMT;
+         *             HttpOnly;
+         *             SameSite=Lax
+         *
+         * and this setup for prod:
+         *
+         * set-cookie: your=cookie;
+         *             Domain=something.com;
+         *             Path=/;
+         *             Expires=Thu, 22 Dec 2022 04:17:44 GMT;
+         *             HttpOnly;
+         *             Secure;
+         *             SameSite=Lax
+         *
+         * you need to include Domain on both and Secure for your
+         * prod (ssl) env. You can use different values for
+         * SameSite but Lax is what works for me
+         */
+        
+        $samesite    = 'Lax';
+        $maxlifetime = time() +
+          180 /* days */ * 24 /* hours/day */ * 60 /* min/hr */ * 60 /* sec/min */
+        ;
+        
+        if ( $isProd )
+        {
+            //
+            // PROD environment
+            //
+            $secure   = true; // if you only want to receive the cookie over HTTPS
+            $httponly = true; // prevent JavaScript access to session cookie
+        }
+        else
+        {
+            //
+            // DEV (localhost/127.0.0.1) env
+            //
+            $secure   = false;
+            $httponly = true;
+        }
+        
+        //
+        // Set cookie params
+        //
+        if ( PHP_VERSION_ID < 70300 ) // NOTE - Is this really necessary??
+        {
+            session_set_cookie_params(
+              $maxlifetime,
+              '/; samesite=' . $samesite,
+              $_SERVER['HTTP_HOST'],
+              $secure,
+              $httponly
+            );
+        }
+        else
+        {
+            session_set_cookie_params(
+              [
+                'lifetime' => $maxlifetime,
+                'path'     => '/',
+                'domain'   => $_SERVER['HTTP_HOST'],
+                'secure'   => $secure,
+                'httponly' => $httponly,
+                'samesite' => $samesite,
+              ]
+            );
+        }
+        
         session_start();
+        
+        clog("_SESSION      (post setting cookie params)", $_SESSION);
+        clog("COOKIE params (post setting cookie params)", self::cookie());
         
         WebConfig::load();
         
@@ -164,7 +258,7 @@ class Web
           "now: server-request-time" => $this->now,
         ]);
         
-        if ( self::DEBUG_COOKIES ) clog("Cookies", $_COOKIE);
+        if ( self::DEBUG_COOKIES ) clog("Cookies", self::cookie());
         
         $this->hasFiles = isset($_FILES) && (0 < count($_FILES));
         
@@ -205,6 +299,8 @@ class Web
     
     
     
+    public function isLocalhost () { return $this->isLocalhost; }
+    public function isProd () { return !$this->isLocalhost(); }
     public function isAWSWorkerEnv () { return $this->isElasticBeanstalkWorkerEnv; }
     
     
@@ -453,12 +549,12 @@ class Web
     
     
     
-    /**
-     * Detects if script is called via 'localhost' server name.
-     *
-     * @return bool - (true) if 'localhost'; (false) otherwise.
-     */
-    public function isLocalhost () { return isset($_SERVER['SERVER_NAME']) && ("localhost" === $_SERVER['SERVER_NAME']); }
+    ///**
+    // * Detects if script is called via 'localhost' server name.
+    // *
+    // * @return bool - (true) if 'localhost'; (false) otherwise.
+    // */
+    //public function isLocalhost () { return isset($_SERVER['SERVER_NAME']) && ("localhost" === $_SERVER['SERVER_NAME']); }
     
     
     
