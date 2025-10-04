@@ -50,6 +50,37 @@ class Web
     
     
     public static function cookie () { return session_get_cookie_params(); }
+    public static function dumpCookie ( $mesg = false )
+    {
+        $cookie = self::cookie();
+        $expiry = $cookie['lifetime'];
+        $now    = time();
+        $delta  = $expiry - $now;
+        
+        if ( 0 == $delta )
+        {
+            $timemesg = "exactly now";
+        }
+        else if ( $delta < 0 )
+        {
+            $timemesg = "already expired ($delta sec ago)";
+        }
+        else
+        {
+            $timemesg = "not yet expired (in $delta sec)";
+        }
+        
+        if ( false === $mesg || strlen($mesg) <= 0 )
+        {
+            $mesg = $timemesg;
+        }
+        else
+        {
+            $mesg = $mesg . " ($timemesg)";
+        }
+        
+        clog($mesg, $cookie);
+    }
     
     
     
@@ -62,7 +93,8 @@ class Web
      */
     public static function nukeSession ()
     {
-        if ( self::DEBUG_NUKE ) clog("nukeSession - ANTE - COOKIES", self::cookie());
+        if ( self::DEBUG_NUKE ) self::dumpCookie("nukeSession - ANTE");
+        
         
         session_unset();
         
@@ -80,7 +112,7 @@ class Web
         
         session_destroy();
         
-        if ( self::DEBUG_NUKE ) clog("nukeSession - POST - COOKIES", self::cookie());
+        if ( self::DEBUG_NUKE ) self::dumpCookie("nukeSession - POST");
     }
     function nuke () { self::nukeSession(); }
     
@@ -241,7 +273,7 @@ class Web
         session_start();
         
         clog("_SESSION      (post setting cookie params)", $_SESSION);
-        clog("COOKIE params (post setting cookie params)", self::cookie());
+        self::dumpCookie("(post setting cookie params)");
         
         WebConfig::load();
         
@@ -258,7 +290,7 @@ class Web
           "now: server-request-time" => $this->now,
         ]);
         
-        if ( self::DEBUG_COOKIES ) clog("Cookies", self::cookie());
+        if ( self::DEBUG_COOKIES ) self::dumpCookie();
         
         $this->hasFiles = isset($_FILES) && (0 < count($_FILES));
         
