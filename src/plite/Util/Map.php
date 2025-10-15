@@ -71,27 +71,45 @@ class Map implements MapInterface, Iterator, Countable
     
     private $cur = 0;
     
+    /**
+     * @return mixed
+     */
     public function current ()
     {
         return $this->ar[$this->key()];
     }
+    /**
+     * @return void
+     */
     public function next ()
     {
         ++$this->cur;
     }
+    /**
+     * @return mixed
+     */
     public function key ()
     {
         $keys = array_keys($this->ar);
         return $keys[$this->cur];
     }
+    /**
+     * @return bool
+     */
     public function valid ()
     {
         return $this->cur < $this->count();
     }
+    /**
+     * @return void
+     */
     public function rewind ()
     {
         $this->cur = 0;
     }
+    /**
+     * @return int
+     */
     public function count ()
     {
         return count($this->ar);
