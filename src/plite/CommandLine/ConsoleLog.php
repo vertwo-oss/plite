@@ -32,4 +32,10 @@ class ConsoleLog extends Log
     {
         echo($mesg . "\n");
     }
+    
+    
+    protected static function _errorLog ( $mesg )
+    {
+        fwrite(STDERR, $mesg);
+    }
 }

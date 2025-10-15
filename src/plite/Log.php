@@ -87,6 +87,7 @@ abstract class Log
     
     
     abstract protected static function _outputLog ( $mesg );
+    abstract protected static function _errorLog ( $mesg );
     
     
     /**
@@ -341,7 +342,7 @@ abstract class Log
     
     /**
      * ****************************************************************
-     * Pretty-prints and Exception object.
+     * Pretty-prints an Exception object.
      *
      * @param Exception $ex
      * ****************************************************************
@@ -392,7 +393,8 @@ abstract class Log
             
             $str = sprintf("%3d) %s%-{$exceptionLineGap}s - (%s)", $depth, "", $caller, $mesg);
             $str = self::bgred($str);
-            self::log($str);
+            //self::log($str);
+            self::error($str);
         }
     }
     

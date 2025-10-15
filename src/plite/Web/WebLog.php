@@ -53,6 +53,7 @@ class WebLog extends Log
         if ( self::isFileOpen() ) @fwrite(self::$logfp, $mesg . "\n");
         else error_log($mesg);
     }
+    protected static function _errorLog ( $mesg ) { self::_outputLog($mesg); }
     
     
     /**
