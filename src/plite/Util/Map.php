@@ -17,9 +17,9 @@ class Map implements MapInterface, Iterator, Countable
     protected $ar = [];
     
     
-    public function __construct ( $ar )
+    public function __construct ( $ar = false )
     {
-        $this->ar = FJ::deepCopy($ar);
+        $this->ar = false === $ar ? [] : FJ::deepCopy($ar);
     }
     
     
