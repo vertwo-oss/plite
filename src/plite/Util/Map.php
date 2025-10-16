@@ -9,7 +9,6 @@ namespace vertwo\plite\Util;
 use Countable;
 use Iterator;
 use vertwo\plite\FJ;
-use function vertwo\plite\clog;
 
 
 
@@ -25,6 +24,11 @@ class Map implements MapInterface, Iterator, Countable
     
     
     public function array () { return FJ::deepCopy($this->ar); }
+    
+    
+    public function put ( $k, $v ) { $this->ar[$k] = $v; }
+    public function remove ( $k ) { unset($this->ar[$k]); }
+    public function delete ( $k ) { $this->remove($k); }
     
     
     public function has ( $key )
