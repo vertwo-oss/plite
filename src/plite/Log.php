@@ -393,8 +393,13 @@ abstract class Log
             
             $str = sprintf("%3d) %s%-{$exceptionLineGap}s - (%s)", $depth, "", $caller, $mesg);
             $str = self::bgred($str);
-            //self::log($str);
-            self::error($str);
+            
+            //
+            // NOTE - Fix this later, when we figure out CLI error handling.
+            //
+            
+            self::log($str);
+            //self::error($str);
         }
     }
     
